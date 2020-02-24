@@ -1,18 +1,39 @@
 package com.progym.model;
 
 
+import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "client")
 public class Client {
+	
+	
+	public Client() {		
+	}
+
+	
+	public Client(String name, String mobile, String gender, String birthDate, String remarks,
+			List<PackageDetails> packageDetails) {
+		super();
+		this.name = name;
+		this.mobile = mobile;
+		this.gender = gender;
+		this.birthDate = birthDate;
+		this.remarks = remarks;
+		this.packageDetails = packageDetails;
+	}
+
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,53 +46,80 @@ public class Client {
     private String mobile;
 	
 	@Column
-    private String sex;
+    private String gender;
    
+	@Column
+	private String birthDate;
+	
+	@Column
+	private String remarks;
+	
+	//private byte[] photo;
+	
+	@OneToMany(cascade=CascadeType.ALL)
+	@JoinColumn(name="CLIENT_ID")
+	private List<PackageDetails> packageDetails;
 
-    public Client() {
-		super();
-		// TODO Auto-generated constructor stub
+	public int getId() {
+		return id;
 	}
 
-	public Client(String name, String mobile, String sex) {
-		super();
-		this.name = name;
-		this.mobile = mobile;
-		this.sex = sex;
-	}
 
 	public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
+		this.id = id;
+	}
 
 
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
+	public String getName() {
+		return name;
+	}
 
 
-    public String getSex() {
-        return sex;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public String getMobile() {
+		return mobile;
+	}
+
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+
+	public String getGender() {
+		return gender;
+	}
+
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
+
+	public List<PackageDetails> getPackageDetails() {
+		return packageDetails;
+	}
+
+
+	public void setPackageDetails(List<PackageDetails> packageDetails) {
+		this.packageDetails = packageDetails;
+	}
+	
+	
+		
     
 }

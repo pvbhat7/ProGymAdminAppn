@@ -33,7 +33,7 @@ public class UserDaoImpl implements UserDao {
   
     public Client validateUser(Login login) {
     	Client c = new Client();
-    	c.setName("prashant");;
+    	c.setName("prashant");
     return c;
     }
   

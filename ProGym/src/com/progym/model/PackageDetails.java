@@ -2,73 +2,97 @@ package com.progym.model;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 
+@Entity
 public class PackageDetails {
 
+	
+	public PackageDetails() {		
+	}
+	
+	public PackageDetails(Client client, String packageStartDate, CPackage cPackage, String clientPackageStatus,
+			Double amountPaid) {
+		super();
+		this.client = client;
+		this.packageStartDate = packageStartDate;
+		this.cPackage = cPackage;
+		this.clientPackageStatus = clientPackageStatus;
+		this.amountPaid = amountPaid;
+	}
+
+
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    
+    @ManyToOne
+    private Client client;
 
-    String startDate;
+    @Column
+    private String packageStartDate;
 
-    public CPackage cPackage;
+    @OneToOne
+    @JoinColumn(name="PACKAGE_ID")
+    private CPackage cPackage;
 
-    String status;
+    @Column
+    private String clientPackageStatus;
 
-    Double amountPaid;
+    @Column
+    private Double amountPaid;
 
-    public int cliendId;
+	public Client getClient() {
+		return client;
+	}
 
+	public void setClient(Client client) {
+		this.client = client;
+	}
 
+	public String getPackageStartDate() {
+		return packageStartDate;
+	}
 
+	public void setPackageStartDate(String packageStartDate) {
+		this.packageStartDate = packageStartDate;
+	}
 
+	public CPackage getcPackage() {
+		return cPackage;
+	}
 
-    public int getCliendId() {
-        return cliendId;
-    }
+	public void setcPackage(CPackage cPackage) {
+		this.cPackage = cPackage;
+	}
 
-    public void setCliendId(int cliendId) {
-        this.cliendId = cliendId;
-    }
+	public String getClientPackageStatus() {
+		return clientPackageStatus;
+	}
 
-    public Double getAmountPaid() {
-        return amountPaid;
-    }
+	public void setClientPackageStatus(String clientPackageStatus) {
+		this.clientPackageStatus = clientPackageStatus;
+	}
 
-    public void setAmountPaid(Double amountPaid) {
-        this.amountPaid = amountPaid;
-    }
+	public Double getAmountPaid() {
+		return amountPaid;
+	}
 
-    public int getId() {
-        return id;
-    }
+	public void setAmountPaid(Double amountPaid) {
+		this.amountPaid = amountPaid;
+	}
+    
+    
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-
-    public void setcPackage(CPackage cPackage) {
-        this.cPackage = cPackage;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public CPackage getcPackage() {
-        return cPackage;
-    }
-
-    public String getStatus() {
-        return status;
-    }
+    
 }

@@ -197,7 +197,7 @@
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <div class="breadcome-list">
                                 <div class="row">
-                                   <marquee><img src="img/progym.png" alt="" width="50" height="20" /> ProGym Kolhapur<img src="img/progym.png" alt="" width="50" height="20" /></marquee>
+                                   <!-- <marquee><img src="img/progym.png" alt="" width="50" height="20" /> ProGym Kolhapur<img src="img/progym.png" alt="" width="50" height="20" /></marquee> -->
                                 </div>
                             </div>
                         </div>

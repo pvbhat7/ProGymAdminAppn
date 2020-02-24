@@ -1,80 +1,110 @@
 package com.progym.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
-
-
+@Entity
 public class CPackage {
 
-    private int packageId;
+	public CPackage() {		
+	}
 
-    Double fees;
 
-    String packageName;
+	public CPackage(Double fees, String packageName, Integer days, String gender, String packageCategory) {
+		super();
+		this.fees = fees;
+		this.packageName = packageName;
+		this.days = days;
+		this.gender = gender;
+		this.packageCategory = packageCategory;
+		this.packageDetails = packageDetails;
+	}
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int Id;
 
-    Integer days;
+	@Column
+    private Double fees;
 
-    String sex;
+	@Column
+    private String packageName;
 
-    String packageCategory;
+	@Column
+    private Integer days;
+
+	@Column
+    private String gender;
+
+	@Column
+    private String packageCategory;
     
-    public CPackage(){
+    @OneToOne(mappedBy = "cPackage")
+    private PackageDetails packageDetails;
 
-    }
+	public Double getFees() {
+		return fees;
+	}
 
 
+	public void setFees(Double fees) {
+		this.fees = fees;
+	}
 
-    public CPackage(String packageCategory,String packageName, Integer days,Double fees ) {
-        this.fees = fees;
-        this.packageName = packageName;
-        this.days = days;
-        this.packageCategory = packageCategory;
-    }
 
-    public void setPackageId(int packageId) {
-        this.packageId = packageId;
-    }
+	public String getPackageName() {
+		return packageName;
+	}
 
-    public void setFees(Double fees) {
-        this.fees = fees;
-    }
 
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
 
-    public void setDays(Integer days) {
-        this.days = days;
-    }
 
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
+	public Integer getDays() {
+		return days;
+	}
 
-    public void setPackageCategory(String packageCategory) {
-        this.packageCategory = packageCategory;
-    }
 
-    public int getPackageId() {
-        return packageId;
-    }
+	public void setDays(Integer days) {
+		this.days = days;
+	}
 
-    public Double getFees() {
-        return fees;
-    }
 
-    public String getPackageName() {
-        return packageName;
-    }
+	public String getGender() {
+		return gender;
+	}
 
-    public Integer getDays() {
-        return days;
-    }
 
-    public String getSex() {
-        return sex;
-    }
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
 
-    public String getPackageCategory() {
-        return packageCategory;
-    }
+
+	public String getPackageCategory() {
+		return packageCategory;
+	}
+
+
+	public void setPackageCategory(String packageCategory) {
+		this.packageCategory = packageCategory;
+	}
+
+
+	public PackageDetails getPackageDetails() {
+		return packageDetails;
+	}
+
+
+	public void setPackageDetails(PackageDetails packageDetails) {
+		this.packageDetails = packageDetails;
+	}
+    
+    
+    
 }
