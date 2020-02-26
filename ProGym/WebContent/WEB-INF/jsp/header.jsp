@@ -30,3 +30,5 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css1/responsive.css">
     <script src="js1/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="css1/buttons.css">
+    

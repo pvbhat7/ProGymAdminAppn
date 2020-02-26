@@ -6,24 +6,26 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "t_cpackage")
 public class CPackage {
 
 	public CPackage() {		
 	}
 
-
-	public CPackage(Double fees, String packageName, Integer days, String gender, String packageCategory) {
+	
+	public CPackage(Double fees, String packageName, Integer days, String gender,String discontinue) {
 		super();
 		this.fees = fees;
 		this.packageName = packageName;
 		this.days = days;
 		this.gender = gender;
-		this.packageCategory = packageCategory;
-		this.packageDetails = packageDetails;
+		this.discontinue = discontinue;
 	}
-	
+
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Id;
@@ -40,11 +42,11 @@ public class CPackage {
 	@Column
     private String gender;
 
-	@Column
-    private String packageCategory;
-    
-    @OneToOne(mappedBy = "cPackage")
+	@OneToOne(mappedBy = "cPackage")
     private PackageDetails packageDetails;
+	
+	@Column
+	private String discontinue;
 
 	public Double getFees() {
 		return fees;
@@ -86,16 +88,6 @@ public class CPackage {
 	}
 
 
-	public String getPackageCategory() {
-		return packageCategory;
-	}
-
-
-	public void setPackageCategory(String packageCategory) {
-		this.packageCategory = packageCategory;
-	}
-
-
 	public PackageDetails getPackageDetails() {
 		return packageDetails;
 	}
@@ -104,6 +96,16 @@ public class CPackage {
 	public void setPackageDetails(PackageDetails packageDetails) {
 		this.packageDetails = packageDetails;
 	}
+
+	public String getDiscontinue() {
+		return discontinue;
+	}
+
+	public void setDiscontinue(String discontinue) {
+		this.discontinue = discontinue;
+	}
+	
+	
     
     
     

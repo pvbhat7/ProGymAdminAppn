@@ -15,7 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "client")
+@Table(name = "t_client")
 public class Client {
 	
 	
@@ -23,7 +23,9 @@ public class Client {
 	}
 
 	
-	public Client(String name, String mobile, String gender, String birthDate, String remarks,
+	
+
+	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discountinue,
 			List<PackageDetails> packageDetails) {
 		super();
 		this.name = name;
@@ -31,8 +33,11 @@ public class Client {
 		this.gender = gender;
 		this.birthDate = birthDate;
 		this.remarks = remarks;
+		this.discountinue = discountinue;
 		this.packageDetails = packageDetails;
 	}
+
+
 
 
 	@Id
@@ -53,6 +58,9 @@ public class Client {
 	
 	@Column
 	private String remarks;
+	
+	@Column
+	private String discountinue;
 	
 	//private byte[] photo;
 	
@@ -118,6 +126,28 @@ public class Client {
 	public void setPackageDetails(List<PackageDetails> packageDetails) {
 		this.packageDetails = packageDetails;
 	}
+
+
+	public String getBirthDate() {
+		return birthDate;
+	}
+
+
+	public void setBirthDate(String birthDate) {
+		this.birthDate = birthDate;
+	}
+
+
+	public String getDiscountinue() {
+		return discountinue;
+	}
+
+
+	public void setDiscountinue(String discountinue) {
+		this.discountinue = discountinue;
+	}
+	
+	
 	
 	
 		

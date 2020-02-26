@@ -1,10 +1,13 @@
 package com.progym.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.progym.dao.UserDao;
 import com.progym.model.AddMemberObject;
+import com.progym.model.AddPackageObject;
 import com.progym.model.Client;
 import com.progym.model.Login;
 
@@ -29,6 +32,18 @@ public class UserServiceImpl implements UserService{
 	public void addMemberToDatabase(AddMemberObject addMemberObject) {
 	
 		userDao.addMemberToDatabase(addMemberObject);
+		
+	}
+
+	@Override
+	public List<Client> getMembersBy(String filter) {
+		return userDao.getMembersBy(filter);
+		
+	}
+
+	@Override
+	public void addPackageToDatabase(AddPackageObject addPackageObject) {
+		userDao.addPackageToDatabase(addPackageObject);
 		
 	}
 

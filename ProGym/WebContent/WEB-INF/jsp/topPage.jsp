@@ -22,10 +22,9 @@
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Packages</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Courses" href="oneMonthPackage"><span class="mini-sub-pro">1 Month</span></a></li>
-                                <li><a title="Add Courses" href="threeMonthPackage"><span class="mini-sub-pro">3 Months</span></a></li>
-                                <li><a title="Edit Courses" href="sixMonthPackage"><span class="mini-sub-pro">6 Months</span></a></li>
-                                <li><a title="Courses Profile" href="oneYearPackage"><span class="mini-sub-pro">1 Year</span></a></li>
+                                <li><a title="All Courses" href="malePackage"><span class="mini-sub-pro">Male Package</span></a></li>
+                                <li><a title="Add Courses" href="femalePackage"><span class="mini-sub-pro">Female Package</span></a></li>
+                                <li><a title="Add Courses" href="addPackage"><span class="mini-sub-pro">Add Package</span></a></li>                                
                             </ul>
                         </li>
                         <li>

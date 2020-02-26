@@ -24,4 +24,13 @@
     <script src="js1/calendar/fullcalendar-active.js"></script>
     <script src="js1/plugins.js"></script>
     <script src="js1/main.js"></script>
-    <script src="js1/tawk-chat.js"></script>
+    <script src="js1/tab.js"></script>
+    <script src="js1/form-validation/jquery.form.min.js"></script>
+    <script src="js1/form-validation/jquery.validate.min.js"></script>
+    <script src="js1/form-validation/form-active.js"></script>
+    <script src="js1/datepicker/jquery-ui.min.js"></script>
+    <script src="js1/datepicker/datepicker-active.js"></script>
+    <script src="js1/calendar/moment.min.js"></script>
+        <script src="js1/jquery.maskedinput.min.js"></script>
+    <script src="js1/masking-active.js"></script>
+ 

@@ -10,7 +10,7 @@ public class AddMemberObject {
 	private String name;
 	private String mobile;
 	private String gender;
-	private String dob;
+	private String birthDate;
 	private String remarks;
 	
 	
@@ -32,11 +32,11 @@ public class AddMemberObject {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-	public String getDob() {
-		return dob;
+	public String getBirthDate() {
+		return birthDate;
 	}
-	public void setDob(String dob) {
-		this.dob = dob;
+	public void setBirthDate(String birthDate) {
+		this.birthDate = birthDate;
 	}
 	
 	public String getRemarks() {

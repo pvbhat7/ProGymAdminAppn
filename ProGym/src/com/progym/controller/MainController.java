@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.progym.model.AddMemberObject;
+import com.progym.model.AddPackageObject;
 import com.progym.model.Login;
 import com.progym.service.UserService;
 
@@ -33,20 +34,23 @@ public class MainController {
 	  }
 	
 	  @RequestMapping(value = "/maleMembers", method = RequestMethod.GET)
-	  public ModelAndView showMaleMembers(HttpServletRequest request, HttpServletResponse response) {
+	  public ModelAndView showMaleMembers(HttpServletRequest request, HttpServletResponse response) {		  
 	    ModelAndView mav = new ModelAndView("display-members");
+	    mav.addObject("membersList",userService.getMembersBy("male"));	    
 	    return mav;
 	  }
 	  
 	  @RequestMapping(value = "/femaleMembers", method = RequestMethod.GET)
 	  public ModelAndView showFemaleMembers(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-members");
+		  mav.addObject("membersList",userService.getMembersBy("female"));	    
 	    return mav;
 	  }
 	  
 	  @RequestMapping(value = "/allMembers", method = RequestMethod.GET)
 	  public ModelAndView showAllMembers(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-members");
+		  mav.addObject("membersList",userService.getMembersBy("all"));	    
 	    return mav;
 	  }
 	  
@@ -80,35 +84,19 @@ public class MainController {
 	      return packagesList;
 	   }
 	  
-	  @RequestMapping(value = "/oneMonthPackage", method = RequestMethod.GET)
-	  public ModelAndView showOneMonthPackage(HttpServletRequest request, HttpServletResponse response) {
+	  
+	  @RequestMapping(value = "/malePackage", method = RequestMethod.GET)
+	  public ModelAndView showMalePackage(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-packages");
 	    return mav;
 	  }
 	  
-	  @RequestMapping(value = "/threeMonthPackage", method = RequestMethod.GET)
-	  public ModelAndView showThreeMonthPackage(HttpServletRequest request, HttpServletResponse response) {
+	  @RequestMapping(value = "/femalePackage", method = RequestMethod.GET)
+	  public ModelAndView showFemalePackage(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-packages");
 	    return mav;
 	  }
 	  
-	  @RequestMapping(value = "/sixMonthPackage", method = RequestMethod.GET)
-	  public ModelAndView showSixMonthPackage(HttpServletRequest request, HttpServletResponse response) {
-		  ModelAndView mav = new ModelAndView("display-packages");
-	    return mav;
-	  }
-	  
-	  @RequestMapping(value = "/oneYearPackage", method = RequestMethod.GET)
-	  public ModelAndView showOneYearPackage(HttpServletRequest request, HttpServletResponse response) {
-		  ModelAndView mav = new ModelAndView("display-packages");
-	    return mav;
-	  }
-	  
-	  @RequestMapping(value = "/allPackages", method = RequestMethod.GET)
-	  public ModelAndView showAllPackages(HttpServletRequest request, HttpServletResponse response) {
-		  ModelAndView mav = new ModelAndView("display-packages");
-	    return mav;
-	  }
 	  
 	  @RequestMapping(value = "/paidPayments", method = RequestMethod.GET)
 	  public ModelAndView showPaidPayments(HttpServletRequest request, HttpServletResponse response) {
@@ -133,6 +121,26 @@ public class MainController {
 		  ModelAndView mav = new ModelAndView("display-reports");
 	    return mav;
 	  }
+	  
+	  @RequestMapping(value = "/clientProfile", method = RequestMethod.GET)
+	  public ModelAndView clientProfile(HttpServletRequest request, HttpServletResponse response) {
+		  ModelAndView mav = new ModelAndView("client-profile");
+	    return mav;
+	  }
+	  
+	  @RequestMapping(value = "/addPackage", method = RequestMethod.GET)
+	  public ModelAndView addPackageFormDisplay(HttpServletRequest request, HttpServletResponse response) {
+		  ModelAndView mav = new ModelAndView("add-package");
+		  mav.addObject("addPackageObject",new AddPackageObject());
+	    return mav;
+	  }
+	  
+	  @RequestMapping(value = "/addPackage", method = RequestMethod.POST)
+	  public ModelAndView addPackageFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addPackageObject") AddPackageObject addPackageObject) {
+		  userService.addPackageToDatabase(addPackageObject);
+	    return new ModelAndView("welcome", "firstname", "prashant");
+	  }
+	  
 	  
 
 }
