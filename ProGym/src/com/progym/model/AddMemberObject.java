@@ -11,9 +11,6 @@ public class AddMemberObject {
 	private String mobile;
 	private String gender;
 	private String dob;
-	private String packageCategory;
-	private String packageDuration;
-	private String cpackage;
 	private String remarks;
 	
 	
@@ -40,24 +37,6 @@ public class AddMemberObject {
 	}
 	public void setDob(String dob) {
 		this.dob = dob;
-	}
-	public String getPackageCategory() {
-		return packageCategory;
-	}
-	public void setPackageCategory(String packageCategory) {
-		this.packageCategory = packageCategory;
-	}
-	public String getPackageDuration() {
-		return packageDuration;
-	}
-	public void setPackageDuration(String packageDuration) {
-		this.packageDuration = packageDuration;
-	}
-	public String getCpackage() {
-		return cpackage;
-	}
-	public void setCpackage(String cpackage) {
-		this.cpackage = cpackage;
 	}
 	
 	public String getRemarks() {

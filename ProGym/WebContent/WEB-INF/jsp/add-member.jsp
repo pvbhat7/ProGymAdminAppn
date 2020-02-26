@@ -27,7 +27,7 @@
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="review-content-section">
                                                 <div id="dropzone1" class="pro-ad">
-                                                    <form:form action="addmember" class="dropzone dropzone-custom needsclick add-professors" id="addmember" modelAttribute="addmemberobject" method="post">
+                                                    <form:form action="addMember" class="dropzone dropzone-custom needsclick add-professors" id="addmember" modelAttribute="addmemberobject" method="post">
                                                         <div class="row">
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="form-group">
@@ -39,33 +39,16 @@
                                                                 <div class="form-group">
                                                                     <form:select path="gender" class="form-control">
 																		<form:option value="NONE" label="--- Select Gender ---"/>
-																		<form:options items="${countryList}"/>
+																		<form:options items="${gendersList}"/>
 																	</form:select>
                                                                 </div>
-                                                                <div class="form-group">
-                                                                <div class="input-mark-inner mg-b-22">
-                                                                    <input name="dob" path="dob" id="dob" type="date" class="form-control" placeholder="Date of Birth">
-                                                                </div></div>
-                                                                
+                                                                                                                                
                                                             </div>
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="form-group">
-                                                                    <form:select path="packageCategory" class="form-control">
-																		<form:option value="NONE" label="--- Select Category ---"/>
-																		<form:options items="${categoryList}"/>
-																	</form:select>
+                                                                <div class="input-mark-inner mg-b-22">
+                                                                    <input name="dob" path="dob" id="dob" type="date" class="form-control" placeholder="Date of Birth">
                                                                 </div>
-                                                            <div class="form-group">
-                                                                    <form:select path="packageDuration" class="form-control">
-																		<form:option value="NONE" label="--- Select Duration ---"/>
-																		<form:options items="${durationList}"/>
-																	</form:select>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <form:select path="cpackage" class="form-control">
-																		<form:option value="NONE" label="--- Select Package ---"/>
-																		<form:options items="${packageList}"/>
-																	</form:select>
                                                                 </div>
                                                                 <div class="form-group">
                                                                     <form:input id="remarks" path="remarks" name="remarks" type="text" class="form-control" placeholder="Remarks"/>

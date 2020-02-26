@@ -54,36 +54,31 @@ public class MainController {
 	  public ModelAndView addMemberFormDisplay(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("add-member");
 		  mav.addObject("addmemberobject",new AddMemberObject());
-		  
-		  //genderlist
-		  	Map referenceData = new HashMap();
-			Map<String,String> gender = new LinkedHashMap<String,String>();
-			gender.put("male", "Male");
-			gender.put("female", "Female");
-			referenceData.put("genderList", gender);
-		/*
-		 * referenceData.put("categoryList", gender); referenceData.put("durationList",
-		 * gender); referenceData.put("packageList", gender);
-		 */
-			
 	    return mav;
 	  }
-	  
-	  @ModelAttribute("countryList")
-	   public Map<String, String> getCountryList() {
-	      Map<String, String> countryList = new HashMap<String, String>();
-	      countryList.put("US", "United States");
-	      countryList.put("CH", "China");
-	      countryList.put("SG", "Singapore");
-	      countryList.put("MY", "Malaysia");
-	      return countryList;
-	   }
 	  
 	  @RequestMapping(value = "/addMember", method = RequestMethod.POST)
-	  public ModelAndView addMemberInSystem(HttpServletRequest request, HttpServletResponse response) {
-		  ModelAndView mav = new ModelAndView("add-member");
-	    return mav;
+	  public ModelAndView addMemberFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addmemberobject") AddMemberObject addMemberObject) {
+		  userService.addMemberToDatabase(addMemberObject);
+	    return new ModelAndView("welcome", "firstname", "prashant");
 	  }
+	  
+	  @ModelAttribute("gendersList")
+	   public Map<String, String> getGendersList() {
+		  Map<String,String> gendersList = new LinkedHashMap<String,String>();
+			gendersList.put("male", "Male");
+			gendersList.put("female", "Female");
+			return gendersList;		  
+	  }
+	  @ModelAttribute("packagesList")
+	   public Map<String, String> getPackagesList() {
+	      Map<String, String> packagesList = new HashMap<String, String>();
+	      packagesList.put("US", "United States");
+	      packagesList.put("CH", "China");
+	      packagesList.put("SG", "Singapore");
+	      packagesList.put("MY", "Malaysia");
+	      return packagesList;
+	   }
 	  
 	  @RequestMapping(value = "/oneMonthPackage", method = RequestMethod.GET)
 	  public ModelAndView showOneMonthPackage(HttpServletRequest request, HttpServletResponse response) {
