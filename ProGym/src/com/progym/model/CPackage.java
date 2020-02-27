@@ -9,7 +9,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "t_cpackage")
+@Table(name = "PACKAGES")
 public class CPackage {
 
 	public CPackage() {		
@@ -47,6 +47,9 @@ public class CPackage {
 	
 	@Column
 	private String discontinue;
+	
+	@Column
+	private int packageVersion;
 
 	public Double getFees() {
 		return fees;
@@ -104,6 +107,30 @@ public class CPackage {
 	public void setDiscontinue(String discontinue) {
 		this.discontinue = discontinue;
 	}
+
+
+	public int getPackageVersion() {
+		return packageVersion;
+	}
+
+
+	public void setPackageVersion(int packageVersion) {
+		this.packageVersion = packageVersion;
+	}
+
+
+	public int getId() {
+		return Id;
+	}
+
+
+	public void setId(int id) {
+		Id = id;
+	}
+	
+	
+	
+	
 	
 	
     

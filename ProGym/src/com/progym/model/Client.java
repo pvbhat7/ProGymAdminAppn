@@ -15,7 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "t_client")
+@Table(name = "CLIENT")
 public class Client {
 	
 	
@@ -25,7 +25,7 @@ public class Client {
 	
 	
 
-	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discountinue,
+	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discontinue,
 			List<PackageDetails> packageDetails) {
 		super();
 		this.name = name;
@@ -33,7 +33,7 @@ public class Client {
 		this.gender = gender;
 		this.birthDate = birthDate;
 		this.remarks = remarks;
-		this.discountinue = discountinue;
+		this.discontinue = discontinue;
 		this.packageDetails = packageDetails;
 	}
 
@@ -60,7 +60,7 @@ public class Client {
 	private String remarks;
 	
 	@Column
-	private String discountinue;
+	private String discontinue;
 	
 	//private byte[] photo;
 	
@@ -138,14 +138,35 @@ public class Client {
 	}
 
 
-	public String getDiscountinue() {
-		return discountinue;
+
+
+	public String getDiscontinue() {
+		return discontinue;
 	}
 
 
-	public void setDiscountinue(String discountinue) {
-		this.discountinue = discountinue;
+
+
+	public void setDiscontinue(String discontinue) {
+		this.discontinue = discontinue;
 	}
+
+
+
+
+	@Override
+	public String toString() {
+		return "Client [id=" + id + ", name=" + name + ", mobile=" + mobile + ", gender=" + gender + ", birthDate="
+				+ birthDate + ", remarks=" + remarks + ", discontinue=" + discontinue + ", packageDetails="
+				+ packageDetails + "]";
+	}
+	
+	
+	
+	
+
+
+
 	
 	
 	

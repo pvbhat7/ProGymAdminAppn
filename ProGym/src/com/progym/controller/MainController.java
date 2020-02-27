@@ -2,6 +2,7 @@ package com.progym.controller;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,13 +10,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.progym.model.AddClientPackageForm;
 import com.progym.model.AddMemberObject;
 import com.progym.model.AddPackageObject;
+import com.progym.model.CPackage;
+import com.progym.model.Client;
 import com.progym.model.Login;
 import com.progym.service.UserService;
 
@@ -75,12 +83,11 @@ public class MainController {
 			return gendersList;		  
 	  }
 	  @ModelAttribute("packagesList")
-	   public Map<String, String> getPackagesList() {
+	   public Map<String, String> getPackagesList(String gender) {
 	      Map<String, String> packagesList = new HashMap<String, String>();
-	      packagesList.put("US", "United States");
-	      packagesList.put("CH", "China");
-	      packagesList.put("SG", "Singapore");
-	      packagesList.put("MY", "Malaysia");
+	      for(CPackage c : userService.getPackagesByFilter("male")) {
+	    	  packagesList.put(String.valueOf(c.getId()),c.getPackageName());  
+	      }	      
 	      return packagesList;
 	   }
 	  
@@ -88,12 +95,14 @@ public class MainController {
 	  @RequestMapping(value = "/malePackage", method = RequestMethod.GET)
 	  public ModelAndView showMalePackage(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-packages");
+		  mav.addObject("pkgList",userService.getPackagesByFilter("male"));	    
 	    return mav;
 	  }
 	  
 	  @RequestMapping(value = "/femalePackage", method = RequestMethod.GET)
 	  public ModelAndView showFemalePackage(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-packages");
+		  mav.addObject("pkgList",userService.getPackagesByFilter("female"));	 
 	    return mav;
 	  }
 	  
@@ -123,9 +132,21 @@ public class MainController {
 	  }
 	  
 	  @RequestMapping(value = "/clientProfile", method = RequestMethod.GET)
-	  public ModelAndView clientProfile(HttpServletRequest request, HttpServletResponse response) {
+	  @ResponseBody
+	  public ModelAndView clientProfile(@RequestParam String cliendId,@RequestParam String gender) {
 		  ModelAndView mav = new ModelAndView("client-profile");
+		  mav.addObject("clientAddPackageObject", new AddClientPackageForm());
+		  Client c= userService.getClientById(Integer.parseInt(cliendId));
+		  mav.addObject("clientObject", c); 
+		  getPackagesList(gender);
 	    return mav;
+	  }
+	  
+	  @RequestMapping(value = "/addPackageForClient", method = RequestMethod.POST)
+	  public ModelAndView addPackageFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("clientAddPackageObject") AddClientPackageForm addClientPackageForm) {
+		  System.out.println("***"+addClientPackageForm.toString());
+		  userService.addPackageForClientToDatabase(addClientPackageForm);
+	    return new ModelAndView("welcome", "firstname", "prashant");
 	  }
 	  
 	  @RequestMapping(value = "/addPackage", method = RequestMethod.GET)

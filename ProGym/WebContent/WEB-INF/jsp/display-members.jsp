@@ -15,13 +15,13 @@
    
         <div class="contacts-area mg-b-15">
             <div class="container-fluid">
-                    <c:forEach items="${membersList}" var="client">
+                    <c:forEach items="${membersList}" var="client" varStatus="status">
 					<tr>
 					    <%-- <td>Name: <c:out value="${client.name}"/></td> --%>
 					<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <a href="<c:out value="clientProfile"/>"><div class="student-inner-std res-mg-b-30">
+                        <a href="<c:url value='clientProfile?cliendId=${membersList[status.index].id}&gender=${membersList[status.index].gender}'/>"><div class="student-inner-std res-mg-b-30">
                             <div class="student-img">
-                                <img src="img/student/1.jpg" alt="" />
+                                <img src="img/courses/pkgIcon.png" alt="" />
                             </div>
                             <div class="student-dtl">
                                 <h2><c:out value="${client.name}"/></h2>

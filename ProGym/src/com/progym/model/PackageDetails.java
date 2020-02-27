@@ -1,7 +1,9 @@
 package com.progym.model;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,12 +12,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "t_packageDetails")
+@Table(name = "PACKAGEDETAILS")
 public class PackageDetails {
 
 	
@@ -53,6 +56,13 @@ public class PackageDetails {
 
     @Column
     private Double amountPaid;
+    
+    @Column
+    private String discontinue;
+    
+    @OneToMany(cascade=CascadeType.ALL)
+	@JoinColumn(name="PACKAGE_DETAILS_ID")
+	private List<PaymentTransaction> paymentTransactions;
 
 	public Client getClient() {
 		return client;
@@ -93,7 +103,32 @@ public class PackageDetails {
 	public void setAmountPaid(Double amountPaid) {
 		this.amountPaid = amountPaid;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getDiscontinue() {
+		return discontinue;
+	}
+
+	public void setDiscontinue(String discontinue) {
+		this.discontinue = discontinue;
+	}
+
+	public List<PaymentTransaction> getPaymentTransactions() {
+		return paymentTransactions;
+	}
+
+	public void setPaymentTransactions(List<PaymentTransaction> paymentTransactions) {
+		this.paymentTransactions = paymentTransactions;
+	}
     
+	
     
 
     
