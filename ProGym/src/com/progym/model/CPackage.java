@@ -1,10 +1,14 @@
 package com.progym.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -42,15 +46,13 @@ public class CPackage {
 	@Column
     private String gender;
 
-	@OneToOne(mappedBy = "cPackage")
-    private PackageDetails packageDetails;
 	
 	@Column
 	private String discontinue;
 	
 	@Column
 	private int packageVersion;
-
+	
 	public Double getFees() {
 		return fees;
 	}
@@ -91,15 +93,7 @@ public class CPackage {
 	}
 
 
-	public PackageDetails getPackageDetails() {
-		return packageDetails;
-	}
-
-
-	public void setPackageDetails(PackageDetails packageDetails) {
-		this.packageDetails = packageDetails;
-	}
-
+	
 	public String getDiscontinue() {
 		return discontinue;
 	}
@@ -127,6 +121,12 @@ public class CPackage {
 	public void setId(int id) {
 		Id = id;
 	}
+
+
+	
+	
+	
+	
 	
 	
 	

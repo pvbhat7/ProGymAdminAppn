@@ -30,9 +30,8 @@
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-library icon-wrap"></span> <span class="mini-click-non">Payments</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Library" href="paidPayments"><span class="mini-sub-pro">Paid</span></a></li>
-                                <li><a title="Add Library" href="pendingPayments"><span class="mini-sub-pro">Pending</span></a></li>
-                                <li><a title="Edit Library" href="allPayments"><span class="mini-sub-pro">All Payment</span></a></li>
+                                <li><a title="All Library" href="paidPayments?gender=all"><span class="mini-sub-pro">Paid</span></a></li>
+                                <li><a title="Add Library" href="pendingPayments?gender=all"><span class="mini-sub-pro">Pending</span></a></li>                                
                             </ul>
                         </li>
                         
@@ -83,14 +82,18 @@
                                                 </li>
                                                 <li class="nav-item"><a href="allMembers" class="nav-link">Members</a>
                                                 </li>
-                                                <li class="nav-item"><a href="allPackages" class="nav-link">Packages</a>
+                                                <li class="nav-item dropdown res-dis-nn">
+                                                    <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">Packages <span class="angle-down-topmenu"><i class="fa fa-angle-down"></i></span></a>
+                                                    <div role="menu" class="dropdown-menu animated zoomIn">
+                                                        <a href="malePackage" class="dropdown-item">Male Package</a>
+                                                        <a href="femalePackage" class="dropdown-item">Female Package</a>                                                        
+                                                    </div>
                                                 </li>
                                                 <li class="nav-item dropdown res-dis-nn">
                                                     <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">Payments <span class="angle-down-topmenu"><i class="fa fa-angle-down"></i></span></a>
                                                     <div role="menu" class="dropdown-menu animated zoomIn">
-                                                        <a href="pendingPayments" class="dropdown-item">Pending</a>
-                                                        <a href="paidPayments" class="dropdown-item">Paid</a>
-                                                        <a href="allPayments" class="dropdown-item">All Payment</a>                                                        
+                                                        <a href="pendingPayments?gender=all" class="dropdown-item">Pending</a>
+                                                        <a href="paidPayments?gender=all" class="dropdown-item">Paid</a>                                                        
                                                     </div>
                                                 </li>
                                                 <li class="nav-item"><a href="allReports" class="nav-link">Reports</a>

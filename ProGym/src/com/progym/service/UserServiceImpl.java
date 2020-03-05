@@ -12,6 +12,9 @@ import com.progym.model.AddPackageObject;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.Login;
+import com.progym.model.PackageDetails;
+import com.progym.model.PaymentDataPVO;
+import com.progym.model.PaymentTransaction;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -64,6 +67,23 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Client getClientById(int clientId) {
 		return userDao.getClientById(clientId);
+	}
+
+	@Override
+	public void createTransaction(PaymentTransaction paymentTransaction) {
+		userDao.createTransaction(paymentTransaction);
+		
+	}
+
+	@Override
+	public List<PackageDetails> getClientPackagesByClient(Client client) {
+		
+		return userDao.getClientPackagesByClient(client);
+	}
+
+	@Override
+	public List<PaymentDataPVO> getPaymentData(String type,String gender) {
+		return userDao.getPaymentDate(type,gender);
 	}
 
 }

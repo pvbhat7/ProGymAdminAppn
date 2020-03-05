@@ -8,6 +8,9 @@ import com.progym.model.AddPackageObject;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.Login;
+import com.progym.model.PackageDetails;
+import com.progym.model.PaymentDataPVO;
+import com.progym.model.PaymentTransaction;
 
 public interface UserDao {
 	
@@ -28,5 +31,11 @@ public interface UserDao {
 	Client getClientById(int clientId);
 
 	CPackage getPackageById(int id);
+
+	void createTransaction(PaymentTransaction paymentTransaction);
+	
+	List<PackageDetails> getClientPackagesByClient(Client client);
+
+	List<PaymentDataPVO> getPaymentDate(String type, String gender);
 	  
 	}

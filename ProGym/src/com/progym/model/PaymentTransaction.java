@@ -22,7 +22,7 @@ public class PaymentTransaction {
 	private String paymentDate;
 	
 	@Column
-	private String packageDetailsId;
+	private int packageDetailsId;
 	
 	@Column
 	private Double feesPaid;
@@ -37,10 +37,10 @@ public class PaymentTransaction {
 	public void setPaymentDate(String paymentDate) {
 		this.paymentDate = paymentDate;
 	}
-	public String getPackageDetailsId() {
+	public int getPackageDetailsId() {
 		return packageDetailsId;
 	}
-	public void setPackageDetailsId(String packageDetailsId) {
+	public void setPackageDetailsId(int packageDetailsId) {
 		this.packageDetailsId = packageDetailsId;
 	}
 	public Double getFeesPaid() {
@@ -49,7 +49,7 @@ public class PaymentTransaction {
 	public void setFeesPaid(Double feesPaid) {
 		this.feesPaid = feesPaid;
 	}
-	public PaymentTransaction(String paymentDate, String packageDetailsId, Double feesPaid) {
+	public PaymentTransaction(String paymentDate, int packageDetailsId, Double feesPaid) {
 		super();
 		this.paymentDate = paymentDate;
 		this.packageDetailsId = packageDetailsId;
@@ -59,6 +59,13 @@ public class PaymentTransaction {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	@Override
+	public String toString() {
+		return "PaymentTransaction [id=" + id + ", paymentDate=" + paymentDate + ", packageDetailsId="
+				+ packageDetailsId + ", feesPaid=" + feesPaid + ", packageDetails=" + packageDetails + "]";
+	}
+	
+	
 	
 	
 	

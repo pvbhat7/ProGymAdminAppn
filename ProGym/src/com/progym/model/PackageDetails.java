@@ -6,14 +6,17 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 
@@ -25,14 +28,33 @@ public class PackageDetails {
 	public PackageDetails() {		
 	}
 	
-	public PackageDetails(Client client, String packageStartDate, CPackage cPackage, String clientPackageStatus,
-			Double amountPaid) {
+	
+
+	public PackageDetails(Client client, String packageName, Double packageFees, String packageStartDate,
+			String packageEndDate, String packagePaymentDate, int cPackageId, String clientPackageStatus,
+			Double amountPaid, String discontinue, List<PaymentTransaction> paymentTransactions) {
 		super();
 		this.client = client;
+		this.packageName = packageName;
+		this.packageFees = packageFees;
 		this.packageStartDate = packageStartDate;
-		this.cPackage = cPackage;
+		this.packageEndDate = packageEndDate;
+		this.packagePaymentDate = packagePaymentDate;
+		this.cPackageId = cPackageId;
 		this.clientPackageStatus = clientPackageStatus;
 		this.amountPaid = amountPaid;
+		this.discontinue = discontinue;
+		this.paymentTransactions = paymentTransactions;
+	}
+
+
+
+	public String getPackageEndDate() {
+		return packageEndDate;
+	}
+
+	public void setPackageEndDate(String packageEndDate) {
+		this.packageEndDate = packageEndDate;
 	}
 
 
@@ -45,12 +67,33 @@ public class PackageDetails {
     private Client client;
 
     @Column
+    private String packageName;
+    
+    @Column
+    private Double packageFees;
+    
+    @Column
     private String packageStartDate;
+    
+    @Column
+    private String packageEndDate;
+    
+    @Column
+    private String packagePaymentDate;
+    
 
-    @OneToOne
-    @JoinColumn(name="PACKAGE_ID")
-    private CPackage cPackage;
+    public String getPackagePaymentDate() {
+		return packagePaymentDate;
+	}
 
+	public void setPackagePaymentDate(String packagePaymentDate) {
+		this.packagePaymentDate = packagePaymentDate;
+	}
+
+
+	@Column 
+    private int cPackageId;
+    
     @Column
     private String clientPackageStatus;
 
@@ -60,7 +103,7 @@ public class PackageDetails {
     @Column
     private String discontinue;
     
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY)
 	@JoinColumn(name="PACKAGE_DETAILS_ID")
 	private List<PaymentTransaction> paymentTransactions;
 
@@ -80,14 +123,7 @@ public class PackageDetails {
 		this.packageStartDate = packageStartDate;
 	}
 
-	public CPackage getcPackage() {
-		return cPackage;
-	}
-
-	public void setcPackage(CPackage cPackage) {
-		this.cPackage = cPackage;
-	}
-
+	
 	public String getClientPackageStatus() {
 		return clientPackageStatus;
 	}
@@ -127,6 +163,49 @@ public class PackageDetails {
 	public void setPaymentTransactions(List<PaymentTransaction> paymentTransactions) {
 		this.paymentTransactions = paymentTransactions;
 	}
+
+	public int getcPackageId() {
+		return cPackageId;
+	}
+
+	public void setcPackageId(int cPackageId) {
+		this.cPackageId = cPackageId;
+	}
+
+
+
+	public String getPackageName() {
+		return packageName;
+	}
+
+
+
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
+
+
+
+	public Double getPackageFees() {
+		return packageFees;
+	}
+
+
+
+	public void setPackageFees(Double packageFees) {
+		this.packageFees = packageFees;
+	}
+
+
+
+	
+	
+	
+	
+
+	
+	
+	
     
 	
     
