@@ -179,6 +179,28 @@ public class MainController {
 		  response.sendRedirect("allMembers");
 	  }
 	  
+	 
+	  @RequestMapping(value = "/viewCollectionByGMY", method = RequestMethod.GET)
+	  public ModelAndView viewCollectionByGMY(HttpServletRequest request, HttpServletResponse response,
+			  @RequestParam String gender,@RequestParam String month,@RequestParam String year) throws IOException {
+		  ModelAndView mav = new ModelAndView("display-reports");
+		  return mav;		  
+	  }
+	  
+	  @RequestMapping(value = "/viewCollectionByGD", method = RequestMethod.GET)
+	  public ModelAndView viewCollectionByGD(HttpServletRequest request, HttpServletResponse response,
+			  @RequestParam String gender,@RequestParam String date) throws IOException {
+		  ModelAndView mav = new ModelAndView("display-reports");
+		  return mav;		  
+	  }
+	  
+	  @RequestMapping(value = "/viewCollectionByG", method = RequestMethod.GET)
+	  public ModelAndView viewCollectionByG(HttpServletRequest request, HttpServletResponse response,
+			  @RequestParam String gender) throws IOException {
+		  ModelAndView mav = new ModelAndView("display-reports");
+		  return mav;		  
+	  }
+	  
 	  
 	  
 	  
