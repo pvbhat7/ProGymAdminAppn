@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.progym.model.Client;
+import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.Login;
 import com.progym.service.UserService;
 
@@ -30,17 +31,16 @@ public class LoginController {
   @RequestMapping(value = "/loginProcess", method = RequestMethod.POST)
   public ModelAndView loginProcess(HttpServletRequest request, HttpServletResponse response,
   @ModelAttribute("login") Login login) {
-    ModelAndView mav = new ModelAndView("index");
-    if(login.getUsername().equals("a") && login.getPassword().equals("a")) {
-    	System.out.println("authenticated");
-    mav.addObject("message", "Pranav");    
-    }
-    else if(login.getUsername().equals("b") && login.getPassword().equals("b")) {
-    	System.out.println("authenticated");
-    mav.addObject("message", "Prashant");    
-    }
-    else
-    	mav.addObject("message", "wrong password");
+	  ModelAndView mav = new ModelAndView("index");
+	    CollectionDashboardPVO c = userService.getDashboardCollection();
+	    System.out.println(c.toString());
+	    mav.addObject("male",c.getMale());
+	    mav.addObject("female",c.getFemale());
+	    mav.addObject("steam",c.getSteam());
+	    mav.addObject("total",c.getTotal());
+	    mav.addObject("maletotal",c.getMaletotal());
+	    mav.addObject("femaletotal",c.getFemaletotal());
+	    mav.addObject("clienttotal",c.getClienttotal());
     return mav;
   }
 }

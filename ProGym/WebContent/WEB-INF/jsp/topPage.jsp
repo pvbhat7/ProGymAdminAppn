@@ -39,7 +39,7 @@
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="Peity Charts" href="#"><span class="mini-sub-pro">Static Table</span></a></li>
-                                <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">Data Table</span></a></li>
+                                <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
                             </ul>
                         </li>
                         
@@ -96,7 +96,7 @@
                                                         <a href="paidPayments?gender=all" class="dropdown-item">Paid</a>                                                        
                                                     </div>
                                                 </li>
-                                                <li class="nav-item"><a href="allReports" class="nav-link">Reports</a>
+                                                <li class="nav-item"><a href="allReports" class="nav-link">Collections</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -199,7 +199,7 @@
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <div class="breadcome-list">
                                 <div class="row">
-                                   <!-- <marquee><img src="img/progym.png" alt="" width="50" height="20" /> ProGym Kolhapur<img src="img/progym.png" alt="" width="50" height="20" /></marquee> -->
+                                   <marquee><img src="img/progym.png" alt="" width="50" height="20" /> ProGym Kolhapur<img src="img/progym.png" alt="" width="50" height="20" /></marquee>
                                 </div>
                             </div>
                         </div>

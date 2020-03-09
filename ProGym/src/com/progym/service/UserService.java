@@ -7,6 +7,9 @@ import com.progym.model.AddMemberObject;
 import com.progym.model.AddPackageObject;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
+import com.progym.model.CollectionDashboardPVO;
+import com.progym.model.CollectionPVO;
+import com.progym.model.FilterCollectionObject;
 import com.progym.model.Login;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -35,6 +38,10 @@ public interface UserService {
 	List<PackageDetails> getClientPackagesByClient(Client client);
 
 	List<PaymentDataPVO> getPaymentData(String string, String gender);
+
+	List<CollectionPVO> getCollectionBy(FilterCollectionObject filter);
+
+	CollectionDashboardPVO getDashboardCollection();
 
 	
 

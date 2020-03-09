@@ -25,6 +25,9 @@ import com.progym.model.AddMemberObject;
 import com.progym.model.AddPackageObject;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
+import com.progym.model.CollectionDashboardPVO;
+import com.progym.model.CollectionPVO;
+import com.progym.model.FilterCollectionObject;
 import com.progym.model.Login;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentTransaction;
@@ -41,6 +44,15 @@ public class MainController {
 		@RequestMapping(value = "/index", method = RequestMethod.GET)
 	  public ModelAndView showIndexPage(HttpServletRequest request, HttpServletResponse response) {
 	    ModelAndView mav = new ModelAndView("index");
+	    CollectionDashboardPVO c = userService.getDashboardCollection();
+	    System.out.println(c.toString());
+	    mav.addObject("male",c.getMale());
+	    mav.addObject("female",c.getFemale());
+	    mav.addObject("steam",c.getSteam());
+	    mav.addObject("total",c.getTotal());
+	    mav.addObject("maletotal",c.getMaletotal());
+	    mav.addObject("femaletotal",c.getFemaletotal());
+	    mav.addObject("clienttotal",c.getClienttotal());
 	    return mav;
 	  }
 	
@@ -175,6 +187,7 @@ public class MainController {
 	  
 	  @RequestMapping(value = "/addTransaction", method = RequestMethod.POST)
 	  public void addTransactionFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("transactionObject") PaymentTransaction paymentTransaction) throws IOException {
+		  System.out.println(paymentTransaction.toString());
 		  userService.createTransaction(paymentTransaction);
 		  response.sendRedirect("allMembers");
 	  }
@@ -184,6 +197,15 @@ public class MainController {
 	  public ModelAndView viewCollectionByGMY(HttpServletRequest request, HttpServletResponse response,
 			  @RequestParam String gender,@RequestParam String month,@RequestParam String year) throws IOException {
 		  ModelAndView mav = new ModelAndView("display-reports");
+		  List<CollectionPVO> list = userService.getCollectionBy(new FilterCollectionObject("GMY", gender, month, year, null));
+		  mav.addObject("collectionDataPVOList",list );
+		  Double total =0.00;
+		  for(CollectionPVO p : list)
+		  {
+			  total = total + p.getFeesPaid(); 
+		  }
+		  mav.addObject("filtername", "1d");
+		  mav.addObject("totalCollection", total);
 		  return mav;		  
 	  }
 	  
@@ -191,6 +213,15 @@ public class MainController {
 	  public ModelAndView viewCollectionByGD(HttpServletRequest request, HttpServletResponse response,
 			  @RequestParam String gender,@RequestParam String date) throws IOException {
 		  ModelAndView mav = new ModelAndView("display-reports");
+		  List<CollectionPVO> list = userService.getCollectionBy(new FilterCollectionObject("GD", gender, null, null, date));
+		  mav.addObject("collectionDataPVOList",list );
+		  Double total =0.00;
+		  for(CollectionPVO p : list)
+		  {
+			  total = total + p.getFeesPaid(); 
+		  }
+		  mav.addObject("filtername", "2d");
+		  mav.addObject("totalCollection", total);
 		  return mav;		  
 	  }
 	  
@@ -198,6 +229,15 @@ public class MainController {
 	  public ModelAndView viewCollectionByG(HttpServletRequest request, HttpServletResponse response,
 			  @RequestParam String gender) throws IOException {
 		  ModelAndView mav = new ModelAndView("display-reports");
+		  List<CollectionPVO> list = userService.getCollectionBy(new FilterCollectionObject("G", gender, null, null, null));
+		  mav.addObject("collectionDataPVOList",list );
+		  Double total =0.00;
+		  for(CollectionPVO p : list)
+		  {
+			  total = total + p.getFeesPaid(); 
+		  }
+		  mav.addObject("filtername", "3d");
+		  mav.addObject("totalCollection", total);
 		  return mav;		  
 	  }
 	  

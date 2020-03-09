@@ -11,6 +11,9 @@ import com.progym.model.AddMemberObject;
 import com.progym.model.AddPackageObject;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
+import com.progym.model.CollectionDashboardPVO;
+import com.progym.model.CollectionPVO;
+import com.progym.model.FilterCollectionObject;
 import com.progym.model.Login;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -83,7 +86,17 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public List<PaymentDataPVO> getPaymentData(String type,String gender) {
-		return userDao.getPaymentDate(type,gender);
+		return userDao.getPaymentData(type,gender);
+	}
+
+	@Override
+	public List<CollectionPVO> getCollectionBy(FilterCollectionObject filter) {
+		return userDao.getCollectionBy(filter);
+	}
+	
+	@Override
+	public CollectionDashboardPVO getDashboardCollection() {
+		return userDao.getDashboardCollection();
 	}
 
 }

@@ -29,6 +29,9 @@ import com.progym.model.AddMemberObject;
 import com.progym.model.AddPackageObject;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
+import com.progym.model.CollectionDashboardPVO;
+import com.progym.model.CollectionPVO;
+import com.progym.model.FilterCollectionObject;
 import com.progym.model.Login;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -107,6 +110,7 @@ public class UserDaoImpl implements UserDao {
 	public List<CPackage> getPackagesByFilter(String filter) {
 		List<CPackage> pkg = new ArrayList<CPackage>();
 		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
 		Criteria crit = session.createCriteria(CPackage.class);
 		if(!filter.equals("all"))
 		crit.add(Restrictions.eq("gender",filter));
@@ -190,6 +194,7 @@ public class UserDaoImpl implements UserDao {
 		pd.setPackagePaymentDate(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 		session.save(p);
 		session.getTransaction().commit();
+		session.close();
 		
 	}
 
@@ -197,11 +202,8 @@ public class UserDaoImpl implements UserDao {
 	public List<PackageDetails> getClientPackagesByClient(Client client) {
 		List<PackageDetails> pkgList = new ArrayList<PackageDetails>();
 		session = HibernateUtils.getSessionFactory().openSession();
-		Criteria crit = session.createCriteria(PackageDetails.class);
-		crit.add(Restrictions.eq("client.id", client.getId()));
-		List<PackageDetails> p = crit.list();
-		Set<PackageDetails> set = new HashSet<PackageDetails>(p);
-		for(PackageDetails pd : set) {
+		Collection<PackageDetails> p = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.eq("client.id", client.getId())).list());
+		for(PackageDetails pd : p) {
 			List<PaymentTransaction> tl = new ArrayList<PaymentTransaction>();
 			List<PaymentTransaction> ptl = session.createCriteria(PaymentTransaction.class).list();
 			for(PaymentTransaction pt : ptl) {
@@ -211,17 +213,15 @@ public class UserDaoImpl implements UserDao {
 			pd.setPaymentTransactions(tl);
 		}	
 		
-		int n = set.size(); 
-	    List<PackageDetails> aList = new ArrayList<PackageDetails>(n); 
-	    for (PackageDetails x : set) 
-	      aList.add(x); 
+		
+	    List<PackageDetails> aList = new ArrayList<PackageDetails>(p); 
 	    session.close();
 		return aList;
 		
 	}
 
 	@Override
-	public List<PaymentDataPVO> getPaymentDate(String type,String gender) {
+	public List<PaymentDataPVO> getPaymentData(String type,String gender) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		List<PaymentDataPVO> list = new ArrayList<PaymentDataPVO>();
 		Collection<PackageDetails> collection = null;
@@ -285,6 +285,58 @@ public class UserDaoImpl implements UserDao {
 		 }
 		
 		return new SimpleDateFormat("dd/MM/yyyy").format(c.getTime());
+	}
+	
+	
+	@Override
+	public List<CollectionPVO> getCollectionBy(FilterCollectionObject filter) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		List<CollectionPVO> collectionPVOList = new ArrayList<CollectionPVO>();
+		 Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.ne("clientPackageStatus", "not paid")).list());
+		if(filter.getFilter().equals("GMY")) {
+			for(PackageDetails p : packagePaymentCollection) {
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+				Calendar c = Calendar.getInstance();
+				try{c.setTime(sdf.parse(p.getPackagePaymentDate()));}catch(ParseException e){}	
+				if(filter.getGender().equals(p.getClient().getGender()) && String.valueOf(c.get(Calendar.MONTH)).equals(filter.getMonth()) && String.valueOf(c.get(Calendar.YEAR)).equals(filter.getYear()))
+					collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+			}
+		}
+		else if(filter.getFilter().equals("GD")) {
+			for(PackageDetails p : packagePaymentCollection) {
+				
+				if(p.getPackagePaymentDate().equals(getDdMmYyyyDate(filter.getDate())) && filter.getGender().equals(p.getClient().getGender()))
+					collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+			}
+		}else if(filter.getFilter().equals("G")) {
+			for(PackageDetails p : packagePaymentCollection) {
+				if(p.getClient().getGender().equals(filter.getGender()))
+					collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+			}
+		} 
+			
+		return collectionPVOList;
+	}
+
+	@Override
+	public CollectionDashboardPVO getDashboardCollection() {
+		session = HibernateUtils.getSessionFactory().openSession();
+		Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.ne("clientPackageStatus", "not paid")).list());
+		Double male=0.00;
+		Double female=0.00;
+		Double total=0.00;
+		Double steam=0.00;
+		for(PackageDetails p : packagePaymentCollection) {
+			if(p.getClient().getGender().equals("male"))
+				male = male + p.getAmountPaid();
+			else if(p.getClient().getGender().equals("female"))
+				female = female + p.getAmountPaid();
+		}
+		total = male + female;
+		return new CollectionDashboardPVO(male, female, total, steam,
+				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "male")).list()).size(),
+				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "female")).list()).size(),
+				new LinkedHashSet(session.createCriteria(Client.class).list()).size());
 	}
   
 }

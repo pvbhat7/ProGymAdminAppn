@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <!doctype html>
 <html class="no-js" lang="en">
 
@@ -19,7 +20,7 @@
                         <div class="analytics-sparkle-line reso-mg-b-30">
                             <div class="analytics-content">
                                 <h5>Gym Collection - MALE</h5>
-                                <h2>Rs. <span class="counter">5000</span> </h2>
+                                <h2>Rs. <span class="counter">${male}</span> </h2>
                                 <div class="progress m-b-0">
                                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">20% Complete</span> </div>
                                 </div>
@@ -32,7 +33,7 @@
                         <div class="analytics-sparkle-line reso-mg-b-30">
                             <div class="analytics-content">
                                 <h5>Gym Collection - FEMALE</h5>
-                                <h2>Rs. <span class="counter">3000</span> </h2>
+                                <h2>Rs. <span class="counter">${female}</span> </h2>
                                 <div class="progress m-b-0">
                                     <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">230% Complete</span> </div>
                                 </div>
@@ -45,7 +46,7 @@
                         <div class="analytics-sparkle-line reso-mg-b-30 table-mg-t-pro dk-res-t-pro-30">
                             <div class="analytics-content">
                                 <h5>Steam Collection</h5>
-                                <h2>Rs. <span class="counter">2000</span> </h2>
+                                <h2>Rs. <span class="counter">${steam}</span> </h2>
                                 <div class="progress m-b-0">
                                     <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">20% Complete</span> </div>
                                 </div>
@@ -58,7 +59,7 @@
                         <div class="analytics-sparkle-line table-mg-t-pro dk-res-t-pro-30">
                             <div class="analytics-content">
                                 <h5>Total Collection</h5>
-                                <h2>Rs. <span class="counter">10000</span> </h2>
+                                <h2>Rs. <span class="counter">${total}</span> </h2>
                                 <div class="progress m-b-0">
                                     <div class="progress-bar progress-bar-inverse" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">230% Complete</span> </div>
                                 </div>
@@ -79,33 +80,33 @@
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 res-mg-t-30 table-mg-t-pro-n tb-sm-res-d-n dk-res-t-d-n">
-                            <h3 class="box-title">Total Visit</h3>
+                            <h3 class="box-title">Male Members</h3>
                             <ul class="list-inline two-part-sp">
                                 <li>
                                     <div id="sparklinedash"></div>
                                 </li>
-                                <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-success">1500</span></li>
+                                <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-success">${maletotal}</span></li>
                             </ul>
                         </div>
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
-                            <h3 class="box-title">Page Views</h3>
+                            <h3 class="box-title">Female Members</h3>
                             <ul class="list-inline two-part-sp">
                                 <li>
                                     <div id="sparklinedash2"></div>
                                 </li>
-                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">3000</span></li>
+                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaletotal}</span></li>
                             </ul>
                         </div>
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
-                            <h3 class="box-title">Unique Visitor</h3>
+                            <h3 class="box-title">Total Members</h3>
                             <ul class="list-inline two-part-sp">
                                 <li>
                                     <div id="sparklinedash3"></div>
                                 </li>
-                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">5000</span></li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
                             </ul>
                         </div>
-                        <div class="white-box analytics-info-cs table-dis-n-pro tb-sm-res-d-n dk-res-t-d-n">
+                        <!-- <div class="white-box analytics-info-cs table-dis-n-pro tb-sm-res-d-n dk-res-t-d-n">
                             <h3 class="box-title">Bounce Rate</h3>
                             <ul class="list-inline two-part-sp">
                                 <li>
@@ -114,7 +115,7 @@
                                 <li class="text-right graph-four-ctn"><i class="fa fa-level-down" aria-hidden="true"></i> <span class="text-danger"><span class="counter">18</span>%</span>
                                 </li>
                             </ul>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
