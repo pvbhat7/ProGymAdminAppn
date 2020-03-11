@@ -1,5 +1,7 @@
 package com.progym.controller;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
-import com.progym.model.Login;
+import com.progym.model.User;
 import com.progym.service.UserService;
 
 
@@ -23,24 +25,43 @@ public class LoginController {
   
   @RequestMapping(value = "/login", method = RequestMethod.GET)
   public ModelAndView showLogin(HttpServletRequest request, HttpServletResponse response) {
+	userService.register();
     ModelAndView mav = new ModelAndView("loginform");
-    mav.addObject("login", new Login());
+    mav.addObject("user", new User());
     return mav;
   }
   
   @RequestMapping(value = "/loginProcess", method = RequestMethod.POST)
   public ModelAndView loginProcess(HttpServletRequest request, HttpServletResponse response,
-  @ModelAttribute("login") Login login) {
-	  ModelAndView mav = new ModelAndView("index");
-	    CollectionDashboardPVO c = userService.getDashboardCollection();
-	    System.out.println(c.toString());
-	    mav.addObject("male",c.getMale());
-	    mav.addObject("female",c.getFemale());
-	    mav.addObject("steam",c.getSteam());
-	    mav.addObject("total",c.getTotal());
-	    mav.addObject("maletotal",c.getMaletotal());
-	    mav.addObject("femaletotal",c.getFemaletotal());
-	    mav.addObject("clienttotal",c.getClienttotal());
-    return mav;
+  @ModelAttribute("login") User user) throws IOException {
+	  
+	  // USER
+	  User u = userService.validateUser(new User(user.getUsername(),user.getPassword(),null, null));
+	  if(u != null) {
+		  System.out.println("USER FOUND "+u.toString());
+		  request.getSession().setAttribute("loggedInUser", u);
+		  ModelAndView mav = new ModelAndView("index");
+		    CollectionDashboardPVO c = userService.getDashboardCollection();
+		    System.out.println(c.toString());
+		    mav.addObject("male",c.getMale());
+		    mav.addObject("female",c.getFemale());
+		    mav.addObject("steam",c.getSteam());
+		    mav.addObject("total",c.getTotal());
+		    mav.addObject("maletotal",c.getMaletotal());
+		    mav.addObject("femaletotal",c.getFemaletotal());
+		    mav.addObject("clienttotal",c.getClienttotal());
+		    mav.addObject("username",u.getName());
+
+	    return mav;
+	  }
+	  else {
+		  response.sendRedirect("login");
+		  return null;
+	  }	
   }
+  @RequestMapping("/logout")
+  public String logout(HttpServletRequest request, HttpServletResponse response ) {
+      request.getSession().invalidate();
+      return "redirect:/login";
+  } 
 }

@@ -10,16 +10,16 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
-import com.progym.model.Login;
+import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
 
 public interface UserDao {
 	
-	  void register(Client client);
+	  void register();
 	  
-	  Client validateUser(Login login);
+	  User validateUser(User login);
 
 	void addMemberToDatabase(AddMemberObject addMemberObject);
 

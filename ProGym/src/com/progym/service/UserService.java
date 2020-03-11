@@ -10,16 +10,16 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
-import com.progym.model.Login;
+import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
 
 public interface UserService {
 
-	Client validateUser(Login login);
+	User validateUser(User login);
 
-	void register(Client client);
+	void register();
 
 	void addMemberToDatabase(AddMemberObject addMemberObject);
 
@@ -42,6 +42,7 @@ public interface UserService {
 	List<CollectionPVO> getCollectionBy(FilterCollectionObject filter);
 
 	CollectionDashboardPVO getDashboardCollection();
+
 
 	
 

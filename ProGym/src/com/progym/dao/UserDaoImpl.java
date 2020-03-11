@@ -32,7 +32,7 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
-import com.progym.model.Login;
+import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
@@ -49,19 +49,27 @@ public class UserDaoImpl implements UserDao {
   
 	Session session = null;
   
-  public void register(Client client) {
-	  SessionFactory factory = HibernateUtils.getSessionFactory();
-	  Session session = factory.openSession();
-	  session.beginTransaction();
-	  session.save(client);
+  public void register() {
+		session = HibernateUtils.getSessionFactory().openSession();
+	  session.beginTransaction();  
+	  System.out.println("registering...");
+		Criteria crit = session.createCriteria(User.class);
+		Collection<User> collection = new LinkedHashSet(crit.list());
+		if(collection.size() == 0) {
+			User u1 = new User("a", "a", "Pranav Patil","YES");
+			  User u2 = new User("b", "b","Pooja Patil", "NO");
+			  session.save(u1);
+			  session.save(u2);	
+		}
 	  session.getTransaction().commit();	  
     }
   
-    public Client validateUser(Login login) {
-    	Client c = new Client();
-    	c.setName("prashant");
-    return c;
-    }
+    public User validateUser(User user) {
+    	session = HibernateUtils.getSessionFactory().openSession();
+  	  session.beginTransaction();  
+  return (User)session.createCriteria(User.class).add(Restrictions.eq("password", user.getPassword())).add(Restrictions.eq("username", user.getUsername())).uniqueResult();
+  	
+  			}
 
 	@Override
 	public void addMemberToDatabase(AddMemberObject addMemberObject) {
@@ -75,10 +83,8 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public List<Client> getMembersBy(String filter) {
-		List<Client> cli = new ArrayList<Client>();
 		session = HibernateUtils.getSessionFactory().openSession();
 		Criteria crit = session.createCriteria(Client.class);
-		List<Client> list = crit.list();
 		Collection<Client> collection = new LinkedHashSet(crit.list());
 		
 		List<Client> cList = new ArrayList<Client>();
@@ -183,7 +189,7 @@ public class UserDaoImpl implements UserDao {
 	public void createTransaction(PaymentTransaction paymentTransaction) {
 		session =  HibernateUtils.getSessionFactory().openSession();
 			session.beginTransaction();
-		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid());
+		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),"NO");
 		PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", paymentTransaction.getPackageDetailsId())).uniqueResult();
 		pd.setAmountPaid(pd.getAmountPaid()+paymentTransaction.getFeesPaid());
 		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());

@@ -14,7 +14,7 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
-import com.progym.model.Login;
+import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
@@ -26,13 +26,13 @@ public class UserServiceImpl implements UserService{
 	UserDao userDao;
 	
 	@Override
-	public Client validateUser(Login login) {
-		return userDao.validateUser(login);
+	public User validateUser(User user) {
+		return userDao.validateUser(user);
 	}
 
 	@Override
-	public void register(Client client) {
-		userDao.register(client);
+	public void register() {
+		userDao.register();
 		
 	}
 
@@ -98,5 +98,6 @@ public class UserServiceImpl implements UserService{
 	public CollectionDashboardPVO getDashboardCollection() {
 		return userDao.getDashboardCollection();
 	}
+	
 
 }

@@ -28,7 +28,7 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
-import com.progym.model.Login;
+import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentTransaction;
 import com.progym.service.UserService;
@@ -43,6 +43,9 @@ public class MainController {
 	  
 		@RequestMapping(value = "/index", method = RequestMethod.GET)
 	  public ModelAndView showIndexPage(HttpServletRequest request, HttpServletResponse response) {
+			User u = (User)request.getSession().getAttribute("loggedInUser");
+			if(u != null)
+				System.out.println("user found in session "+u.toString());
 	    ModelAndView mav = new ModelAndView("index");
 	    CollectionDashboardPVO c = userService.getDashboardCollection();
 	    System.out.println(c.toString());
@@ -53,6 +56,7 @@ public class MainController {
 	    mav.addObject("maletotal",c.getMaletotal());
 	    mav.addObject("femaletotal",c.getFemaletotal());
 	    mav.addObject("clienttotal",c.getClienttotal());
+	    mav.addObject("username",u.getName());
 	    return mav;
 	  }
 	

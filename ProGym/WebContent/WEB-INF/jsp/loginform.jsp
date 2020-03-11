@@ -35,7 +35,7 @@
 		<div class="container-login100">
 			<div class="wrap-login100">
 			
-				<form:form class="login100-form validate-form" id="loginForm" modelAttribute="login" action="loginProcess" method="post">
+				<form:form class="login100-form validate-form" id="loginForm" modelAttribute="user" action="loginProcess" method="post">
 					<span class="login100-form-title p-b-34">
 						Account Login
 					</span>

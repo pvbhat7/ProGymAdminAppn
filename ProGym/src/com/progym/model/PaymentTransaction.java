@@ -30,6 +30,9 @@ public class PaymentTransaction {
 	@ManyToOne
     private PackageDetails packageDetails;
 	
+	@Column
+	private String isApproved;
+	
 	
 	public String getPaymentDate() {
 		return paymentDate;
@@ -49,20 +52,34 @@ public class PaymentTransaction {
 	public void setFeesPaid(Double feesPaid) {
 		this.feesPaid = feesPaid;
 	}
-	public PaymentTransaction(String paymentDate, int packageDetailsId, Double feesPaid) {
+	public PaymentTransaction(String paymentDate, int packageDetailsId, Double feesPaid , String isApproved) {
 		super();
 		this.paymentDate = paymentDate;
 		this.packageDetailsId = packageDetailsId;
 		this.feesPaid = feesPaid;
+		this.isApproved = isApproved ;
 	}
 	public PaymentTransaction() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	@Override
-	public String toString() {
-		return "PaymentTransaction [id=" + id + ", paymentDate=" + paymentDate + ", packageDetailsId="
-				+ packageDetailsId + ", feesPaid=" + feesPaid + ", packageDetails=" + packageDetails + "]";
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public PackageDetails getPackageDetails() {
+		return packageDetails;
+	}
+	public void setPackageDetails(PackageDetails packageDetails) {
+		this.packageDetails = packageDetails;
+	}
+	public String getIsApproved() {
+		return isApproved;
+	}
+	public void setIsApproved(String isApproved) {
+		this.isApproved = isApproved;
 	}
 	
 	
