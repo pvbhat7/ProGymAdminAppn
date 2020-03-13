@@ -98,6 +98,13 @@ public class UserServiceImpl implements UserService{
 	public CollectionDashboardPVO getDashboardCollection() {
 		return userDao.getDashboardCollection();
 	}
+
+	@Override
+	public void approveTransaction(String txnId) {
+
+		userDao.approveTransaction(txnId);
+		
+	}
 	
 
 }

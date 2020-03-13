@@ -152,7 +152,11 @@
 								                                                <td><c:out value="${c_pkg.clientPackageStatus}"/></td>
 								                                                <td><c:out value="${c_pkg.packageFees}"/></td>
 								                                                <td><c:out value="${c_pkg.amountPaid}"/></td>
-								                                                <td><input class="btnedit btn btn-info" type="button" value="Pay" /></td>
+								                                                <td>
+								                                                <c:if test="${c_pkg.packageFees != c_pkg.amountPaid}">
+								                                                <input class="btnedit btn btn-info" type="button" value="Pay" />
+								                                                </c:if>
+								                                                </td>
 								                                                <td>
 								                                                
 								                                                <div>
@@ -160,11 +164,23 @@
         <tr>
         	<th>Amount</th>
             <th>Date</th>
+            <th>Action</th>
         </tr>
-        <c:forEach var = "trans" items = "${c_pkg.paymentTransactions}">
+        <c:forEach var = "trans" items = "${c_pkg.paymentTransactions}" varStatus="status1">
         	<tr>
-	            <td>&nbsp;&nbsp;Rs. <c:out value="${trans.feesPaid}"/>&nbsp;&nbsp;</td>
+	            <td>&nbsp;&nbsp;<c:out value="${trans.feesPaid}"/>&nbsp;&nbsp;</td>
 	            <td>&nbsp;&nbsp;<c:out value="${trans.paymentDate}"/>&nbsp;&nbsp;</td>
+	            <c:if test="${trans.isApproved == 'NO'}">
+	            <td>&nbsp;&nbsp;
+	            <a href="<c:url value='approveTransaction?txnId=${c_pkg.paymentTransactions[status1.index].id}&cID=${clientPackagesList[status.index].client.id}&gender=${clientPackagesList[status.index].client.gender}'/>">
+	            <input class="btnedit btn btn-danger btn-xs" type="button" value="Approve" />
+	            </a>
+	            &nbsp;&nbsp;</td>
+	            </c:if>
+	            <c:if test="${trans.isApproved == 'YES'}">
+	            <td bgcolor="#00FF00">&nbsp;&nbsp;<c:out value="${trans.isApproved}"/>&nbsp;&nbsp;</td>
+	            </c:if>
+	            
             </tr>
   		</c:forEach>                
     </table>

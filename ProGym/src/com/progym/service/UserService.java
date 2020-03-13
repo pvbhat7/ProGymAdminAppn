@@ -43,6 +43,8 @@ public interface UserService {
 
 	CollectionDashboardPVO getDashboardCollection();
 
+	void approveTransaction(String txnId);
+
 
 	
 

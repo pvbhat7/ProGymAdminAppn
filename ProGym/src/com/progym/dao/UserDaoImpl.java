@@ -344,6 +344,17 @@ public class UserDaoImpl implements UserDao {
 				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "female")).list()).size(),
 				new LinkedHashSet(session.createCriteria(Client.class).list()).size());
 	}
+
+	@Override
+	public void approveTransaction(String txnId) {
+		session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		PaymentTransaction txn = (PaymentTransaction) session.get(PaymentTransaction.class, Integer.parseInt(txnId));
+		txn.setIsApproved("YES");
+		session.save(txn);
+		session.getTransaction().commit();
+		session.close();
+	}
   
 }
  

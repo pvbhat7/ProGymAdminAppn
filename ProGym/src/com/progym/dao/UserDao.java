@@ -44,5 +44,7 @@ public interface UserDao {
 	List<CollectionPVO> getCollectionBy(FilterCollectionObject filter);
 
 	CollectionDashboardPVO getDashboardCollection();
+
+	void approveTransaction(String txnId);
 	  
 	}

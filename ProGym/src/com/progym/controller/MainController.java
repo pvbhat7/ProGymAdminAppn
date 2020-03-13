@@ -56,6 +56,7 @@ public class MainController {
 	    mav.addObject("maletotal",c.getMaletotal());
 	    mav.addObject("femaletotal",c.getFemaletotal());
 	    mav.addObject("clienttotal",c.getClienttotal());
+	    if(u != null)
 	    mav.addObject("username",u.getName());
 	    return mav;
 	  }
@@ -244,6 +245,16 @@ public class MainController {
 		  mav.addObject("totalCollection", total);
 		  return mav;		  
 	  }
+	  
+	  
+	  @RequestMapping(value = "/approveTransaction", method = RequestMethod.GET)
+	  @ResponseBody
+	  public void approveTransaction(HttpServletRequest request, HttpServletResponse response,@RequestParam String txnId,@RequestParam String cID,@RequestParam String gender) throws IOException {
+		  userService.approveTransaction(txnId);
+		  String uri = "clientProfile?cliendId="+cID+"&gender="+gender+"";
+		  System.out.println(uri);
+		  response.sendRedirect(uri);
+		  }
 	  
 	  
 	  
