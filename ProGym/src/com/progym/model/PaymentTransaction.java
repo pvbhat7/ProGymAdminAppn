@@ -19,19 +19,19 @@ public class PaymentTransaction {
 	private int id;
 	
 	@Column
-	private String paymentDate;
+	public String paymentDate;
 	
 	@Column
-	private int packageDetailsId;
+	public int packageDetailsId;
 	
 	@Column
-	private Double feesPaid;
+	public double feesPaid;
 	
 	@ManyToOne
-    private PackageDetails packageDetails;
+	public PackageDetails packageDetails;
 	
 	@Column
-	private String isApproved;
+	public String isApproved;
 	
 	
 	public String getPaymentDate() {
@@ -46,13 +46,13 @@ public class PaymentTransaction {
 	public void setPackageDetailsId(int packageDetailsId) {
 		this.packageDetailsId = packageDetailsId;
 	}
-	public Double getFeesPaid() {
+	public double getFeesPaid() {
 		return feesPaid;
 	}
-	public void setFeesPaid(Double feesPaid) {
+	public void setFeesPaid(double feesPaid) {
 		this.feesPaid = feesPaid;
 	}
-	public PaymentTransaction(String paymentDate, int packageDetailsId, Double feesPaid , String isApproved) {
+	public PaymentTransaction(String paymentDate, int packageDetailsId, double feesPaid , String isApproved) {
 		super();
 		this.paymentDate = paymentDate;
 		this.packageDetailsId = packageDetailsId;

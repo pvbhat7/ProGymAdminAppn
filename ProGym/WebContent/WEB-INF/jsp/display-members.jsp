@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List"%>
+<%
+if(session.getAttribute("loggedInUser") == null)
+response.sendRedirect("login");
+%>
 <!doctype html>
 <html class="no-js" lang="en">
 
@@ -18,7 +22,7 @@
                     <c:forEach items="${membersList}" var="client" varStatus="status">
 					<tr>
 					    <%-- <td>Name: <c:out value="${client.name}"/></td> --%>
-					<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+					<div class="col-lg-2 col-md-4 col-sm-4 col-xs-9">
                         <a href="<c:url value='clientProfile?cliendId=${membersList[status.index].id}&gender=${membersList[status.index].gender}'/>"><div class="student-inner-std res-mg-b-30">
                             <div class="student-img">
                                 <img src="img/courses/pkgIcon.png" alt="" />

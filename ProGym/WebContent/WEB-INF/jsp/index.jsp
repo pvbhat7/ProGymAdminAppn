@@ -1,4 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
+<%
+if(session.getAttribute("loggedInUser") == null)
+response.sendRedirect("login");
+%>
 <!doctype html>
 <html class="no-js" lang="en">
 
@@ -73,7 +77,7 @@
         <div class="product-sales-area mg-tb-30">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-lg-6 col-md-9 col-sm-9 col-xs-9">
                         <div class="product-sales-chart">
                             <img src="img/banner1.jpg">
                         </div>

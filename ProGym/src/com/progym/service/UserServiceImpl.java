@@ -73,8 +73,8 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void createTransaction(PaymentTransaction paymentTransaction) {
-		userDao.createTransaction(paymentTransaction);
+	public void createTransaction(PaymentTransaction paymentTransaction , Boolean isAuthorized) {
+		userDao.createTransaction(paymentTransaction ,isAuthorized);
 		
 	}
 
@@ -104,6 +104,17 @@ public class UserServiceImpl implements UserService{
 
 		userDao.approveTransaction(txnId);
 		
+	}
+
+	@Override
+	public void updateClintAssignedPackage(String u_pkgId, String u_startdate, String u_fees) {
+		userDao.updateClientAssignedPackage(u_pkgId,u_startdate,u_fees);
+		
+	}
+	
+	@Override
+	public void deleteClintAssignedPackage(String u_pkgId) {
+		userDao.deleteClientAssignedPackage(u_pkgId);
 	}
 	
 

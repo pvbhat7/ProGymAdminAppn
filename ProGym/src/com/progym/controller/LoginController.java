@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,17 +34,18 @@ public class LoginController {
   }
   
   @RequestMapping(value = "/loginProcess", method = RequestMethod.POST)
-  public ModelAndView loginProcess(HttpServletRequest request, HttpServletResponse response,
+  public ModelAndView loginProcess(HttpSession session,HttpServletRequest request, HttpServletResponse response,
   @ModelAttribute("login") User user) throws IOException {
 	  
 	  // USER
 	  User u = userService.validateUser(new User(user.getUsername(),user.getPassword(),null, null));
 	  if(u != null) {
-		  System.out.println("USER FOUND "+u.toString());
-		  request.getSession().setAttribute("loggedInUser", u);
+		    System.out.println("user found in logincontroller");
+
+		  session.setAttribute("loggedInUser", u);
+		  
 		  ModelAndView mav = new ModelAndView("index");
 		    CollectionDashboardPVO c = userService.getDashboardCollection();
-		    System.out.println(c.toString());
 		    mav.addObject("male",c.getMale());
 		    mav.addObject("female",c.getFemale());
 		    mav.addObject("steam",c.getSteam());
@@ -60,8 +63,8 @@ public class LoginController {
 	  }	
   }
   @RequestMapping("/logout")
-  public String logout(HttpServletRequest request, HttpServletResponse response ) {
-      request.getSession().invalidate();
+  public String logout(HttpSession session) {
+      session.invalidate();
       return "redirect:/login";
   } 
 }

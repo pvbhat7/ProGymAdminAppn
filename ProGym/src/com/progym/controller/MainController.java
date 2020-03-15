@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,13 +45,15 @@ public class MainController {
 	  UserService userService;
 	  
 		@RequestMapping(value = "/index", method = RequestMethod.GET)
-	  public ModelAndView showIndexPage(HttpServletRequest request, HttpServletResponse response) {
-			User u = (User)request.getSession().getAttribute("loggedInUser");
-			if(u != null)
-				System.out.println("user found in session "+u.toString());
+	  public ModelAndView showIndexPage(HttpSession session,HttpServletRequest request, HttpServletResponse response) throws IOException {
+		User u = (User)session.getAttribute("loggedInUser");
 	    ModelAndView mav = new ModelAndView("index");
+
+		if(u == null)
+			response.sendRedirect("login");
+		else {
+			
 	    CollectionDashboardPVO c = userService.getDashboardCollection();
-	    System.out.println(c.toString());
 	    mav.addObject("male",c.getMale());
 	    mav.addObject("female",c.getFemale());
 	    mav.addObject("steam",c.getSteam());
@@ -56,9 +61,10 @@ public class MainController {
 	    mav.addObject("maletotal",c.getMaletotal());
 	    mav.addObject("femaletotal",c.getFemaletotal());
 	    mav.addObject("clienttotal",c.getClienttotal());
-	    if(u != null)
-	    mav.addObject("username",u.getName());
+	    mav.addObject("username",u.getName());	    
+	    }
 	    return mav;
+
 	  }
 	
 	  @RequestMapping(value = "/maleMembers", method = RequestMethod.GET)
@@ -160,8 +166,10 @@ public class MainController {
 	  
 	  @RequestMapping(value = "/clientProfile", method = RequestMethod.GET)
 	  @ResponseBody
-	  public ModelAndView clientProfile(@RequestParam String cliendId,@RequestParam String gender) {
-		  ModelAndView mav = new ModelAndView("client-profile");
+	  public ModelAndView clientProfile(@RequestParam String cliendId,@RequestParam String gender) throws InterruptedException {
+		  ModelAndView mav = new ModelAndView("client-profile");		  
+		  mav.clear();
+		  mav.setViewName("client-profile");
 		  mav.addObject("clientAddPackageObject", new AddClientPackageForm());
 		  Client client = userService.getClientById(Integer.parseInt(cliendId));
 		  mav.addObject("clientObject", client);
@@ -174,7 +182,9 @@ public class MainController {
 	  @RequestMapping(value = "/addPackageForClient", method = RequestMethod.POST)
 	  public void addPackageFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("clientAddPackageObject") AddClientPackageForm addClientPackageForm) throws IOException {
 		  userService.addPackageForClientToDatabase(addClientPackageForm);
-		  response.sendRedirect("allMembers");
+		  String uri = "clientProfile?cliendId="+addClientPackageForm.getClientId()+"&gender="+addClientPackageForm.getGender()+"";
+		  response.sendRedirect(uri);
+		  //response.sendRedirect("allMembers");
 	  }
 	  
 	  @RequestMapping(value = "/addPackage", method = RequestMethod.GET)
@@ -191,9 +201,12 @@ public class MainController {
 	  }
 	  
 	  @RequestMapping(value = "/addTransaction", method = RequestMethod.POST)
-	  public void addTransactionFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("transactionObject") PaymentTransaction paymentTransaction) throws IOException {
-		  System.out.println(paymentTransaction.toString());
-		  userService.createTransaction(paymentTransaction);
+	  public void addTransactionFromForm(HttpSession session,HttpServletRequest request, HttpServletResponse response,@ModelAttribute("transactionObject") PaymentTransaction paymentTransaction) throws IOException {
+		  Boolean isAuthorized = Boolean.FALSE;
+		  User u = (User)session.getAttribute("loggedInUser");
+		  if(u != null && u.getAuthorizedToApprovePayment().equals("YES"))
+			  isAuthorized = Boolean.TRUE;
+		  userService.createTransaction(paymentTransaction,isAuthorized);
 		  response.sendRedirect("allMembers");
 	  }
 	  
@@ -252,9 +265,31 @@ public class MainController {
 	  public void approveTransaction(HttpServletRequest request, HttpServletResponse response,@RequestParam String txnId,@RequestParam String cID,@RequestParam String gender) throws IOException {
 		  userService.approveTransaction(txnId);
 		  String uri = "clientProfile?cliendId="+cID+"&gender="+gender+"";
-		  System.out.println(uri);
 		  response.sendRedirect(uri);
 		  }
+	  
+	  @RequestMapping(value = "/updateClientAssignedPackage", method = RequestMethod.POST)
+	  @ResponseBody
+	  public void updateClientAssignedPackage(HttpServletRequest request, HttpServletResponse response,
+			  @RequestParam String u_pkgId,@RequestParam String u_startdate,@RequestParam String u_fees,
+			  @RequestParam String u_clientid,@RequestParam String u_gender) throws IOException {
+		  userService.updateClintAssignedPackage(u_pkgId,u_startdate,u_fees);
+		  System.out.println(u_clientid+" - "+u_fees+" - "+u_gender+" - "+u_pkgId+" - "+u_startdate);
+		  String uri = "clientProfile?cliendId="+u_clientid+"&gender="+u_gender+"";
+		  response.sendRedirect(uri);
+		  
+	  }
+	  
+	  @RequestMapping(value = "/deleteClientAssignedPackage", method = RequestMethod.GET)
+	  @ResponseBody
+	  public void deleteClientAssignedPackage(HttpServletRequest request, HttpServletResponse response,
+			  @RequestParam String u_pkgId,@RequestParam String u_clientid,@RequestParam String u_gender) throws IOException {
+		  userService.deleteClintAssignedPackage(u_pkgId);
+		  String uri = "clientProfile?cliendId="+u_clientid+"&gender="+u_gender+"";
+		  response.sendRedirect(uri);
+		  
+	  }
+	  
 	  
 	  
 	  

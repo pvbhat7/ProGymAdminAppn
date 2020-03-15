@@ -35,7 +35,7 @@ public interface UserDao {
 
 	CPackage getPackageById(int id);
 
-	void createTransaction(PaymentTransaction paymentTransaction);
+	void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized);
 	
 	List<PackageDetails> getClientPackagesByClient(Client client);
 
@@ -46,5 +46,9 @@ public interface UserDao {
 	CollectionDashboardPVO getDashboardCollection();
 
 	void approveTransaction(String txnId);
+
+	void updateClientAssignedPackage(String u_pkgId, String u_startdate, String u_fees);
+
+	void deleteClientAssignedPackage(String u_pkgId);
 	  
 	}

@@ -1,6 +1,13 @@
+<%@page import="com.progym.model.User"%>
+<%@page import="com.progym.model.Client"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
     <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
     <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%
+if(session.getAttribute("loggedInUser") == null)
+response.sendRedirect("login");
+%>
+    
 <!doctype html>
 <html class="no-js" lang="en">
 <head>
@@ -34,7 +41,7 @@
         <div class="single-pro-review-area mt-t-30 mg-b-15">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                         <div class="profile-info-inner">
                             <div class="profile-img">
                                 <img src="img/courses/pkgIcon.png" alt="" />
@@ -65,12 +72,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
                         <div class="product-payment-inner-st res-mg-t-30 analysis-progrebar-ctn">
                             <ul id="myTabedu1" class="tab-review-design">
                                 <li class="active"><a href="#description">History</a></li>
-                                <li><a href="#reviews">Update Profile</a></li>
-                                <li><a href="#INFORMATION">Update Packages</a></li>
+                                <!-- <li><a href="#reviews">Update Profile</a></li>
+                                <li><a href="#INFORMATION">Update Packages</a></li> -->
                             </ul>
                             
                             <div id="myTabContent" class="tab-content custom-product-edit st-prf-pro">
@@ -102,7 +109,8 @@
 													              <label for="psw"><span class="glyphicon"></span> Package Start Date</label>
 													              <form:input path="startDate" type="date" class="form-control" id="psw" />
 													            </div>	
-													            <form:input type="hidden" path="clientId" value="${clientObject.id}"/>												            
+													            <form:input type="hidden" path="clientId" value="${clientObject.id}"/>
+													            <form:input type="hidden" path="gender" value="${clientObject.gender}"/>												            
 													              <div align="center">												            
 													              <form:button type="submit" class="btn btn-danger" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</form:button>
 													              <form:button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-off"></span> Submit</form:button>
@@ -154,27 +162,41 @@
 								                                                <td><c:out value="${c_pkg.amountPaid}"/></td>
 								                                                <td>
 								                                                <c:if test="${c_pkg.packageFees != c_pkg.amountPaid}">
-								                                                <input class="btnedit btn btn-info" type="button" value="Pay" />
+								                                                <input class="btnedit btn btn-success btn-xs" type="button" value="Pay" />
 								                                                </c:if>
+								                                                <input class="btnEditClientPackage btn-primary btn-xs" type="button" value="Edit" />
+								                                                <a href="<c:url value='deleteClientAssignedPackage?u_pkgId=${clientPackagesList[status.index].id}&u_gender=${clientObject.gender}&u_clientid=${clientObject.id}'/>">
+								                                                <input class="btn btn-danger btn-xs" type="button" value="Delete" />
+								                                                </a>
 								                                                </td>
 								                                                <td>
-								                                                
-								                                                <div>
+	
+							                                                
+<div>
     <table id="tbldata" border="1">
         <tr>
-        	<th>Amount</th>
-            <th>Date</th>
-            <th>Action</th>
+        	<th align="center">Amount</th>
+            <th align="center">Date</th>
+            <th>Approved ?</th>
         </tr>
         <c:forEach var = "trans" items = "${c_pkg.paymentTransactions}" varStatus="status1">
         	<tr>
 	            <td>&nbsp;&nbsp;<c:out value="${trans.feesPaid}"/>&nbsp;&nbsp;</td>
 	            <td>&nbsp;&nbsp;<c:out value="${trans.paymentDate}"/>&nbsp;&nbsp;</td>
 	            <c:if test="${trans.isApproved == 'NO'}">
-	            <td>&nbsp;&nbsp;
+	            <td height="40" bgcolor="#FF3333">&nbsp;&nbsp;
+	            <%
+	            if(((User)session.getAttribute("loggedInUser")).getAuthorizedToApprovePayment().equals("YES")){
+	            %>
 	            <a href="<c:url value='approveTransaction?txnId=${c_pkg.paymentTransactions[status1.index].id}&cID=${clientPackagesList[status.index].client.id}&gender=${clientPackagesList[status.index].client.gender}'/>">
 	            <input class="btnedit btn btn-danger btn-xs" type="button" value="Approve" />
 	            </a>
+	            <%}
+	            else{%>
+	            <c:out value="${trans.isApproved}"/>
+	            <%
+	            }%>
+	            
 	            &nbsp;&nbsp;</td>
 	            </c:if>
 	            <c:if test="${trans.isApproved == 'YES'}">
@@ -184,10 +206,11 @@
             </tr>
   		</c:forEach>                
     </table>
-
-    <br />
-    <!-- Modal -->
-    <div class="modal fade" id="myModal1" role="dialog">
+</div>
+</td>
+    
+    <!-- Add Transaction Modal -->
+    <div class="modal fade" id="payModel" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -218,8 +241,45 @@
 
         </div>
     </div>
+    
+    <!-- Edit Client assigned Modal -->
+    <div class="modal fade" id="editPackageModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Update Package</h4>
+                </div>
+                <form action="updateClientAssignedPackage" class="dropzone dropzone-custom needsclick add-professors" method="post">
+                <div class="modal-body">
+                	<label for="psw"><span class="glyphicon"></span> Package</label>
+                    <input id="u_package" name="u_package" class="form-control" type="text" readonly/>
+                    </br>
+                    <label for="psw"><span class="glyphicon"></span> Package StartDate</label>
+                    <input id="u_startdate" name="u_startdate" class="form-control" type="date"/>
+                    
+                    <label for="psw"><span class="glyphicon"></span> Fees </label>
+                    <input id="u_fees" name="u_fees" class="form-control" type="number" />
+                    
+                    <input id="u_pkgId" class="form-control" type="hidden" name="u_pkgId" />
+                    <input id="u_clientid" class="form-control" type="hidden" value="<%out.print(((Client)request.getAttribute("clientObject")).getId());%>" name="u_clientid" />
+                    <input id="u_gender" class="form-control" type="hidden" name="u_gender" value="<%out.print(((Client)request.getAttribute("clientObject")).getGender());%>"/>
+                                        
+                </div>
+                <div class="modal-footer">
+                    <button id="basicInfo" type="submit" class="btn btn-primary">Update Package</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
     <script>
     $(function () {
+    	
+    	/* on click - pay */
         $(".btnedit").click(function () {
             //get data from table row
             var packageId = $(this).parent().prev().prev().prev().prev().prev().prev().prev().text();
@@ -236,7 +296,42 @@
             $("#packageDetailsId").val(packageId);
 
             //open modal
-            $("#myModal1").modal();
+            $("#payModel").modal();
+
+            $("#btnsave").click(function () {
+                //make ajax request to update data
+
+                //and in ajax success callback function 
+                //hide modal
+                //$("#myModal").modal("hide")              
+            })
+        })
+        
+        /* on click - edit client assigned package */
+        $(".btnEditClientPackage").click(function () {
+            //get data from table row
+            var packageId = $(this).parent().prev().prev().prev().prev().prev().prev().prev().text();
+            var packageName = $(this).parent().prev().prev().prev().prev().prev().prev().text();
+            var startdate = $(this).parent().prev().prev().prev().prev().prev().text();
+            var fees = $(this).parent().prev().prev().text();
+            <%-- var cliendId = <%out.print(((Client)request.getAttribute("clientObject")).getId());%>
+            var gender = <%out.print(((Client)request.getAttribute("clientObject")).getGender());%> --%>
+            
+            var initial = startdate.split(/\//);
+            var formattedDate = [ initial[2], initial[1], initial[0] ].join('-');
+            //assign to value for input box inside modal
+            $("#u_pkgId").val(packageId);
+            $("#u_package").val(packageName);
+            $("#u_fees").val(fees);
+            $("#u_startdate").val(formattedDate);
+            /* $("#u_clientid").val(cliendId);
+            $("#u_gender").val(gender); */
+            
+            
+            
+
+            //open modal
+            $("#editPackageModal").modal();
 
             $("#btnsave").click(function () {
                 //make ajax request to update data
@@ -248,9 +343,8 @@
         })
     })
 </script>
-</div>
 								                                                
-								                                                 </td>
+								                                                 
 								                                            </tr>
 								                                            </c:forEach>
 								                                        </tbody>

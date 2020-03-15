@@ -59,9 +59,10 @@ public class UserDaoImpl implements UserDao {
 			User u1 = new User("a", "a", "Pranav Patil","YES");
 			  User u2 = new User("b", "b","Pooja Patil", "NO");
 			  session.save(u1);
-			  session.save(u2);	
+			  session.save(u2);
+			  session.getTransaction().commit();
 		}
-	  session.getTransaction().commit();	  
+	  	  
     }
   
     public User validateUser(User user) {
@@ -73,8 +74,7 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public void addMemberToDatabase(AddMemberObject addMemberObject) {
-		session = getSession();
-		if(!session.getTransaction().isActive())
+		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), addMemberObject.getBirthDate(), addMemberObject.getRemarks(),"false",null);
 		session.save(c);
@@ -84,6 +84,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<Client> getMembersBy(String filter) {
 		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
 		Criteria crit = session.createCriteria(Client.class);
 		Collection<Client> collection = new LinkedHashSet(crit.list());
 		
@@ -98,15 +99,14 @@ public class UserDaoImpl implements UserDao {
 					cList.add(c);
 			}
 		}
+		session.getTransaction().commit();
 		session.close();
 		return cList;
 	}
 
 	@Override
 	public void addPackageToDatabase(AddPackageObject addPackageObject) {
-		session = getSession();
-		if(!session.getTransaction().isActive())
-		session.beginTransaction();
+		session = HibernateUtils.getSessionFactory().openSession();
 		CPackage pkg = new CPackage(addPackageObject.getFees(), addPackageObject.getPackageName(), addPackageObject.getDays(), addPackageObject.getGender(),"false");
 		session.save(pkg);
 		session.getTransaction().commit();	
@@ -131,8 +131,7 @@ public class UserDaoImpl implements UserDao {
 		
 		// get current list & add to existing list - pkgdetails
 		// 
-		session = getSession();
-		if(!session.getTransaction().isActive())
+		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		PackageDetails pd1 = new PackageDetails();
 		pd1.setClientPackageStatus("not paid");
@@ -149,6 +148,9 @@ public class UserDaoImpl implements UserDao {
 		pd1.setClient(c1);
 		session.save(pd1);
 		session.getTransaction().commit();
+		
+
+		
 	}
 
 	@Override
@@ -186,10 +188,14 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public void createTransaction(PaymentTransaction paymentTransaction) {
+	public void createTransaction(PaymentTransaction paymentTransaction ,Boolean isAuthorized) {
 		session =  HibernateUtils.getSessionFactory().openSession();
 			session.beginTransaction();
-		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),"NO");
+			String isAuth = "NO";
+			if(isAuthorized)
+				isAuth= "YES";
+			
+		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),isAuth);
 		PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", paymentTransaction.getPackageDetailsId())).uniqueResult();
 		pd.setAmountPaid(pd.getAmountPaid()+paymentTransaction.getFeesPaid());
 		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
@@ -208,7 +214,11 @@ public class UserDaoImpl implements UserDao {
 	public List<PackageDetails> getClientPackagesByClient(Client client) {
 		List<PackageDetails> pkgList = new ArrayList<PackageDetails>();
 		session = HibernateUtils.getSessionFactory().openSession();
-		Collection<PackageDetails> p = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.eq("client.id", client.getId())).list());
+		session.beginTransaction();
+		Collection<PackageDetails> p = new LinkedHashSet(session.createCriteria(PackageDetails.class)
+				.add(Restrictions.eq("client.id", client.getId()))
+				.add(Restrictions.eq("discontinue","false"))
+				.list());
 		for(PackageDetails pd : p) {
 			List<PaymentTransaction> tl = new ArrayList<PaymentTransaction>();
 			List<PaymentTransaction> ptl = session.createCriteria(PaymentTransaction.class).list();
@@ -220,9 +230,9 @@ public class UserDaoImpl implements UserDao {
 		}	
 		
 		
-	    List<PackageDetails> aList = new ArrayList<PackageDetails>(p); 
-	    session.close();
-		return aList;
+	    List<PackageDetails> aList = new ArrayList<PackageDetails>(p);
+	    session.getTransaction().commit();
+	    return aList;
 		
 	}
 
@@ -355,7 +365,35 @@ public class UserDaoImpl implements UserDao {
 		session.getTransaction().commit();
 		session.close();
 	}
+	
+	@Override
+	public void updateClientAssignedPackage(String u_pkgId, String u_startdate, String u_fees) {
+		session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
+		pd.setPackageFees(Double.parseDouble(u_fees));
+		pd.setPackageStartDate(getDdMmYyyyDate(u_startdate));
+		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
+		pd.setPackageEndDate(getDdMmYyyyDate(addDaysToDate(u_startdate ,  c.getDays())));
+		session.save(pd);
+		session.getTransaction().commit();
+		session.close();
+		
+		
+	}
+	
   
+	@Override
+	public void deleteClientAssignedPackage(String u_pkgId) {
+		session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
+		pd.setDiscontinue("true");
+		session.save(pd);
+		session.getTransaction().commit();
+		session.close();
+		
+	}
 }
  
 

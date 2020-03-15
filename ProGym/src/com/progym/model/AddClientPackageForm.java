@@ -5,8 +5,22 @@ public class AddClientPackageForm {
 	private String cpackageId;
 	private String startDate;
 	private int clientId;
+	private String gender;
 	
 	
+	
+	
+	public AddClientPackageForm() {
+	}
+	public AddClientPackageForm(String gender) {
+		this.gender = gender;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
 	public String getCpackageId() {
 		return cpackageId;
 	}

@@ -33,7 +33,7 @@ public interface UserService {
 
 	Client getClientById(int parseInt);
 
-	void createTransaction(PaymentTransaction paymentTransaction);
+	void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized);
 
 	List<PackageDetails> getClientPackagesByClient(Client client);
 
@@ -44,6 +44,10 @@ public interface UserService {
 	CollectionDashboardPVO getDashboardCollection();
 
 	void approveTransaction(String txnId);
+
+	void updateClintAssignedPackage(String u_pkgId, String u_startdate, String u_fees);
+
+	void deleteClintAssignedPackage(String u_pkgId);
 
 
 	
