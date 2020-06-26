@@ -1,3 +1,4 @@
+<%@page import="com.progym.model.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <div class="left-sidebar-pro">
         <nav id="sidebar" class="">
@@ -14,9 +15,9 @@
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-student icon-wrap"></span> <span class="mini-click-non">Members</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Students" href="maleMembers"><span class="mini-sub-pro">Male</span></a></li>
-                                <li><a title="Add Students" href="femaleMembers"><span class="mini-sub-pro">Female</span></a></li>
-                                <li><a title="Edit Students" href="allMembers"><span class="mini-sub-pro">All Members</span></a></li>
+                                <!-- <li><a title="All Students" href="maleMembers"><span class="mini-sub-pro">Male</span></a></li>
+                                <li><a title="Add Students" href="femaleMembers"><span class="mini-sub-pro">Female</span></a></li> -->
+                                <li><a title="Edit Students" href="allMembers?gender=all&zone=none"><span class="mini-sub-pro">All Members</span></a></li>
                                 <li><a title="Students Profile" href="addMember"><span class="mini-sub-pro">Add Member</span></a></li>
                             </ul>
                         </li>
@@ -36,13 +37,19 @@
                             </ul>
                         </li>
                         
+                        <%
+						User u = (User)session.getAttribute("loggedInUser");
+						if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+						%>
+                        
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Peity Charts" href="#"><span class="mini-sub-pro">Static Table</span></a></li>
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
                             </ul>
                         </li>
+                        
+                        <%} %>
                         
                       
                     </ul>
@@ -81,7 +88,7 @@
                                             <ul class="nav navbar-nav mai-top-nav">
                                                 <li class="nav-item"><a href="index" class="nav-link">Home</a>
                                                 </li>
-                                                <li class="nav-item"><a href="allMembers" class="nav-link">Members</a>
+                                                <li class="nav-item"><a href="allMembers?gender=all&zone=none" class="nav-link">Members</a>
                                                 </li>
                                                 <li class="nav-item dropdown res-dis-nn">
                                                     <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">Packages <span class="angle-down-topmenu"><i class="fa fa-angle-down"></i></span></a>
@@ -97,8 +104,13 @@
                                                         <a href="paidPayments?gender=all" class="dropdown-item">Paid</a>                                                        
                                                     </div>
                                                 </li>
+                                                <%
+												User u1 = (User)session.getAttribute("loggedInUser");
+												if(u1.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+												%>
                                                 <li class="nav-item"><a href="allReports" class="nav-link">Collections</a>
                                                 </li>
+                                                <%} %>
                                             </ul>
                                         </div>
                                     </div>

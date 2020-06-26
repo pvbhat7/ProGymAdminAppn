@@ -1,5 +1,7 @@
 package com.progym.model;
 
+import javax.persistence.Column;
+
 public class AddMemberObject {
 	
 	
@@ -12,6 +14,11 @@ public class AddMemberObject {
 	private String gender;
 	private String birthDate;
 	private String remarks;
+	private String email;
+	private String address;	
+	private String bloodGroup;	
+	private String reference;	
+	private String previousGym;
 	
 	
 	public String getName() {
@@ -45,6 +52,38 @@ public class AddMemberObject {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getBloodGroup() {
+		return bloodGroup;
+	}
+	public void setBloodGroup(String bloodGroup) {
+		this.bloodGroup = bloodGroup;
+	}
+	public String getReference() {
+		return reference;
+	}
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+	public String getPreviousGym() {
+		return previousGym;
+	}
+	public void setPreviousGym(String previousGym) {
+		this.previousGym = previousGym;
+	}
+	
+	
 	
 	
 	

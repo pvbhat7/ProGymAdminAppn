@@ -1,3 +1,4 @@
+<%@page import="com.progym.model.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List"%>
@@ -114,9 +115,9 @@ response.sendRedirect("login");
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-student icon-wrap"></span> <span class="mini-click-non">Members</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="All Students" href="maleMembers"><span class="mini-sub-pro">Male</span></a></li>
-                                <li><a title="Add Students" href="femaleMembers"><span class="mini-sub-pro">Female</span></a></li>
-                                <li><a title="Edit Students" href="allMembers"><span class="mini-sub-pro">All Members</span></a></li>
+                                <!-- <li><a title="All Students" href="maleMembers"><span class="mini-sub-pro">Male</span></a></li>
+                                <li><a title="Add Students" href="femaleMembers"><span class="mini-sub-pro">Female</span></a></li> -->
+                                <li><a title="Edit Students" href="allMembers?gender=all&zone=none"><span class="mini-sub-pro">All Members</span></a></li>
                                 <li><a title="Students Profile" href="addMember"><span class="mini-sub-pro">Add Member</span></a></li>
                             </ul>
                         </li>
@@ -136,13 +137,17 @@ response.sendRedirect("login");
                             </ul>
                         </li>
                         
+                        <%
+						User u = (User)session.getAttribute("loggedInUser");
+						if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+						%>
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Peity Charts" href="#"><span class="mini-sub-pro">Static Table</span></a></li>
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">Data Table</span></a></li>
                             </ul>
                         </li>
+                        <%} %>
                         
                       
                     </ul>
@@ -181,7 +186,7 @@ response.sendRedirect("login");
                                             <ul class="nav navbar-nav mai-top-nav">
                                                 <li class="nav-item"><a href="index" class="nav-link">Home</a>
                                                 </li>
-                                                <li class="nav-item"><a href="allMembers" class="nav-link">Members</a>
+                                                <li class="nav-item"><a href="allMembers?gender=all&zone=none" class="nav-link">Members</a>
                                                 </li>
                                                 <li class="nav-item dropdown res-dis-nn">
                                                     <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">Packages <span class="angle-down-topmenu"><i class="fa fa-angle-down"></i></span></a>
@@ -325,7 +330,8 @@ response.sendRedirect("login");
 											  <select name="gender" class="form-control" id="sel1" required="required">
 											    <option value="">Select</option>
 											    <option value="male">Male</option>
-											    <option value="female">Female</option>											    
+											    <option value="female">Female</option>
+											    <option value="all">All</option>											    
 											  </select>
 											</div>
                                         </div>
@@ -384,7 +390,8 @@ response.sendRedirect("login");
 											  <select name="gender" class="form-control" id="sel1" required="required">
 											    <option value="">Select</option>
 											    <option value="male">Male</option>
-											    <option value="female">Female</option>											    
+											    <option value="female">Female</option>	
+											    <option value="all">All</option>										    
 											  </select>
 											</div>
                                         </div>
@@ -414,7 +421,8 @@ response.sendRedirect("login");
 											  <select name="gender" class="form-control" id="sel1" required="required">
 											    <option value="">Select</option>
 											    <option value="male">Male</option>
-											    <option value="female">Female</option>											    
+											    <option value="female">Female</option>
+											    <option value="all">All</option>											    
 											  </select>
 											</div>
                                         </div>

@@ -1,3 +1,4 @@
+<%@page import="com.progym.model.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <%
 if(session.getAttribute("loggedInUser") == null)
@@ -15,6 +16,10 @@ response.sendRedirect("login");
     <!-- Start Left menu area -->
    <jsp:include page="topPage.jsp" />
 		
+		<%
+		User u = (User)session.getAttribute("loggedInUser");
+		if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+		%>
 		<!--Main page content -->
         <div class="analytics-sparkle-area">
             <div class="container-fluid">
@@ -74,16 +79,24 @@ response.sendRedirect("login");
                 </div>
             </div>
         </div>
+        <%} %>
+        
         <div class="product-sales-area mg-tb-30">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-6 col-md-9 col-sm-9 col-xs-9">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="product-sales-chart">
                             <img src="img/banner1.jpg">
                         </div>
+                        <div class="product-sales-chart">
+                            <img src="img/banner1.jpg">
+                        </div>
+                        
                     </div>
+                    
+                    <!-- GYM STAT START -->
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 res-mg-t-30 table-mg-t-pro-n tb-sm-res-d-n dk-res-t-d-n">
+                        <%-- <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 res-mg-t-30 table-mg-t-pro-n tb-sm-res-d-n dk-res-t-d-n">
                             <h3 class="box-title">Male Members</h3>
                             <ul class="list-inline two-part-sp">
                                 <li>
@@ -100,6 +113,9 @@ response.sendRedirect("login");
                                 </li>
                                 <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaletotal}</span></li>
                             </ul>
+                        </div> --%>
+                        <div class="product-sales-chart">
+                            <img src="img/banner1.jpg">
                         </div>
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
                             <h3 class="box-title">Total Members</h3>
@@ -109,18 +125,92 @@ response.sendRedirect("login");
                                 </li>
                                 <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
                             </ul>
-                        </div>
-                        <!-- <div class="white-box analytics-info-cs table-dis-n-pro tb-sm-res-d-n dk-res-t-d-n">
-                            <h3 class="box-title">Bounce Rate</h3>
+                        </div>  
+                                              
+                    </div>
+                    <!-- GYM STAT END -->
+                    
+                    <!-- MALE MEMBERS STAT STARTS -->
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 res-mg-t-30 table-mg-t-pro-n tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Male Members</h3>
                             <ul class="list-inline two-part-sp">
                                 <li>
-                                    <div id="sparklinedash4"></div>
+                                    <div id="sparklinedash"></div>
                                 </li>
-                                <li class="text-right graph-four-ctn"><i class="fa fa-level-down" aria-hidden="true"></i> <span class="text-danger"><span class="counter">18</span>%</span>
-                                </li>
+                                <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-success">${maletotal}</span></li>
                             </ul>
-                        </div> -->
+                        </div>
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Full Paid</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id=""></div>
+                                </li>
+                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaletotal}</span></li>
+                            </ul>
+                        </div>
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Partial Paid</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id="sparklinedash3"></div>
+                                </li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                            </ul>
+                        </div> 
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Not Paid</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id="sparklinedash3"></div>
+                                </li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                            </ul>
+                        </div>                        
                     </div>
+                    <!-- MALE MEMBERS STAT ENDS -->
+                    <!-- FEMALE MEMBERS STAT STARTS -->
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 res-mg-t-30 table-mg-t-pro-n tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Female Members</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id="sparklinedash2"></div>
+                                </li>
+                                <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-success">${maletotal}</span></li>
+                            </ul>
+                        </div>
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Full Paid</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id=""></div>
+                                </li>
+                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaletotal}</span></li>
+                            </ul>
+                        </div>
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Partial Paid</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id="sparklinedash3"></div>
+                                </li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                            </ul>
+                        </div> 
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                            <h3 class="box-title">Not Paid</h3>
+                            <ul class="list-inline two-part-sp">
+                                <li>
+                                    <div id="sparklinedash3"></div>
+                                </li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                            </ul>
+                        </div>                        
+                    </div>
+                    <!-- FEMALE MEMBERS STAT ENDS -->
+                    
                 </div>
             </div>
         </div>

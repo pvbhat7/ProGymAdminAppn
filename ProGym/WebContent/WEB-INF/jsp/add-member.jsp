@@ -47,6 +47,10 @@ response.sendRedirect("login");
 																		<form:options items="${gendersList}"/>
 																	</form:select>
                                                                 </div>
+                                                                <div class="form-group">
+                                                                    <form:input id="previousGym" path="previousGym" name="previousGym" type="text" class="form-control" placeholder="Previous Gym Name" required="true"/>
+                                                                    
+                                                                </div>
                                                                                                                                 
                                                             </div>
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -56,7 +60,19 @@ response.sendRedirect("login");
                                                                 </div>
                                                                 </div>
                                                                 <div class="form-group">
-                                                                    <form:input id="remarks" path="remarks" name="remarks" type="text" class="form-control" placeholder="Remarks" required="true"/>
+                                                                    <form:input id="email" path="email" name="email" type="email" class="form-control" placeholder="Email Id" required="true"/>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <form:select path="bloodGroup" class="form-control">
+																		<form:option value="NONE" label="--- Select Blood Group ---"/>
+																		<form:options items="${bloodGroupsList}"/>
+																	</form:select>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <form:select path="reference" class="form-control">
+																		<form:option value="NONE" label="--- Select Referer Name ---"/>
+																		<form:options items="${referencesList}"/>
+																	</form:select>
                                                                 </div>
                                                                 
                                                             </div>

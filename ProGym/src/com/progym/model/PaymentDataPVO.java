@@ -10,8 +10,17 @@ public class PaymentDataPVO {
 	String packagePaymentEndDate;
 	String gender;
 	String clientPackageStatus;
+	int clientId;
 	
 	
+	
+	
+	public int getClientId() {
+		return clientId;
+	}
+	public void setClientId(int clientId) {
+		this.clientId = clientId;
+	}
 	public String getClientPackageStatus() {
 		return clientPackageStatus;
 	}
@@ -67,7 +76,8 @@ public class PaymentDataPVO {
 				+ ", packagePaymentEndDate=" + packagePaymentEndDate + ", gender=" + gender + "]";
 	}
 	public PaymentDataPVO(String clientName, String packageName, Double feesPaid, String packageStartDate,
-			String packageEndDate, String packagePaymentEndDate, String gender,String paymentStatus) {
+			String packageEndDate, String packagePaymentEndDate, String gender,String paymentStatus
+			,int clientId) {
 		super();
 		this.clientName = clientName;
 		this.packageName = packageName;
@@ -77,6 +87,7 @@ public class PaymentDataPVO {
 		this.packagePaymentEndDate = packagePaymentEndDate;
 		this.gender = gender;
 		this.clientPackageStatus = paymentStatus;
+		this.clientId = clientId;
 	}
 	
 	

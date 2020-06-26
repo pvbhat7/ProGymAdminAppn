@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -19,6 +20,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.LogicalExpression;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,14 +34,22 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
+import com.progym.model.MemberStatPVO;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
+import com.progym.model.ReferenceVO;
 import com.progym.utils.HibernateUtils;
 
 @Repository
 public class UserDaoImpl implements UserDao {
+	
+    public static final long MILLISECONDS_IN_DAY = (long) (1000 * 60 * 60 * 24);
+    public static final String RED = "#FF0000";
+    public static final String YELLOW = "#FCFF00";
+    public static final String GREEN = "#1CFF00";
+
 	
 	/*
 	 * @Autowired DataSource datasource;
@@ -74,15 +84,25 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public void addMemberToDatabase(AddMemberObject addMemberObject) {
+		String refererId = addMemberObject.getReference();
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
-		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), addMemberObject.getBirthDate(), addMemberObject.getRemarks(),"false",null);
+		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), addMemberObject.getBirthDate(), addMemberObject.getRemarks(),"false",null,"0"
+				,addMemberObject.getEmail() , addMemberObject.getAddress() , addMemberObject.getBloodGroup() ,addMemberObject.getReference(), addMemberObject.getPreviousGym());
 		session.save(c);
+		if(!refererId.equalsIgnoreCase("none")){
+			Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));	
+			int referPoints = Integer.parseInt(c1.getReferPoints());
+			referPoints++;
+			c1.setReferPoints(String.valueOf(referPoints));
+			session.saveOrUpdate(c1);
+		}
+		
 		session.getTransaction().commit();
 	}
 
 	@Override
-	public List<Client> getMembersBy(String filter) {
+	public List<MemberStatPVO> getMembersBy(String filter , String zone) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		Criteria crit = session.createCriteria(Client.class);
@@ -99,9 +119,93 @@ public class UserDaoImpl implements UserDao {
 					cList.add(c);
 			}
 		}
+		List<MemberStatPVO> membersStatPVOs = new ArrayList<>();
+		for(Client c : cList){
+			MemberStatPVO m = new MemberStatPVO();
+			m.setId(c.getId());
+			m.setName(c.getName());
+			m.setGender(c.getGender());
+			m.setReferPoints(c.getReferPoints());
+			//m.setPaymentStatus(getLastPackagePaymentStatus(c));
+			
+			// get recent record
+			Criteria c1 = session.createCriteria(PackageDetails.class);
+			c1.add(Restrictions.eq("client.id", c.getId()));
+			c1.add(Restrictions.eq("discontinue", "false"));
+			c1.addOrder(Order.desc("id"));
+			c1.setMaxResults(1);
+			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
+			if(pd != null){
+				try {					
+					Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
+					Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
+					m.setDaysRemaining(String.valueOf(daysDiff(new Date(), secondDate)));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}	
+			}
+			else{
+				m.setDaysRemaining("-");
+			}
+			
+			if(m.getDaysRemaining().equals("-"))
+				m.setColor(GREEN);
+			else{
+				if(Integer.parseInt(m.getDaysRemaining())<5 && isFeesNotPaid(c))
+					m.setColor(RED);
+				else if(Integer.parseInt(m.getDaysRemaining()) > 5 && Integer.parseInt(m.getDaysRemaining()) < 10)
+					m.setColor(YELLOW);
+				else
+					m.setColor(GREEN);	
+			}	
+			
+			membersStatPVOs.add(m);
+		}
+		session.beginTransaction();
 		session.getTransaction().commit();
 		session.close();
-		return cList;
+		List<MemberStatPVO> membersStatPVOByZones = null;
+		
+		if(zone.equalsIgnoreCase("none")){
+			membersStatPVOByZones = membersStatPVOs;
+		}
+		  else if(zone.equalsIgnoreCase("green")){
+			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,GREEN);  
+		  }
+		  else if(zone.equalsIgnoreCase("red")){
+			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,RED);
+		  }
+		  else if(zone.equalsIgnoreCase("yellow")){
+			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,YELLOW);
+		  }
+		return membersStatPVOByZones;
+	}
+	
+	private boolean isFeesNotPaid(Client c) {
+		boolean flag = false;
+		List<PackageDetails> pdList = getClientPackagesByClient(c);
+		if(pdList != null){
+			if(!pdList.get(0).getClientPackageStatus().equalsIgnoreCase("fully-paid"))
+				flag =  true;				
+		}
+		return flag;
+	}
+	
+	private String getLastPackagePaymentStatus(Client c) {
+		List<PackageDetails> pdList = getClientPackagesByClient(c);
+		if(pdList.size() == 0)
+			return "-";
+		return pdList.get(0).getClientPackageStatus();
+	}
+
+	public List<MemberStatPVO> getMembersByZones(List<MemberStatPVO> list, String color){
+		List<MemberStatPVO> membersStatPVOByZones = new ArrayList<>();
+		for(MemberStatPVO m : list)
+		{
+			if(m.getColor().equalsIgnoreCase(color))
+				membersStatPVOByZones.add(m);
+		}		
+		return membersStatPVOByZones;
 	}
 
 	@Override
@@ -109,7 +213,8 @@ public class UserDaoImpl implements UserDao {
 		session = HibernateUtils.getSessionFactory().openSession();
 		CPackage pkg = new CPackage(addPackageObject.getFees(), addPackageObject.getPackageName(), addPackageObject.getDays(), addPackageObject.getGender(),"false");
 		session.save(pkg);
-		session.getTransaction().commit();	
+		session.beginTransaction();
+		session.getTransaction().commit();
 	}
 
 	@Override
@@ -126,7 +231,6 @@ public class UserDaoImpl implements UserDao {
 		return pkg;		
 	}
 	
-	@Override
 	public void addPackageForClientToDatabase(AddClientPackageForm o) {
 		
 		// get current list & add to existing list - pkgdetails
@@ -142,7 +246,10 @@ public class UserDaoImpl implements UserDao {
 		pd1.setDiscontinue("false");
 		pd1.setAmountPaid(0.0);	
 		pd1.setPackageName(c.getPackageName());
-		pd1.setPackageFees(c.getFees());
+		
+		// apply discount on fees
+		int discountedFees = (int)(c.getFees()*(Float.parseFloat(o.getDiscountPercentage())/100.0f));
+		pd1.setPackageFees(Double.valueOf(discountedFees));
 		
 		Client c1 = getClientById(o.getClientId());
 		pd1.setClient(c1);
@@ -199,7 +306,7 @@ public class UserDaoImpl implements UserDao {
 		PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", paymentTransaction.getPackageDetailsId())).uniqueResult();
 		pd.setAmountPaid(pd.getAmountPaid()+paymentTransaction.getFeesPaid());
 		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
-		if(c.getFees() > pd.getAmountPaid())
+		if(pd.getPackageFees() > pd.getAmountPaid())
 			pd.setClientPackageStatus("partial-paid");
 		else
 			pd.setClientPackageStatus("fully-paid");
@@ -218,6 +325,7 @@ public class UserDaoImpl implements UserDao {
 		Collection<PackageDetails> p = new LinkedHashSet(session.createCriteria(PackageDetails.class)
 				.add(Restrictions.eq("client.id", client.getId()))
 				.add(Restrictions.eq("discontinue","false"))
+				.addOrder(Order.desc("id"))
 				.list());
 		for(PackageDetails pd : p) {
 			List<PaymentTransaction> tl = new ArrayList<PaymentTransaction>();
@@ -267,7 +375,7 @@ public class UserDaoImpl implements UserDao {
 		}
 				
 		for(PackageDetails p : newList) {
-			list.add(new PaymentDataPVO(p.getClient().getName(), p.getPackageName(), p.getPackageFees(), p.getPackageStartDate(), p.getPackageEndDate(), p.getPackagePaymentDate(), p.getClient().getGender(),p.getClientPackageStatus()));
+			list.add(new PaymentDataPVO(p.getClient().getName(), p.getPackageName(), p.getPackageFees(), p.getPackageStartDate(), p.getPackageEndDate(), p.getPackagePaymentDate(), p.getClient().getGender(),p.getClientPackageStatus(),p.getClient().getId()));
 		}
 		return list;
 	}
@@ -314,20 +422,40 @@ public class UserDaoImpl implements UserDao {
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 				Calendar c = Calendar.getInstance();
 				try{c.setTime(sdf.parse(p.getPackagePaymentDate()));}catch(ParseException e){}	
-				if(filter.getGender().equals(p.getClient().getGender()) && String.valueOf(c.get(Calendar.MONTH)).equals(filter.getMonth()) && String.valueOf(c.get(Calendar.YEAR)).equals(filter.getYear()))
-					collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+				
+				if(filter.getGender().equalsIgnoreCase("all")){
+					if(String.valueOf(c.get(Calendar.MONTH)).equals(filter.getMonth()) && String.valueOf(c.get(Calendar.YEAR)).equals(filter.getYear()))
+						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));					
+				}
+				else{
+					if(filter.getGender().equals(p.getClient().getGender()) && String.valueOf(c.get(Calendar.MONTH)).equals(filter.getMonth()) && String.valueOf(c.get(Calendar.YEAR)).equals(filter.getYear()))
+						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+				}
 			}
 		}
 		else if(filter.getFilter().equals("GD")) {
 			for(PackageDetails p : packagePaymentCollection) {
 				
-				if(p.getPackagePaymentDate().equals(getDdMmYyyyDate(filter.getDate())) && filter.getGender().equals(p.getClient().getGender()))
-					collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+				if(filter.getGender().equalsIgnoreCase("all")){
+					if(p.getPackagePaymentDate().equals(getDdMmYyyyDate(filter.getDate())))
+						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));					
+				}
+				else{
+					if(p.getPackagePaymentDate().equals(getDdMmYyyyDate(filter.getDate())) && filter.getGender().equals(p.getClient().getGender()))
+						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+				}
 			}
 		}else if(filter.getFilter().equals("G")) {
 			for(PackageDetails p : packagePaymentCollection) {
-				if(p.getClient().getGender().equals(filter.getGender()))
-					collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+				
+				
+				if(filter.getGender().equalsIgnoreCase("all")){
+						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));					
+				}
+				else{
+					if(p.getClient().getGender().equals(filter.getGender()))
+						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));
+				}
 			}
 		} 
 			
@@ -367,14 +495,15 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public void updateClientAssignedPackage(String u_pkgId, String u_startdate, String u_fees) {
+	public void updateClientAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees) {
 		session =  HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
 		pd.setPackageFees(Double.parseDouble(u_fees));
 		pd.setPackageStartDate(getDdMmYyyyDate(u_startdate));
 		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
-		pd.setPackageEndDate(getDdMmYyyyDate(addDaysToDate(u_startdate ,  c.getDays())));
+		//pd.setPackageEndDate(getDdMmYyyyDate(addDaysToDate(u_startdate ,  c.getDays())));
+		pd.setPackageEndDate(getDdMmYyyyDate(u_enddate));
 		session.save(pd);
 		session.getTransaction().commit();
 		session.close();
@@ -394,6 +523,46 @@ public class UserDaoImpl implements UserDao {
 		session.close();
 		
 	}
+	
+	public static int daysDiff(Date from, Date until) {
+        Calendar cFrom = Calendar.getInstance();
+        cFrom.setTime(getDateAtNoon(from));
+        int cFromDSTOffset = cFrom.get(Calendar.DST_OFFSET);
+        long cFromTime = cFrom.getTime().getTime() + (long) cFromDSTOffset;
+        Calendar cUntil = Calendar.getInstance();
+        cUntil.setTime(getDateAtNoon(until));
+        int cUntilDSTOffset = cUntil.get(Calendar.DST_OFFSET);
+        long cUntilTime = cUntil.getTime().getTime() + (long) cUntilDSTOffset;
+        return (int) ((cUntilTime - cFromTime) / MILLISECONDS_IN_DAY);
+    }
+
+    public static Date getDateAtNoon(Date datetime) {
+        if (datetime == null)
+            return null;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(datetime);
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+    
+    @Override
+    public List<ReferenceVO> getReferenceList() {
+    	List<Client> list = new ArrayList<Client>();
+    	List<ReferenceVO> refList = new ArrayList<ReferenceVO>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria crit = session.createCriteria(Client.class);
+		crit.add(Restrictions.eq("discontinue","false"));
+		list = crit.list();
+		session.close();
+		for(Client c : list){
+			refList.add(new ReferenceVO(c.getId() , c.getName()));
+		}
+		return refList;		
+    }
 }
  
 

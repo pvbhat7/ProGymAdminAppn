@@ -10,10 +10,12 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
+import com.progym.model.MemberStatPVO;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
+import com.progym.model.ReferenceVO;
 
 public interface UserDao {
 	
@@ -23,7 +25,7 @@ public interface UserDao {
 
 	void addMemberToDatabase(AddMemberObject addMemberObject);
 
-	public List<Client> getMembersBy(String filter);
+	public List<MemberStatPVO> getMembersBy(String filter , String zone);
 
 	void addPackageToDatabase(AddPackageObject addPackageObject);
 
@@ -47,8 +49,10 @@ public interface UserDao {
 
 	void approveTransaction(String txnId);
 
-	void updateClientAssignedPackage(String u_pkgId, String u_startdate, String u_fees);
+	void updateClientAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees);
 
 	void deleteClientAssignedPackage(String u_pkgId);
+
+	List<ReferenceVO> getReferenceList();
 	  
 	}

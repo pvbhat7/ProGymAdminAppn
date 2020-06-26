@@ -34,6 +34,7 @@ import com.progym.model.FilterCollectionObject;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentTransaction;
+import com.progym.model.ReferenceVO;
 import com.progym.service.UserService;
 
 @Controller
@@ -71,7 +72,7 @@ public class MainController {
 	  public ModelAndView showMaleMembers(HttpServletRequest request, HttpServletResponse response) {		  
 	    ModelAndView mav = new ModelAndView("display-members");
 	    mav.clear();
-	    mav.addObject("membersList",userService.getMembersBy("male"));
+	    //mav.addObject("membersList",userService.getMembersBy("male"));
 	    mav.setViewName("display-members");
 	    return mav;
 	  }
@@ -80,17 +81,16 @@ public class MainController {
 	  public ModelAndView showFemaleMembers(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-members");
 		  mav.clear();
-		  mav.addObject("membersList",userService.getMembersBy("female"));
+		  //mav.addObject("membersList",userService.getMembersBy("female"));
 		  mav.setViewName("display-members");
 	    return mav;
 	  }
 	  
 	  @RequestMapping(value = "/allMembers", method = RequestMethod.GET)
-	  public ModelAndView showAllMembers(HttpServletRequest request, HttpServletResponse response) {
-		  ModelAndView mav = new ModelAndView("display-members");
-		  mav.clear();
-		  mav.addObject("membersList",userService.getMembersBy("all"));
-		  mav.setViewName("display-members");
+	  public ModelAndView showAllMembers(HttpServletRequest request, 
+			  HttpServletResponse response,@RequestParam String gender , @RequestParam String zone) {
+		  ModelAndView mav = new ModelAndView("display-allMembers");
+		  mav.addObject("membersList",userService.getMembersBy(gender,zone));		  
 	    return mav;
 	  }
 	  
@@ -104,7 +104,60 @@ public class MainController {
 	  @RequestMapping(value = "/addMember", method = RequestMethod.POST)
 	  public void addMemberFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addmemberobject") AddMemberObject addMemberObject) throws IOException {
 		  userService.addMemberToDatabase(addMemberObject);
-		  response.sendRedirect("allMembers");	    
+		  response.sendRedirect("allMembers?gender=all&zone=none");	    
+	  }
+	  
+	  @ModelAttribute("bloodGroupsList")
+	   public Map<String, String> getBloodGroupsList() {
+		  Map<String,String> bloodGroupsList = new LinkedHashMap<String,String>();
+		  bloodGroupsList.put("A+", "A+");
+		  bloodGroupsList.put("A-", "A-");
+		  bloodGroupsList.put("B+", "B+");
+		  bloodGroupsList.put("B-", "B-");
+		  bloodGroupsList.put("O+", "O+");
+		  bloodGroupsList.put("O-", "O-");
+		  bloodGroupsList.put("AB+", "AB+");
+		  bloodGroupsList.put("AB-", "AB-");
+			return bloodGroupsList;		  
+	  }
+	  
+	  @ModelAttribute("discountPercentageList")
+	   public Map<String, String> getDiscountPercentageList() {
+		  Map<String,String> discountPercentageList = new LinkedHashMap<String,String>();
+		  discountPercentageList.put("10", "No Discount");
+		  discountPercentageList.put("10", "10%");
+		  discountPercentageList.put("20", "20%");
+		  discountPercentageList.put("30", "30%");
+		  discountPercentageList.put("40", "40%");
+		  discountPercentageList.put("50", "50%");
+		  discountPercentageList.put("60", "60%");
+		  discountPercentageList.put("70", "70%");
+		  discountPercentageList.put("80", "80%");
+		  discountPercentageList.put("90", "90%");
+		  discountPercentageList.put("100", "100%");
+		  return discountPercentageList;		  
+	  }
+	  
+	  @ModelAttribute("packagePeriodsList")
+	   public Map<String, String> getPackagePeriodsList() {
+		  Map<String,String> packagePeriodsList = new LinkedHashMap<String,String>();
+		  packagePeriodsList.put("30", "1 Month");
+		  packagePeriodsList.put("90", "3 Month");
+		  packagePeriodsList.put("180", "6 Month");
+		  packagePeriodsList.put("365", "1 Year");
+		  return packagePeriodsList;		  
+	  }
+	  
+	  
+	  
+	  @ModelAttribute("referencesList")
+	   public Map<String, String> getReferencesList() {
+		  Map<String, String> referencesList = new HashMap<String, String>();
+		  referencesList.put("none", "None");
+	      for(ReferenceVO ref : userService.getReferenceList()) {
+	    	  referencesList.put(String.valueOf(ref.getClientId()),ref.getName());  
+	      }	      
+	      return referencesList;	  
 	  }
 	  
 	  @ModelAttribute("gendersList")
@@ -114,6 +167,7 @@ public class MainController {
 			gendersList.put("female", "Female");
 			return gendersList;		  
 	  }
+	  
 	  @ModelAttribute("packagesList")
 	   public Map<String, String> getPackagesList(String gender) {
 	      Map<String, String> packagesList = new HashMap<String, String>();
@@ -197,7 +251,7 @@ public class MainController {
 	  @RequestMapping(value = "/addPackage", method = RequestMethod.POST)
 	  public void addPackageFromFormToDb(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addPackageObject") AddPackageObject addPackageObject) throws IOException {
 		  userService.addPackageToDatabase(addPackageObject);
-		  response.sendRedirect("allMembers");
+		  response.sendRedirect("allMembers?gender=all&zone=none");
 	  }
 	  
 	  @RequestMapping(value = "/addTransaction", method = RequestMethod.POST)
@@ -207,7 +261,7 @@ public class MainController {
 		  if(u != null && u.getAuthorizedToApprovePayment().equals("YES"))
 			  isAuthorized = Boolean.TRUE;
 		  userService.createTransaction(paymentTransaction,isAuthorized);
-		  response.sendRedirect("allMembers");
+		  response.sendRedirect("allMembers?gender=all&zone=none");
 	  }
 	  
 	 
@@ -271,9 +325,9 @@ public class MainController {
 	  @RequestMapping(value = "/updateClientAssignedPackage", method = RequestMethod.POST)
 	  @ResponseBody
 	  public void updateClientAssignedPackage(HttpServletRequest request, HttpServletResponse response,
-			  @RequestParam String u_pkgId,@RequestParam String u_startdate,@RequestParam String u_fees,
+			  @RequestParam String u_pkgId,@RequestParam String u_startdate,@RequestParam String u_enddate,@RequestParam String u_fees,
 			  @RequestParam String u_clientid,@RequestParam String u_gender) throws IOException {
-		  userService.updateClintAssignedPackage(u_pkgId,u_startdate,u_fees);
+		  userService.updateClintAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees);
 		  System.out.println(u_clientid+" - "+u_fees+" - "+u_gender+" - "+u_pkgId+" - "+u_startdate);
 		  String uri = "clientProfile?cliendId="+u_clientid+"&gender="+u_gender+"";
 		  response.sendRedirect(uri);

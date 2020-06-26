@@ -14,10 +14,12 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
+import com.progym.model.MemberStatPVO;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
+import com.progym.model.ReferenceVO;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -44,8 +46,8 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public List<Client> getMembersBy(String filter) {
-		return userDao.getMembersBy(filter);
+	public List<MemberStatPVO> getMembersBy(String filter , String zone) {
+		return userDao.getMembersBy(filter , zone);
 		
 	}
 
@@ -107,14 +109,19 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void updateClintAssignedPackage(String u_pkgId, String u_startdate, String u_fees) {
-		userDao.updateClientAssignedPackage(u_pkgId,u_startdate,u_fees);
+	public void updateClintAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees) {
+		userDao.updateClientAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees);
 		
 	}
 	
 	@Override
 	public void deleteClintAssignedPackage(String u_pkgId) {
 		userDao.deleteClientAssignedPackage(u_pkgId);
+	}
+	
+	@Override
+	public List<ReferenceVO> getReferenceList() {
+		return userDao.getReferenceList();
 	}
 	
 

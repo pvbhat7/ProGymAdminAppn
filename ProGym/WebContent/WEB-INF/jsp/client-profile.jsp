@@ -105,10 +105,19 @@ response.sendRedirect("login");
 																		<form:options items="${packagesList}"/>
 																	</form:select>
                                                                 </div>
+                                                                </br>
                                                                 <div class="form-group">
 													              <label for="psw"><span class="glyphicon"></span> Package Start Date</label>
 													              <form:input path="startDate" type="date" class="form-control" id="psw" />
-													            </div>	
+													            </div>
+													            </br>	
+													            <div class="form-group">
+                                                                    <form:select path="discountPercentage" class="form-control">
+																		<form:option value="NONE" label="--- Select Discount Percentage ---"/>
+																		<form:options items="${discountPercentageList}"/>
+																	</form:select>
+                                                                </div>
+                                                                </br>
 													            <form:input type="hidden" path="clientId" value="${clientObject.id}"/>
 													            <form:input type="hidden" path="gender" value="${clientObject.gender}"/>												            
 													              <div align="center">												            
@@ -139,7 +148,7 @@ response.sendRedirect("login");
 								                                    <table class="table">
 								                                        <thead>
 								                                            <tr>
-								                                                <th>Id</th>
+								                                                <th hidden="true">Id</th>
 								                                                <th>Package</th>
 								                                                <th>Start Date</th>
 								                                                <th>End Date</th>
@@ -153,7 +162,7 @@ response.sendRedirect("login");
 								                                        <tbody>
 								                                        <c:forEach items="${clientPackagesList}" var="c_pkg" varStatus="status">
 								                                            <tr>
-								                                            	<td><c:out value="${c_pkg.id}"/></td>
+								                                            	<td hidden="true"><c:out value="${c_pkg.id}"/></td>
 								                                                <td><c:out value="${c_pkg.packageName}"/></td>
 								                                                <td><c:out value="${c_pkg.packageStartDate}"/></td>
 								                                                <td><c:out value="${c_pkg.packageEndDate}"/></td>
@@ -257,11 +266,14 @@ response.sendRedirect("login");
                     <input id="u_package" name="u_package" class="form-control" type="text" readonly/>
                     </br>
                     <label for="psw"><span class="glyphicon"></span> Package StartDate</label>
-                    <input id="u_startdate" name="u_startdate" class="form-control" type="date"/>
-                    
+                    <input id="u_startdate" name="u_startdate" class="form-control" type="date" readonly/>
+                    </br>
+                    <label for="psw"><span class="glyphicon"></span> Package EndDate</label>
+                    <input id="u_enddate" name="u_enddate" class="form-control" type="date"/>
+                    </br>
                     <label for="psw"><span class="glyphicon"></span> Fees </label>
                     <input id="u_fees" name="u_fees" class="form-control" type="number" />
-                    
+                    </br>
                     <input id="u_pkgId" class="form-control" type="hidden" name="u_pkgId" />
                     <input id="u_clientid" class="form-control" type="hidden" value="<%out.print(((Client)request.getAttribute("clientObject")).getId());%>" name="u_clientid" />
                     <input id="u_gender" class="form-control" type="hidden" name="u_gender" value="<%out.print(((Client)request.getAttribute("clientObject")).getGender());%>"/>
@@ -313,17 +325,22 @@ response.sendRedirect("login");
             var packageId = $(this).parent().prev().prev().prev().prev().prev().prev().prev().text();
             var packageName = $(this).parent().prev().prev().prev().prev().prev().prev().text();
             var startdate = $(this).parent().prev().prev().prev().prev().prev().text();
+            var enddate = $(this).parent().prev().prev().prev().prev().text();
             var fees = $(this).parent().prev().prev().text();
             <%-- var cliendId = <%out.print(((Client)request.getAttribute("clientObject")).getId());%>
             var gender = <%out.print(((Client)request.getAttribute("clientObject")).getGender());%> --%>
             
             var initial = startdate.split(/\//);
             var formattedDate = [ initial[2], initial[1], initial[0] ].join('-');
+            var initialEndDate = enddate.split(/\//);
+            var formattedEndDate = [ initialEndDate[2], initialEndDate[1], initialEndDate[0] ].join('-');
+            
             //assign to value for input box inside modal
             $("#u_pkgId").val(packageId);
             $("#u_package").val(packageName);
             $("#u_fees").val(fees);
             $("#u_startdate").val(formattedDate);
+            $("#u_enddate").val(formattedEndDate);
             /* $("#u_clientid").val(cliendId);
             $("#u_gender").val(gender); */
             

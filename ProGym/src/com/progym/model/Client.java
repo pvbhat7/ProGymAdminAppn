@@ -27,7 +27,8 @@ public class Client {
 	
 
 	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discontinue,
-			List<PackageDetails> packageDetails) {
+			List<PackageDetails> packageDetails,String referPoints,
+			String email , String address , String bloodGroup , String reference , String previousGym) {
 		super();
 		this.name = name;
 		this.mobile = mobile;
@@ -36,6 +37,12 @@ public class Client {
 		this.remarks = remarks;
 		this.discontinue = discontinue;
 		this.packageDetails = packageDetails;
+		this.referPoints = referPoints;
+		this.email = email;
+		this.address = address;	
+		this.bloodGroup = bloodGroup;	
+		this.reference = reference;	
+		this.previousGym = previousGym;
 	}
 
 
@@ -62,6 +69,24 @@ public class Client {
 	
 	@Column
 	private String discontinue;
+	
+	@Column
+	private String referPoints;
+	
+	@Column
+	private String email;
+	
+	@Column
+	private String address;
+	
+	@Column
+	private String bloodGroup;
+	
+	@Column
+	private String reference;
+	
+	@Column
+	private String previousGym;
 	
 	//private byte[] photo;
 	
@@ -151,8 +176,85 @@ public class Client {
 	public void setDiscontinue(String discontinue) {
 		this.discontinue = discontinue;
 	}
+	
+	public String getReferPoints() {
+		return referPoints;
+	}
 
 
+	public void setReferPoints(String referPoints) {
+		this.referPoints = referPoints;
+	}
+	
+	
+
+
+	public String getEmail() {
+		return email;
+	}
+
+
+
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+
+
+
+	public String getAddress() {
+		return address;
+	}
+
+
+
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+
+
+
+	public String getBloodGroup() {
+		return bloodGroup;
+	}
+
+
+
+
+	public void setBloodGroup(String bloodGroup) {
+		this.bloodGroup = bloodGroup;
+	}
+
+
+
+
+	public String getReference() {
+		return reference;
+	}
+
+
+
+
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+
+
+
+
+	public String getPreviousGym() {
+		return previousGym;
+	}
+
+
+
+
+	public void setPreviousGym(String previousGym) {
+		this.previousGym = previousGym;
+	}
 
 
 	@Override

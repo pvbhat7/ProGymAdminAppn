@@ -6,6 +6,7 @@ public class AddClientPackageForm {
 	private String startDate;
 	private int clientId;
 	private String gender;
+	private String discountPercentage;
 	
 	
 	
@@ -38,6 +39,14 @@ public class AddClientPackageForm {
 	}
 	public void setClientId(int clientId) {
 		this.clientId = clientId;
+	}
+	
+	
+	public String getDiscountPercentage() {
+		return discountPercentage;
+	}
+	public void setDiscountPercentage(String discountPercentage) {
+		this.discountPercentage = discountPercentage;
 	}
 	@Override
 	public String toString() {

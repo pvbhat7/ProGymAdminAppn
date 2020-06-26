@@ -38,12 +38,15 @@ response.sendRedirect("login");
                                                                     <form:input id="packageName" path="packageName" name="packageName" type="text" class="form-control" placeholder="Package Name" required="true"/>
                                                                 </div>
                                                                 <div class="form-group">
-                                                                    <form:input id="days" path="days" name="days" type="number" class="form-control" placeholder="Duration in days" required="true"/>                                                                    
+                                                                    <form:select path="days" class="form-control">
+																		<form:option value="NONE" label="--- Select Period ---"/>
+																		<form:options items="${packagePeriodsList}"/>
+																	</form:select>
                                                                 </div>
                                                                                                                                 
                                                             </div>
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                           <div class="form-group">
+                                                           		<div class="form-group">
                                                                     <form:select path="gender" class="form-control">
 																		<form:option value="NONE" label="--- Select Gender ---"/>
 																		<form:options items="${gendersList}"/>

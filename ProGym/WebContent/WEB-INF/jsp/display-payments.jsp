@@ -54,7 +54,11 @@ response.sendRedirect("login");
                                     <c:forEach items="${paymentDataPVOList}" var="paymentData" varStatus="status">
                                     <tr>
                                         <td><img src="img/courses/pkgIcon.png" alt="" /></td>
-                                        <td><c:out value="${paymentData.clientName}"/></td>
+                                        <td>
+                                        <a href="<c:url value='clientProfile?cliendId=${paymentData.clientId}&gender=${paymentData.gender}'/>">
+                                        <c:out value="${paymentData.clientName}"/>
+                                        </a>
+                                        </td>
                                         <td><c:out value="${paymentData.gender}"/></td>                                        
                                         <td><c:out value="${paymentData.packageName}"/></td>
                                         <td><c:out value="${paymentData.feesPaid}"/></td>
