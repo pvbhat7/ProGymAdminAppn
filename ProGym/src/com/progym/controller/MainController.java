@@ -362,24 +362,7 @@ public class MainController {
 	  public ModelAndView backupDatabase(HttpServletRequest request, HttpServletResponse response) throws ClassNotFoundException, IOException, SQLException {		  
 	    ModelAndView mav = new ModelAndView("index");
 	    
-	  //required properties for exporting of db
-	    /*Properties properties = new Properties();
-	    properties.setProperty(MysqlExportService.DB_NAME, "prashant");
-	    properties.setProperty(MysqlExportService.DB_USERNAME, "root");
-	    properties.setProperty(MysqlExportService.DB_PASSWORD, "sysuser");
-	    
-	    //properties relating to email config
-	    properties.setProperty(MysqlExportService.EMAIL_HOST, "mail.smtp.host");
-	    properties.setProperty(MysqlExportService.EMAIL_PORT, "465");
-	    properties.setProperty(MysqlExportService.EMAIL_USERNAME, "bhatprashant1994@gmail.com");
-	    properties.setProperty(MysqlExportService.EMAIL_PASSWORD, "1994kapwd");
-	    properties.setProperty(MysqlExportService.EMAIL_FROM, "bhatprashant1994@gmail.com");
-	    properties.setProperty(MysqlExportService.EMAIL_TO, "bhatprashant999@gmail.com");
-	    
-	    //set the outputs temp dir
-	    properties.setProperty(MysqlExportService.TEMP_DIR, new File("external").getPath());
-	    MysqlExportService mysqlExportService = new MysqlExportService(properties);
-	    mysqlExportService.export();*/
+	  
 	    
 	    try {
             Runtime rt = Runtime.getRuntime();
