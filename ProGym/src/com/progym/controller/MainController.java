@@ -135,7 +135,7 @@ public class MainController {
 	  @ModelAttribute("discountPercentageList")
 	   public Map<String, String> getDiscountPercentageList() {
 		  Map<String,String> discountPercentageList = new LinkedHashMap<String,String>();
-		  discountPercentageList.put("10", "No Discount");
+		  discountPercentageList.put("0", "0%");
 		  discountPercentageList.put("10", "10%");
 		  discountPercentageList.put("20", "20%");
 		  discountPercentageList.put("30", "30%");

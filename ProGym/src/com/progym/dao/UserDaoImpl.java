@@ -258,8 +258,9 @@ public class UserDaoImpl implements UserDao {
 		
 		// apply discount on fees
 		int discountedFees = (int)(c.getFees()*(Float.parseFloat(o.getDiscountPercentage())/100.0f));
-		pd1.setPackageFees(Double.valueOf(discountedFees));
-		
+		int finalDiscountedFees = c.getFees().intValue() - discountedFees;
+		pd1.setPackageFees(Double.valueOf(finalDiscountedFees));
+		System.out.println("Process - assignnew package - default fees"+c.getFees()+" discount given "+o.getDiscountPercentage()+"  fees after discount "+discountedFees);
 		Client c1 = getClientById(o.getClientId());
 		pd1.setClient(c1);
 		session.save(pd1);
@@ -605,9 +606,9 @@ public class UserDaoImpl implements UserDao {
     private void logActivity(Session session , Client c , User user , String activity ,String amount) {
     	Notifications noti = null;
     	if(c != null)
-		 noti = new Notifications(user.getName(), activity, c.getName(), amount, "false", c.getGender(), c.getId(), new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+		 noti = new Notifications(user.getName(), activity, c.getName(), amount, "false", c.getGender(), c.getId(), new SimpleDateFormat("dd/MM/YYYY hh:mm:ss").format(new Date()));
     	else 
-    		noti = new Notifications(user.getName(), activity, "", amount, "false", "", -1, new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+    		noti = new Notifications(user.getName(), activity, "", amount, "false", "", -1, new SimpleDateFormat("dd/MM/YYYY hh:mm:ss").format(new Date()));
 		session.save(noti);		
 	}
     
@@ -618,6 +619,7 @@ public class UserDaoImpl implements UserDao {
 		session.beginTransaction();
 		Criteria crit = session.createCriteria(Notifications.class);
 		crit.add(Restrictions.eq("discontinue","false"));
+		crit.addOrder(Order.desc("id"));
 		notiList = crit.list();
 		session.close();		
 		return notiList;	

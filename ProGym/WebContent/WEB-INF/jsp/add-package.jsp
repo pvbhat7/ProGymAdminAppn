@@ -38,7 +38,7 @@ response.sendRedirect("login");
                                                                     <form:input id="packageName" path="packageName" name="packageName" type="text" class="form-control" placeholder="Package Name" required="true"/>
                                                                 </div>
                                                                 <div class="form-group">
-                                                                    <form:select path="days" class="form-control">
+                                                                    <form:select path="days" class="form-control" >
 																		<form:option value="NONE" label="--- Select Period ---"/>
 																		<form:options items="${packagePeriodsList}"/>
 																	</form:select>
