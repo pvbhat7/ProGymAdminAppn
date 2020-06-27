@@ -54,6 +54,12 @@ public class LoginController {
 		    mav.addObject("femaletotal",c.getFemaletotal());
 		    mav.addObject("clienttotal",c.getClienttotal());
 		    mav.addObject("username",u.getName());
+		    mav.addObject("maleFullPaid",c.getMaleFullPaid());
+		    mav.addObject("malePartialPaid",c.getMalePartialPaid());
+		    mav.addObject("maleNotPaid",c.getMaleNotPaid());
+		    mav.addObject("femaleFullPaid",c.getFemaleFullPaid());
+		    mav.addObject("femalePartialPaid",c.getFemalePartialPaid());
+		    mav.addObject("femaleNotPaid",c.getFemaleNotPaid());
 
 	    return mav;
 	  }

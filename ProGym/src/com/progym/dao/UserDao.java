@@ -11,6 +11,7 @@ import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
+import com.progym.model.Notifications;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -23,21 +24,21 @@ public interface UserDao {
 	  
 	  User validateUser(User login);
 
-	void addMemberToDatabase(AddMemberObject addMemberObject);
+	void addMemberToDatabase(AddMemberObject addMemberObject , User user);
 
 	public List<MemberStatPVO> getMembersBy(String filter , String zone);
 
-	void addPackageToDatabase(AddPackageObject addPackageObject);
+	void addPackageToDatabase(AddPackageObject addPackageObject , User user);
 
 	List<CPackage> getPackagesByFilter(String filter);
 
-	void addPackageForClientToDatabase(AddClientPackageForm addClientPackageForm);
+	void addPackageForClientToDatabase(AddClientPackageForm addClientPackageForm , User user);
 
 	Client getClientById(int clientId);
 
 	CPackage getPackageById(int id);
 
-	void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized);
+	void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized, User user);
 	
 	List<PackageDetails> getClientPackagesByClient(Client client);
 
@@ -49,10 +50,14 @@ public interface UserDao {
 
 	void approveTransaction(String txnId);
 
-	void updateClientAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees);
+	void updateClientAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees , User user);
 
-	void deleteClientAssignedPackage(String u_pkgId);
+	void deleteClientAssignedPackage(String u_pkgId , User user);
 
 	List<ReferenceVO> getReferenceList();
+
+	List<Notifications> getNotifications();
+
+	void discardNotification(String notiId);
 	  
 	}

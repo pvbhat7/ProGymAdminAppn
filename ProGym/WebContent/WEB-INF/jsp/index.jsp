@@ -147,7 +147,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id=""></div>
                                 </li>
-                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaletotal}</span></li>
+                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${maleFullPaid}</span></li>
                             </ul>
                         </div>
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
@@ -156,7 +156,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id="sparklinedash3"></div>
                                 </li>
-                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${malePartialPaid}</span></li>
                             </ul>
                         </div> 
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
@@ -165,7 +165,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id="sparklinedash3"></div>
                                 </li>
-                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${maleNotPaid}</span></li>
                             </ul>
                         </div>                        
                     </div>
@@ -178,7 +178,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id="sparklinedash2"></div>
                                 </li>
-                                <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-success">${maletotal}</span></li>
+                                <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-success">${femaletotal}</span></li>
                             </ul>
                         </div>
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
@@ -187,7 +187,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id=""></div>
                                 </li>
-                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaletotal}</span></li>
+                                <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-purple">${femaleFullPaid}</span></li>
                             </ul>
                         </div>
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
@@ -196,7 +196,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id="sparklinedash3"></div>
                                 </li>
-                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${femalePartialPaid}</span></li>
                             </ul>
                         </div> 
                         <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
@@ -205,7 +205,7 @@ response.sendRedirect("login");
                                 <li>
                                     <div id="sparklinedash3"></div>
                                 </li>
-                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
+                                <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${femaleNotPaid}</span></li>
                             </ul>
                         </div>                        
                     </div>

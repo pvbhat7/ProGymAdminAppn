@@ -15,6 +15,7 @@ import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
+import com.progym.model.Notifications;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -39,9 +40,9 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void addMemberToDatabase(AddMemberObject addMemberObject) {
+	public void addMemberToDatabase(AddMemberObject addMemberObject , User user) {
 	
-		userDao.addMemberToDatabase(addMemberObject);
+		userDao.addMemberToDatabase(addMemberObject , user);
 		
 	}
 
@@ -52,8 +53,8 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void addPackageToDatabase(AddPackageObject addPackageObject) {
-		userDao.addPackageToDatabase(addPackageObject);
+	public void addPackageToDatabase(AddPackageObject addPackageObject , User user) {
+		userDao.addPackageToDatabase(addPackageObject , user);
 		
 	}
 
@@ -64,8 +65,8 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void addPackageForClientToDatabase(AddClientPackageForm addClientPackageForm) {
-		userDao.addPackageForClientToDatabase(addClientPackageForm);
+	public void addPackageForClientToDatabase(AddClientPackageForm addClientPackageForm , User user) {
+		userDao.addPackageForClientToDatabase(addClientPackageForm , user);
 		
 	}
 
@@ -75,8 +76,8 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void createTransaction(PaymentTransaction paymentTransaction , Boolean isAuthorized) {
-		userDao.createTransaction(paymentTransaction ,isAuthorized);
+	public void createTransaction(PaymentTransaction paymentTransaction , Boolean isAuthorized , User user) {
+		userDao.createTransaction(paymentTransaction ,isAuthorized , user);
 		
 	}
 
@@ -109,19 +110,29 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void updateClintAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees) {
-		userDao.updateClientAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees);
+	public void updateClintAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees , User user) {
+		userDao.updateClientAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees ,user);
 		
 	}
 	
 	@Override
-	public void deleteClintAssignedPackage(String u_pkgId) {
-		userDao.deleteClientAssignedPackage(u_pkgId);
+	public void deleteClintAssignedPackage(String u_pkgId ,User user) {
+		userDao.deleteClientAssignedPackage(u_pkgId , user);
 	}
 	
 	@Override
 	public List<ReferenceVO> getReferenceList() {
 		return userDao.getReferenceList();
+	}
+	
+	@Override
+	public List<Notifications> getNotifications() {
+	return 	userDao.getNotifications();
+	}
+	
+	@Override
+	public void discardNotification(String notiId) {
+		userDao.discardNotification(notiId);		
 	}
 	
 

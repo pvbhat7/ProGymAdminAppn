@@ -35,6 +35,7 @@ import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
+import com.progym.model.Notifications;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -49,6 +50,12 @@ public class UserDaoImpl implements UserDao {
     public static final String RED = "#FF0000";
     public static final String YELLOW = "#FCFF00";
     public static final String GREEN = "#1CFF00";
+    public static final String ACTIVITY_TYPE_ADD_NEW_MEMBER = "Add New Client";
+    public static final String ACTIVITY_TYPE_ADD_NEW_PACKAGE = "Create New Package";
+    public static final String ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT = "Assign New Package";
+    public static final String ACTIVITY_TYPE_NEW_PAYMENT = "New Payment";
+    public static final String ACTIVITY_TYPE_UPDATE_CLIENT_EXISTING_PACKAGE = "Update Package";
+    public static final String ACTIVITY_TYPE_DELETE_CLIENT_EXISTING_PACKAGE = "Delete Package";
 
 	
 	/*
@@ -83,7 +90,7 @@ public class UserDaoImpl implements UserDao {
   			}
 
 	@Override
-	public void addMemberToDatabase(AddMemberObject addMemberObject) {
+	public void addMemberToDatabase(AddMemberObject addMemberObject , User user) {
 		String refererId = addMemberObject.getReference();
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
@@ -98,10 +105,11 @@ public class UserDaoImpl implements UserDao {
 			session.saveOrUpdate(c1);
 		}
 		
+		logActivity(session , c , user , ACTIVITY_TYPE_ADD_NEW_MEMBER , null);
+		
 		session.getTransaction().commit();
 	}
 
-	@Override
 	public List<MemberStatPVO> getMembersBy(String filter , String zone) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
@@ -191,11 +199,11 @@ public class UserDaoImpl implements UserDao {
 		return flag;
 	}
 	
-	private String getLastPackagePaymentStatus(Client c) {
+	private PackageDetails getLastPackagePaymentStatus(Client c) {
 		List<PackageDetails> pdList = getClientPackagesByClient(c);
 		if(pdList.size() == 0)
-			return "-";
-		return pdList.get(0).getClientPackageStatus();
+			return null;
+		return (PackageDetails)pdList.get(0);
 	}
 
 	public List<MemberStatPVO> getMembersByZones(List<MemberStatPVO> list, String color){
@@ -209,10 +217,11 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void addPackageToDatabase(AddPackageObject addPackageObject) {
+	public void addPackageToDatabase(AddPackageObject addPackageObject , User user) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		CPackage pkg = new CPackage(addPackageObject.getFees(), addPackageObject.getPackageName(), addPackageObject.getDays(), addPackageObject.getGender(),"false");
 		session.save(pkg);
+		logActivity(session ,null , user , ACTIVITY_TYPE_ADD_NEW_PACKAGE , null);
 		session.beginTransaction();
 		session.getTransaction().commit();
 	}
@@ -231,7 +240,7 @@ public class UserDaoImpl implements UserDao {
 		return pkg;		
 	}
 	
-	public void addPackageForClientToDatabase(AddClientPackageForm o) {
+	public void addPackageForClientToDatabase(AddClientPackageForm o , User user) {
 		
 		// get current list & add to existing list - pkgdetails
 		// 
@@ -254,6 +263,7 @@ public class UserDaoImpl implements UserDao {
 		Client c1 = getClientById(o.getClientId());
 		pd1.setClient(c1);
 		session.save(pd1);
+		logActivity(session , c1 , user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT , String.valueOf(pd1.getPackageFees()));
 		session.getTransaction().commit();
 		
 
@@ -295,7 +305,7 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public void createTransaction(PaymentTransaction paymentTransaction ,Boolean isAuthorized) {
+	public void createTransaction(PaymentTransaction paymentTransaction ,Boolean isAuthorized, User user) {
 		session =  HibernateUtils.getSessionFactory().openSession();
 			session.beginTransaction();
 			String isAuth = "NO";
@@ -311,6 +321,7 @@ public class UserDaoImpl implements UserDao {
 		else
 			pd.setClientPackageStatus("fully-paid");
 		pd.setPackagePaymentDate(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+		logActivity(session , pd.getClient() , user , ACTIVITY_TYPE_NEW_PAYMENT , String.valueOf(p.getFeesPaid()));
 		session.save(p);
 		session.getTransaction().commit();
 		session.close();
@@ -465,22 +476,49 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public CollectionDashboardPVO getDashboardCollection() {
 		session = HibernateUtils.getSessionFactory().openSession();
-		Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.ne("clientPackageStatus", "not paid")).list());
+		Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.eq("discontinue", "false")).list());
 		Double male=0.00;
 		Double female=0.00;
 		Double total=0.00;
 		Double steam=0.00;
+		int maleFullyPaid = 0;
+		int malePartialPaid = 0;
+		int maleNotPaid = 0;
+		int femaleFullyPaid = 0;
+		int femalePartialPaid = 0;
+		int femaleNotPaid = 0;
 		for(PackageDetails p : packagePaymentCollection) {
-			if(p.getClient().getGender().equals("male"))
+			if(p.getClient().getGender().equals("male")){
 				male = male + p.getAmountPaid();
-			else if(p.getClient().getGender().equals("female"))
+				if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+					maleFullyPaid++;
+				else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+					malePartialPaid++;
+				else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+					maleNotPaid++;
+			}				
+			else if(p.getClient().getGender().equals("female")){
 				female = female + p.getAmountPaid();
+				if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+					femaleFullyPaid++;
+				else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+					femalePartialPaid++;
+				else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+					femaleNotPaid++;
+			}
+				
 		}
 		total = male + female;
+		
+		
 		return new CollectionDashboardPVO(male, female, total, steam,
 				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "male")).list()).size(),
 				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "female")).list()).size(),
-				new LinkedHashSet(session.createCriteria(Client.class).list()).size());
+				new LinkedHashSet(session.createCriteria(Client.class).list()).size(),
+				maleFullyPaid,malePartialPaid,maleNotPaid,
+				femaleFullyPaid,femalePartialPaid,femaleNotPaid
+				);
+		
 	}
 
 	@Override
@@ -495,7 +533,7 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	@Override
-	public void updateClientAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees) {
+	public void updateClientAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees , User user) {
 		session =  HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
@@ -505,20 +543,20 @@ public class UserDaoImpl implements UserDao {
 		//pd.setPackageEndDate(getDdMmYyyyDate(addDaysToDate(u_startdate ,  c.getDays())));
 		pd.setPackageEndDate(getDdMmYyyyDate(u_enddate));
 		session.save(pd);
+		logActivity(session , pd.getClient() , user , ACTIVITY_TYPE_UPDATE_CLIENT_EXISTING_PACKAGE , null);
 		session.getTransaction().commit();
 		session.close();
-		
-		
 	}
 	
   
 	@Override
-	public void deleteClientAssignedPackage(String u_pkgId) {
+	public void deleteClientAssignedPackage(String u_pkgId , User user) {
 		session =  HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
 		pd.setDiscontinue("true");
 		session.save(pd);
+		logActivity(session , pd.getClient() , user , ACTIVITY_TYPE_DELETE_CLIENT_EXISTING_PACKAGE , null);
 		session.getTransaction().commit();
 		session.close();
 		
@@ -562,6 +600,38 @@ public class UserDaoImpl implements UserDao {
 			refList.add(new ReferenceVO(c.getId() , c.getName()));
 		}
 		return refList;		
+    }
+
+    private void logActivity(Session session , Client c , User user , String activity ,String amount) {
+    	Notifications noti = null;
+    	if(c != null)
+		 noti = new Notifications(user.getName(), activity, c.getName(), amount, "false", c.getGender(), c.getId(), new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+    	else 
+    		noti = new Notifications(user.getName(), activity, "", amount, "false", "", -1, new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+		session.save(noti);		
+	}
+    
+    @Override
+    public List<Notifications> getNotifications() {
+    	List<Notifications> notiList = new ArrayList<Notifications>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria crit = session.createCriteria(Notifications.class);
+		crit.add(Restrictions.eq("discontinue","false"));
+		notiList = crit.list();
+		session.close();		
+		return notiList;	
+    }
+    
+    @Override
+    public void discardNotification(String notiId) {
+    	session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Notifications noti = (Notifications) session.get(Notifications.class, Integer.parseInt(notiId));
+		noti.setDiscontinue("true");
+		session.save(noti);
+		session.getTransaction().commit();
+		session.close();  	
     }
 }
  

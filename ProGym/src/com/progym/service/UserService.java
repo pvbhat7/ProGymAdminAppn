@@ -11,6 +11,7 @@ import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
+import com.progym.model.Notifications;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
@@ -23,19 +24,19 @@ public interface UserService {
 
 	void register();
 
-	void addMemberToDatabase(AddMemberObject addMemberObject);
+	void addMemberToDatabase(AddMemberObject addMemberObject , User user);
 
 	public List<MemberStatPVO> getMembersBy(String filter,String zone);
 
-	void addPackageToDatabase(AddPackageObject addPackageObject);
+	void addPackageToDatabase(AddPackageObject addPackageObject ,  User user);
 
 	List<CPackage> getPackagesByFilter(String string);
 
-	void addPackageForClientToDatabase(AddClientPackageForm addClientPackageForm);
+	void addPackageForClientToDatabase(AddClientPackageForm addClientPackageForm , User user);
 
 	Client getClientById(int parseInt);
 
-	void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized);
+	void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized , User user);
 
 	List<PackageDetails> getClientPackagesByClient(Client client);
 
@@ -47,11 +48,15 @@ public interface UserService {
 
 	void approveTransaction(String txnId);
 
-	void updateClintAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees);
+	void updateClintAssignedPackage(String u_pkgId, String u_startdate,String u_enddate, String u_fees , User user);
 
-	void deleteClintAssignedPackage(String u_pkgId);
+	void deleteClintAssignedPackage(String u_pkgId , User user);
 
 	List<ReferenceVO> getReferenceList();
+
+	List<Notifications> getNotifications();
+
+	void discardNotification(String notiId);
 
 
 	

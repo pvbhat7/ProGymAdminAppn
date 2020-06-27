@@ -145,6 +145,7 @@ response.sendRedirect("login");
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">Data Table</span></a></li>
+                                <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
                             </ul>
                         </li>
                         <%} %>

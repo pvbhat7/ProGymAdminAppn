@@ -2,6 +2,42 @@ package com.progym.model;
 
 public class CollectionDashboardPVO {
 
+	public int getMaleFullPaid() {
+		return maleFullPaid;
+	}
+	public void setMaleFullPaid(int maleFullPaid) {
+		this.maleFullPaid = maleFullPaid;
+	}
+	public int getMalePartialPaid() {
+		return malePartialPaid;
+	}
+	public void setMalePartialPaid(int malePartialPaid) {
+		this.malePartialPaid = malePartialPaid;
+	}
+	public int getMaleNotPaid() {
+		return maleNotPaid;
+	}
+	public void setMaleNotPaid(int maleNotPaid) {
+		this.maleNotPaid = maleNotPaid;
+	}
+	public int getFemaleFullPaid() {
+		return femaleFullPaid;
+	}
+	public void setFemaleFullPaid(int femaleFullPaid) {
+		this.femaleFullPaid = femaleFullPaid;
+	}
+	public int getFemalePartialPaid() {
+		return femalePartialPaid;
+	}
+	public void setFemalePartialPaid(int femalePartialPaid) {
+		this.femalePartialPaid = femalePartialPaid;
+	}
+	public int getFemaleNotPaid() {
+		return femaleNotPaid;
+	}
+	public void setFemaleNotPaid(int femaleNotPaid) {
+		this.femaleNotPaid = femaleNotPaid;
+	}
 	private Double male;
 	private Double female;
 	private Double total;
@@ -9,6 +45,12 @@ public class CollectionDashboardPVO {
 	private int maletotal;
 	private int femaletotal;
 	private int clienttotal;
+	private int maleFullPaid;
+	private int malePartialPaid;
+	private int maleNotPaid;
+	private int femaleFullPaid;
+	private int femalePartialPaid;
+	private int femaleNotPaid;
 	
 	public Double getMale() {
 		return male;
@@ -52,8 +94,15 @@ public class CollectionDashboardPVO {
 	public void setClienttotal(int clienttotal) {
 		this.clienttotal = clienttotal;
 	}
+	
+	@Override
+	public String toString() {
+		return "CollectionDashboardPVO [male=" + male + ", female=" + female + ", total=" + total + ", steam=" + steam
+				+ ", maletotal=" + maletotal + ", femaletotal=" + femaletotal + ", clienttotal=" + clienttotal + "]";
+	}
 	public CollectionDashboardPVO(Double male, Double female, Double total, Double steam, int maletotal,
-			int femaletotal, int clienttotal) {
+			int femaletotal, int clienttotal, int maleFullPaid, int malePartialPaid, int maleNotPaid,
+			int femaleFullPaid, int femalePartialPaid, int femaleNotPaid) {
 		super();
 		this.male = male;
 		this.female = female;
@@ -62,12 +111,14 @@ public class CollectionDashboardPVO {
 		this.maletotal = maletotal;
 		this.femaletotal = femaletotal;
 		this.clienttotal = clienttotal;
+		this.maleFullPaid = maleFullPaid;
+		this.malePartialPaid = malePartialPaid;
+		this.maleNotPaid = maleNotPaid;
+		this.femaleFullPaid = femaleFullPaid;
+		this.femalePartialPaid = femalePartialPaid;
+		this.femaleNotPaid = femaleNotPaid;
 	}
-	@Override
-	public String toString() {
-		return "CollectionDashboardPVO [male=" + male + ", female=" + female + ", total=" + total + ", steam=" + steam
-				+ ", maletotal=" + maletotal + ", femaletotal=" + femaletotal + ", clienttotal=" + clienttotal + "]";
-	}
+	
 	
 	
 	

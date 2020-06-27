@@ -1,10 +1,13 @@
 package com.progym.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,6 +39,7 @@ import com.progym.model.PackageDetails;
 import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
 import com.progym.service.UserService;
+import com.smattme.MysqlExportService;
 
 @Controller
 public class MainController {
@@ -62,7 +66,13 @@ public class MainController {
 	    mav.addObject("maletotal",c.getMaletotal());
 	    mav.addObject("femaletotal",c.getFemaletotal());
 	    mav.addObject("clienttotal",c.getClienttotal());
-	    mav.addObject("username",u.getName());	    
+	    mav.addObject("username",u.getName());	
+	    mav.addObject("maleFullPaid",c.getMaleFullPaid());
+	    mav.addObject("malePartialPaid",c.getMalePartialPaid());
+	    mav.addObject("maleNotPaid",c.getMaleNotPaid());
+	    mav.addObject("femaleFullPaid",c.getFemaleFullPaid());
+	    mav.addObject("femalePartialPaid",c.getFemalePartialPaid());
+	    mav.addObject("femaleNotPaid",c.getFemaleNotPaid());
 	    }
 	    return mav;
 
@@ -102,8 +112,9 @@ public class MainController {
 	  }
 	  
 	  @RequestMapping(value = "/addMember", method = RequestMethod.POST)
-	  public void addMemberFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addmemberobject") AddMemberObject addMemberObject) throws IOException {
-		  userService.addMemberToDatabase(addMemberObject);
+	  public void addMemberFromForm(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addmemberobject") AddMemberObject addMemberObject) throws IOException {
+		  User user = (User)session.getAttribute("loggedInUser");
+		  userService.addMemberToDatabase(addMemberObject,user);
 		  response.sendRedirect("allMembers?gender=all&zone=none");	    
 	  }
 	  
@@ -234,8 +245,9 @@ public class MainController {
 	  }
 	  
 	  @RequestMapping(value = "/addPackageForClient", method = RequestMethod.POST)
-	  public void addPackageFromForm(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("clientAddPackageObject") AddClientPackageForm addClientPackageForm) throws IOException {
-		  userService.addPackageForClientToDatabase(addClientPackageForm);
+	  public void addPackageFromForm(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("clientAddPackageObject") AddClientPackageForm addClientPackageForm) throws IOException {
+		  User user = (User)session.getAttribute("loggedInUser");
+		  userService.addPackageForClientToDatabase(addClientPackageForm , user);
 		  String uri = "clientProfile?cliendId="+addClientPackageForm.getClientId()+"&gender="+addClientPackageForm.getGender()+"";
 		  response.sendRedirect(uri);
 		  //response.sendRedirect("allMembers");
@@ -249,8 +261,9 @@ public class MainController {
 	  }
 	  
 	  @RequestMapping(value = "/addPackage", method = RequestMethod.POST)
-	  public void addPackageFromFormToDb(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addPackageObject") AddPackageObject addPackageObject) throws IOException {
-		  userService.addPackageToDatabase(addPackageObject);
+	  public void addPackageFromFormToDb(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addPackageObject") AddPackageObject addPackageObject) throws IOException {
+		  User user = (User)session.getAttribute("loggedInUser");
+		  userService.addPackageToDatabase(addPackageObject , user);
 		  response.sendRedirect("allMembers?gender=all&zone=none");
 	  }
 	  
@@ -260,7 +273,7 @@ public class MainController {
 		  User u = (User)session.getAttribute("loggedInUser");
 		  if(u != null && u.getAuthorizedToApprovePayment().equals("YES"))
 			  isAuthorized = Boolean.TRUE;
-		  userService.createTransaction(paymentTransaction,isAuthorized);
+		  userService.createTransaction(paymentTransaction,isAuthorized , u);
 		  response.sendRedirect("allMembers?gender=all&zone=none");
 	  }
 	  
@@ -324,10 +337,11 @@ public class MainController {
 	  
 	  @RequestMapping(value = "/updateClientAssignedPackage", method = RequestMethod.POST)
 	  @ResponseBody
-	  public void updateClientAssignedPackage(HttpServletRequest request, HttpServletResponse response,
+	  public void updateClientAssignedPackage(HttpSession session,HttpServletRequest request, HttpServletResponse response,
 			  @RequestParam String u_pkgId,@RequestParam String u_startdate,@RequestParam String u_enddate,@RequestParam String u_fees,
 			  @RequestParam String u_clientid,@RequestParam String u_gender) throws IOException {
-		  userService.updateClintAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees);
+		  User user = (User)session.getAttribute("loggedInUser");
+		  userService.updateClintAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees ,user);
 		  System.out.println(u_clientid+" - "+u_fees+" - "+u_gender+" - "+u_pkgId+" - "+u_startdate);
 		  String uri = "clientProfile?cliendId="+u_clientid+"&gender="+u_gender+"";
 		  response.sendRedirect(uri);
@@ -336,18 +350,64 @@ public class MainController {
 	  
 	  @RequestMapping(value = "/deleteClientAssignedPackage", method = RequestMethod.GET)
 	  @ResponseBody
-	  public void deleteClientAssignedPackage(HttpServletRequest request, HttpServletResponse response,
+	  public void deleteClientAssignedPackage(HttpSession session, HttpServletRequest request, HttpServletResponse response,
 			  @RequestParam String u_pkgId,@RequestParam String u_clientid,@RequestParam String u_gender) throws IOException {
-		  userService.deleteClintAssignedPackage(u_pkgId);
+		  User user = (User)session.getAttribute("loggedInUser");
+		  userService.deleteClintAssignedPackage(u_pkgId , user);
 		  String uri = "clientProfile?cliendId="+u_clientid+"&gender="+u_gender+"";
-		  response.sendRedirect(uri);
-		  
+		  response.sendRedirect(uri);		  
 	  }
 	  
+	  @RequestMapping(value = "/backupDatabase", method = RequestMethod.GET)
+	  public ModelAndView backupDatabase(HttpServletRequest request, HttpServletResponse response) throws ClassNotFoundException, IOException, SQLException {		  
+	    ModelAndView mav = new ModelAndView("index");
+	    
+	  //required properties for exporting of db
+	    /*Properties properties = new Properties();
+	    properties.setProperty(MysqlExportService.DB_NAME, "prashant");
+	    properties.setProperty(MysqlExportService.DB_USERNAME, "root");
+	    properties.setProperty(MysqlExportService.DB_PASSWORD, "sysuser");
+	    
+	    //properties relating to email config
+	    properties.setProperty(MysqlExportService.EMAIL_HOST, "mail.smtp.host");
+	    properties.setProperty(MysqlExportService.EMAIL_PORT, "465");
+	    properties.setProperty(MysqlExportService.EMAIL_USERNAME, "bhatprashant1994@gmail.com");
+	    properties.setProperty(MysqlExportService.EMAIL_PASSWORD, "1994kapwd");
+	    properties.setProperty(MysqlExportService.EMAIL_FROM, "bhatprashant1994@gmail.com");
+	    properties.setProperty(MysqlExportService.EMAIL_TO, "bhatprashant999@gmail.com");
+	    
+	    //set the outputs temp dir
+	    properties.setProperty(MysqlExportService.TEMP_DIR, new File("external").getPath());
+	    MysqlExportService mysqlExportService = new MysqlExportService(properties);
+	    mysqlExportService.export();*/
+	    
+	    try {
+            Runtime rt = Runtime.getRuntime();
+            rt.exec("cmd.exe /c start C:\\ab.bat");
+            System.exit(0);
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+	    
+	    return mav;
+	  }
 	  
+	  @RequestMapping(value = "/notifications", method = RequestMethod.GET)
+	  public ModelAndView notifications(HttpServletRequest request, HttpServletResponse response){		  
+	    ModelAndView mav = new ModelAndView("notifications");
+		  mav.addObject("notificationsList", userService.getNotifications() );		  
+	    return mav;
+	  }
 	  
-	  
-	  
-	  
+	  @RequestMapping(value = "/discardNotification", method = RequestMethod.GET)
+	  @ResponseBody
+	  public void discardNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+			  @RequestParam String notiId) throws IOException {
+		  User user = (User)session.getAttribute("loggedInUser");
+		  userService.discardNotification(notiId);
+		  response.sendRedirect("notifications");
+		  
+	  }
 
 }

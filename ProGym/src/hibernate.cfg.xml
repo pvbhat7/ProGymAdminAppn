@@ -35,6 +35,7 @@
         <mapping class="com.progym.model.CPackage"/>
         <mapping class="com.progym.model.PaymentTransaction"/>
         <mapping class="com.progym.model.User"/>
+        <mapping class="com.progym.model.Notifications"/>
 
     </session-factory>
 
