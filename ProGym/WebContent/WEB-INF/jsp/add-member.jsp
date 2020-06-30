@@ -35,20 +35,29 @@ response.sendRedirect("login");
                                                         <div class="row">
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="form-group">
+                                                                <form:label path="gender">Name</form:label>
                                                                     <form:input id="name" path="name" name="name" type="text" class="form-control" placeholder="Full Name" required="true"/>
                                                                 </div>
                                                                 <div class="form-group">
+                                                                <form:label path="mobile">Mobile</form:label>
                                                                     <form:input id="mobile" path="mobile" name="mobile" type="number" class="form-control" placeholder="Mobile no." required="true"/>
                                                                     
                                                                 </div>
                                                                 <div class="form-group">
+                                                                <form:label path="gender">Gender</form:label>
                                                                     <form:select path="gender" class="form-control">
 																		<form:option value="NONE" label="--- Select Gender ---"/>
 																		<form:options items="${gendersList}"/>
 																	</form:select>
                                                                 </div>
                                                                 <div class="form-group">
-                                                                    <form:input id="previousGym" path="previousGym" name="previousGym" type="text" class="form-control" placeholder="Previous Gym Name" required="true"/>
+                                                                <form:label path="height">Height (In cm)</form:label>
+                                                                    <form:input id="height" path="height" name="height" type="number" class="form-control" placeholder="Enter Height" required="true"/>
+                                                                    
+                                                                </div>
+                                                                <div class="form-group">
+                                                                <form:label path="weight">Weight (In kg)</form:label>
+                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" required="true"/>
                                                                     
                                                                 </div>
                                                                                                                                 
@@ -56,19 +65,32 @@ response.sendRedirect("login");
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="form-group">
                                                                 <div class="input-mark-inner mg-b-22">
+                                                                <form:label path="birthDate">BirthDate</form:label>
                                                                     <input name="birthDate" path="birthDate" id="birthDate" type="date" class="form-control" placeholder="Date of Birth" required="true" placeholder="Enter DOB">
                                                                 </div>
                                                                 </div>
                                                                 <div class="form-group">
+                                                                <form:label path="email">Email</form:label>
                                                                     <form:input id="email" path="email" name="email" type="email" class="form-control" placeholder="Email Id" required="true"/>
                                                                 </div>
                                                                 <div class="form-group">
+                                                                <form:label path="address">Address</form:label>
+                                                                    <form:input id="address" path="address" name="address" type="text" class="form-control" placeholder="Address" required="true"/>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                <form:label path="bloodGroup">Blood Group</form:label>
                                                                     <form:select path="bloodGroup" class="form-control">
 																		<form:option value="NONE" label="--- Select Blood Group ---"/>
 																		<form:options items="${bloodGroupsList}"/>
 																	</form:select>
                                                                 </div>
                                                                 <div class="form-group">
+                                                                <form:label path="previousGym">Previous Gym</form:label>
+                                                                    <form:input id="previousGym" path="previousGym" name="previousGym" type="text" class="form-control" placeholder="Previous Gym Name" required="true"/>
+                                                                    
+                                                                </div>
+                                                                <div class="form-group">
+                                                                <form:label path="reference">Reference</form:label>
                                                                     <form:select path="reference" class="form-control">
 																		<form:option value="NONE" label="--- Select Referer Name ---"/>
 																		<form:options items="${referencesList}"/>

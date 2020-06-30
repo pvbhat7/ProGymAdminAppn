@@ -47,6 +47,8 @@
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
                                 <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
+                                <li><a title="Data Table" href="fileUploadPage"><span class="mini-sub-pro">Upload Photo</span></a></li>
+                                
                             </ul>
                         </li>
                         
@@ -112,14 +114,8 @@
                                                 </li>
                                                 <%} %>
                                                 
-                                                <%
-												User u2 = (User)session.getAttribute("loggedInUser");
-												if(u2.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
-												%>
-                                                <li class="nav-item"><a href="backupDatabase" class="nav-link">Backup Database</a>
-                                                </li>
-                                                <%} %>                                                
-                                                
+                                                                                                                        
+                                                <!-- backupDatabase -->
                                             </ul>
                                         </div>
                                     </div>
@@ -159,52 +155,50 @@
                                        
                                        
                                         
-                                        <li><a data-toggle="collapse" data-target="#demopro" href="#">Students <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                        <!-- <li><a data-toggle="collapse" data-target="#demopro" href="#">Members <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                             <ul id="demopro" class="collapse dropdown-header-top">
-                                                <li><a href="all-students.html">All Students</a>
+                                                <li><a href="allMembers?gender=all&zone=none">All Members</a>
                                                 </li>
-                                                <li><a href="add-student.html">Add Student</a>
-                                                </li>
-                                                <li><a href="edit-student.html">Edit Student</a>
-                                                </li>
-                                                <li><a href="student-profile.html">Student Profile</a>
-                                                </li>
+                                                <li><a href="addMember">Add Member</a>
+                                                </li>                                                
                                             </ul>
                                         </li>
-                                        <li><a data-toggle="collapse" data-target="#democrou" href="#">Courses <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                        <li><a data-toggle="collapse" data-target="#democrou" href="#">Packages <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                             <ul id="democrou" class="collapse dropdown-header-top">
-                                                <li><a href="all-courses.html">All Courses</a>
+                                                <li><a href="malePackage">Male Package</a>
                                                 </li>
-                                                <li><a href="add-course.html">Add Course</a>
+                                                <li><a href="femalePackage">Female Package</a>
                                                 </li>
-                                                <li><a href="edit-course.html">Edit Course</a>
+                                                <li><a href="addPackage">Add Package</a>
                                                 </li>
-                                                <li><a href="course-profile.html">Courses Info</a>
-                                                </li>
-                                                <li><a href="course-payment.html">Courses Payment</a>
-                                                </li>
+                                                
                                             </ul>
                                         </li>
-                                        <li><a data-toggle="collapse" data-target="#demolibra" href="#">Library <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                        <li><a data-toggle="collapse" data-target="#demolibra" href="#">Payments <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                             <ul id="demolibra" class="collapse dropdown-header-top">
-                                                <li><a href="library-assets.html">Library Assets</a>
+                                                <li><a href="paidPayments?gender=all">Paid Payments</a>
                                                 </li>
-                                                <li><a href="add-library-assets.html">Add Library Asset</a>
-                                                </li>
-                                                <li><a href="edit-library-assets.html">Edit Library Asset</a>
-                                                </li>
+                                                <li><a href="pendingPayments?gender=all">Pending Payments</a>
+                                                </li>                                                
                                             </ul>
-                                        </li>
-                                        <li><a data-toggle="collapse" data-target="#demodepart" href="#">Departments <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                        </li> 
+                                        <li><a data-toggle="collapse" data-target="#demodepart" href="#"> <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                             <ul id="demodepart" class="collapse dropdown-header-top">
-                                                <li><a href="departments.html">Departments List</a>
+                                                <li><a href="allReports">View Collection</a>
                                                 </li>
-                                                <li><a href="add-department.html">Add Departments</a>
+                                                <li><a href="notifications">Notifications</a>
                                                 </li>
-                                                <li><a href="edit-department.html">Edit Departments</a>
+                                                <li><a href="fileUploadPage">Upload Photo</a>
                                                 </li>
                                             </ul>
+                                        </li> -->
+                                        
+                                        <li><a href="fileUploadPage"> Upload Photo<span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                            
                                         </li>
+                                        
+                                        
+                                        
                                       
                                        
                                     </ul>
@@ -214,18 +208,19 @@
                     </div>
                 </div>
             </div>
-            <!-- Mobile Menu end -->
-            <div class="breadcome-area">
+            </br>
+            <!-- <!-- Mobile Menu end -->
+            <!-- <div class="breadcome-area">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <div class="breadcome-list">
                                 <div class="row">
-                                   <!-- <marquee><img src="img/progym.png" alt="" width="50" height="20" /> ProGym Kolhapur<img src="img/progym.png" alt="" width="50" height="20" /></marquee> -->
+                                   <marquee><img src="img/progym.png" alt="" width="50" height="20" /> ProGym Kolhapur<img src="img/progym.png" alt="" width="50" height="20" /></marquee>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --> 
         </div>

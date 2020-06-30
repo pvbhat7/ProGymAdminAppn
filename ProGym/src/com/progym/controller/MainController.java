@@ -11,19 +11,26 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.progym.model.AddClientPackageForm;
@@ -33,6 +40,8 @@ import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
+import com.progym.model.FemaleMemberAdditionalDataVO;
+import com.progym.model.FileModel;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.User;
 import com.progym.model.PackageDetails;
@@ -48,6 +57,7 @@ public class MainController {
 	
 	@Autowired
 	  UserService userService;
+	
 	  
 		@RequestMapping(value = "/index", method = RequestMethod.GET)
 	  public ModelAndView showIndexPage(HttpSession session,HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -114,8 +124,13 @@ public class MainController {
 	  @RequestMapping(value = "/addMember", method = RequestMethod.POST)
 	  public void addMemberFromForm(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addmemberobject") AddMemberObject addMemberObject) throws IOException {
 		  User user = (User)session.getAttribute("loggedInUser");
-		  userService.addMemberToDatabase(addMemberObject,user);
-		  response.sendRedirect("allMembers?gender=all&zone=none");	    
+		  if(user != null){
+		  userService.addMemberToDatabase(addMemberObject,user,"new");
+		  response.sendRedirect("allMembers?gender=all&zone=none");
+		  }
+		  else
+			  response.sendRedirect("login");
+			  
 	  }
 	  
 	  @ModelAttribute("bloodGroupsList")
@@ -231,7 +246,7 @@ public class MainController {
 	  
 	  @RequestMapping(value = "/clientProfile", method = RequestMethod.GET)
 	  @ResponseBody
-	  public ModelAndView clientProfile(@RequestParam String cliendId,@RequestParam String gender) throws InterruptedException {
+	  public ModelAndView clientProfile(HttpSession session,@RequestParam String cliendId,@RequestParam String gender) throws InterruptedException {
 		  ModelAndView mav = new ModelAndView("client-profile");		  
 		  mav.clear();
 		  mav.setViewName("client-profile");
@@ -239,10 +254,18 @@ public class MainController {
 		  Client client = userService.getClientById(Integer.parseInt(cliendId));
 		  mav.addObject("clientObject", client);
 		  mav.addObject("clientPackagesList", userService.getClientPackagesByClient(client));
+		  mav.addObject("femaleAditionalDataList", userService.getFemaleAditionalDataListByClientId(client.getId()));
 		  mav.addObject("transactionObject", new PaymentTransaction());
+		  FemaleMemberAdditionalDataVO fm = new FemaleMemberAdditionalDataVO();
+		  fm.setClientId(Integer.valueOf(cliendId));
+		  fm.setGender(gender);
+		  mav.addObject("femaleAditionalDataFormObject", fm);
+		  session.setAttribute("selectedClient", client);
 		  getPackagesList(gender);
+		  mav.addObject("editClientProfileFormObject", client);
+		  
 	    return mav;
-	  }
+	  }	  
 	  
 	  @RequestMapping(value = "/addPackageForClient", method = RequestMethod.POST)
 	  public void addPackageFromForm(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("clientAddPackageObject") AddClientPackageForm addClientPackageForm) throws IOException {
@@ -392,5 +415,51 @@ public class MainController {
 		  response.sendRedirect("notifications");
 		  
 	  }
+	  
+	  @RequestMapping(value = "/fileUploadPage", method = RequestMethod.GET)
+	   public ModelAndView fileUploadPage() {
+	      FileModel file = new FileModel();
+	      ModelAndView modelAndView = new ModelAndView("uploadPhotoForm", "fileUpload", file);
+	      return modelAndView;
+	   }
 
+	   @RequestMapping(value="/fileUploadPage", method = RequestMethod.POST)
+	   public String fileUpload(HttpSession session,@Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
+	      if (result.hasErrors()) {
+	         System.out.println("validation errors");
+	         return "fileUploadPage";
+	      } else {            
+	         System.out.println("Fetching file");
+	         MultipartFile multipartFile = file.getFile();
+	         String uploadPath = session.getServletContext().getRealPath("/img/memberPhotos/");
+	         System.out.println("uploaded file path "+uploadPath);
+
+	         //Now do something with file...
+	         FileCopyUtils.copy(file.getFile().getBytes(), new File(uploadPath+file.getReference()+".jpg"));
+	         String fileName = multipartFile.getOriginalFilename();
+	         System.out.println("member name :"+file.getReference());
+	         model.addAttribute("fileName", fileName);
+	         return "index";
+	      }
+	   }
+
+	   @RequestMapping(value = "/submitFemaleAditionalDataForm", method = RequestMethod.POST)
+		  public void submitFemaleAditionalDataForm(HttpSession session,HttpServletRequest request, HttpServletResponse response,@ModelAttribute("femaleAditionalDataFormObject") FemaleMemberAdditionalDataVO femaleMemberAdditionalDataVO) throws IOException {
+			  Boolean isAuthorized = Boolean.FALSE;
+			  User u = (User)session.getAttribute("loggedInUser");
+			  if(u != null && u.getAuthorizedToApprovePayment().equals("YES"))
+				  isAuthorized = Boolean.TRUE;
+			  userService.submitFemaleAditionalDataForm(femaleMemberAdditionalDataVO , u);
+			  String uri = "clientProfile?cliendId="+femaleMemberAdditionalDataVO.getClientId()+"&gender="+femaleMemberAdditionalDataVO.getGender()+"";
+			  response.sendRedirect(uri);
+		  }
+	   
+	   
+	   @RequestMapping(value = "/editClientProfile", method = RequestMethod.POST)
+		  public void editClientProfile(HttpSession session,HttpServletRequest request, HttpServletResponse response,@ModelAttribute("editClientProfileFormObject") Client client) throws IOException {
+		   User u = (User)session.getAttribute("loggedInUser");  
+		   userService.updateMemberToDatabase(client , u);
+			  String uri = "clientProfile?cliendId="+client.getId()+"&gender="+client.getGender()+"";
+			  response.sendRedirect(uri);
+		  }
 }

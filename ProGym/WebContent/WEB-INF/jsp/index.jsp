@@ -20,6 +20,8 @@ response.sendRedirect("login");
 		User u = (User)session.getAttribute("loggedInUser");
 		if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
 		%>
+		
+
 		<!--Main page content -->
         <div class="analytics-sparkle-area">
             <div class="container-fluid">
@@ -86,10 +88,11 @@ response.sendRedirect("login");
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="product-sales-chart">
-                            <img src="img/banner1.jpg">
+                            <img src="img/owner.jpg">
                         </div>
+                        </br></br>
                         <div class="product-sales-chart">
-                            <img src="img/banner1.jpg">
+                            <img src="img/ladiesTrainer.jpg">
                         </div>
                         
                     </div>

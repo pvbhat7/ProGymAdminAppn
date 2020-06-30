@@ -13,6 +13,7 @@ import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
+import com.progym.model.FemaleMemberAdditionalDataVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
 import com.progym.model.Notifications;
@@ -40,9 +41,9 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void addMemberToDatabase(AddMemberObject addMemberObject , User user) {
+	public void addMemberToDatabase(AddMemberObject addMemberObject , User user , String userType) {
 	
-		userDao.addMemberToDatabase(addMemberObject , user);
+		userDao.addMemberToDatabase(addMemberObject , user , userType);
 		
 	}
 
@@ -133,6 +134,22 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void discardNotification(String notiId) {
 		userDao.discardNotification(notiId);		
+	}
+	
+	@Override
+	public void submitFemaleAditionalDataForm(FemaleMemberAdditionalDataVO femaleMemberAdditionalDataVO, User u) {
+		userDao.submitFemaleAditionalDataForm(femaleMemberAdditionalDataVO, u);		
+	}
+	
+	@Override
+	public List<FemaleMemberAdditionalDataVO> getFemaleAditionalDataListByClientId(int clientId) {
+		return userDao.getFemaleAditionalDataListByClientId(clientId);
+	}
+	
+	@Override
+	public void updateMemberToDatabase(Client client, User u) {
+		userDao.updateMemberToDatabase(client , u);
+		
 	}
 	
 

@@ -9,6 +9,7 @@ import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
+import com.progym.model.FemaleMemberAdditionalDataVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
 import com.progym.model.Notifications;
@@ -24,7 +25,7 @@ public interface UserDao {
 	  
 	  User validateUser(User login);
 
-	void addMemberToDatabase(AddMemberObject addMemberObject , User user);
+	void addMemberToDatabase(AddMemberObject addMemberObject , User user, String userType);
 
 	public List<MemberStatPVO> getMembersBy(String filter , String zone);
 
@@ -59,5 +60,11 @@ public interface UserDao {
 	List<Notifications> getNotifications();
 
 	void discardNotification(String notiId);
+
+	void submitFemaleAditionalDataForm(FemaleMemberAdditionalDataVO femaleMemberAdditionalDataVO, User u);
+
+	List<FemaleMemberAdditionalDataVO> getFemaleAditionalDataListByClientId(int clientId);
+
+	void updateMemberToDatabase(Client client, User u);
 	  
 	}

@@ -36,6 +36,7 @@
         <mapping class="com.progym.model.PaymentTransaction"/>
         <mapping class="com.progym.model.User"/>
         <mapping class="com.progym.model.Notifications"/>
+        <mapping class="com.progym.model.FemaleMemberAdditionalDataVO"/>        
 
     </session-factory>
 

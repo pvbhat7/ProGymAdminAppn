@@ -17,6 +17,28 @@ response.sendRedirect("login");
    
     <!-- Start Left menu area -->
    <jsp:include page="topPage.jsp" />
+   		<!-- // search bar start -->
+		<div class="breadcome-area">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div align="center">
+                            <div class="breadcome-list">
+                                <div class="row">
+                                    <div >
+                                        <div class="breadcome-heading">
+                                            <form role="search" class="sr-input-func">
+                                                <input type="text" placeholder="Search..." class="search-int form-control">
+                                                <a href="#"><i class="fa fa-search"></i></a>
+                                            </form>
+                                        </div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- // search bar end -->
    
         <div class="product-status mg-b-15">
             <div class="container-fluid">
@@ -68,7 +90,7 @@ response.sendRedirect("login");
                                     
                                     <c:forEach items="${membersList}" var="client" varStatus="status">
 	                                    <tr style="background-color:<c:out value="${client.color}"/>">
-	                                        <td><img src="img/courses/pkgIcon.png" alt="" /></td>
+	                                        <td align="right"><img src="img/memberPhotos/${client.id}.jpg" alt="" /></td>
 	                                        <td><h3 >
 	                                        <a style="color: black;" href="<c:url value='clientProfile?cliendId=${client.id}&gender=${client.gender}'/>">
 	                                        <c:out value="${client.name}"/>

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +34,7 @@ import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
+import com.progym.model.FemaleMemberAdditionalDataVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.MemberStatPVO;
 import com.progym.model.Notifications;
@@ -88,9 +90,27 @@ public class UserDaoImpl implements UserDao {
   return (User)session.createCriteria(User.class).add(Restrictions.eq("password", user.getPassword())).add(Restrictions.eq("username", user.getUsername())).uniqueResult();
   	
   			}
+    
+    @Override
+    public void updateMemberToDatabase(Client c, User u) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client c1 = getClientById(c.getId());
+		c1.setAddress(c.getAddress());
+		c1.setName(c.getName());
+		c1.setEmail(c.getEmail());
+		c1.setMobile(c.getMobile());
+		c1.setAddress(c.getAddress());
+		c1.setBloodGroup(c.getBloodGroup());
+		c1.setPreviousGym(c.getPreviousGym());
+		session.saveOrUpdate(c1);
+		
+		logActivity(session , c , u , ACTIVITY_TYPE_ADD_NEW_MEMBER , null);		
+		session.getTransaction().commit();
+    }
 
 	@Override
-	public void addMemberToDatabase(AddMemberObject addMemberObject , User user) {
+	public void addMemberToDatabase(AddMemberObject addMemberObject , User user, String userType) {
 		String refererId = addMemberObject.getReference();
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
@@ -169,8 +189,8 @@ public class UserDaoImpl implements UserDao {
 			
 			membersStatPVOs.add(m);
 		}
-		session.beginTransaction();
-		session.getTransaction().commit();
+		//session.beginTransaction();
+		//session.getTransaction().commit();
 		session.close();
 		List<MemberStatPVO> membersStatPVOByZones = null;
 		
@@ -458,8 +478,7 @@ public class UserDaoImpl implements UserDao {
 				}
 			}
 		}else if(filter.getFilter().equals("G")) {
-			for(PackageDetails p : packagePaymentCollection) {
-				
+			for(PackageDetails p : packagePaymentCollection) {				
 				
 				if(filter.getGender().equalsIgnoreCase("all")){
 						collectionPVOList.add(new CollectionPVO(p.getClient().getName(), p.getAmountPaid(), p.getPackageName(), p.getClientPackageStatus(), p.getPackagePaymentDate()));					
@@ -488,27 +507,31 @@ public class UserDaoImpl implements UserDao {
 		int femaleFullyPaid = 0;
 		int femalePartialPaid = 0;
 		int femaleNotPaid = 0;
-		for(PackageDetails p : packagePaymentCollection) {
-			if(p.getClient().getGender().equals("male")){
-				male = male + p.getAmountPaid();
-				if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-					maleFullyPaid++;
-				else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-					malePartialPaid++;
-				else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-					maleNotPaid++;
-			}				
-			else if(p.getClient().getGender().equals("female")){
-				female = female + p.getAmountPaid();
-				if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-					femaleFullyPaid++;
-				else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-					femalePartialPaid++;
-				else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-					femaleNotPaid++;
+		if(packagePaymentCollection != null ){
+			for(PackageDetails p : packagePaymentCollection) {
+				if(p.getClient() != null){
+					if(p.getClient().getGender().equals("male")){
+						male = male + p.getAmountPaid();
+						if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+							maleFullyPaid++;
+						else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+							malePartialPaid++;
+						else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+							maleNotPaid++;
+					}				
+					else if(p.getClient().getGender().equals("female")){
+						female = female + p.getAmountPaid();
+						if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+							femaleFullyPaid++;
+						else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+							femalePartialPaid++;
+						else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+							femaleNotPaid++;
+					}	
+				}	
 			}
-				
 		}
+		
 		total = male + female;
 		
 		
@@ -634,6 +657,38 @@ public class UserDaoImpl implements UserDao {
 		session.save(noti);
 		session.getTransaction().commit();
 		session.close();  	
+    }
+    
+    @Override
+    public void submitFemaleAditionalDataForm(FemaleMemberAdditionalDataVO femaleMemberAdditionalDataVO, User u) {
+    
+    	session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		String isAuth = "NO";
+		if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("true"))
+			isAuth= "YES";
+	femaleMemberAdditionalDataVO.setDate(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+	Calendar mCalendar = Calendar.getInstance();    
+	String month = mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+	femaleMemberAdditionalDataVO.setMonth(month);
+	femaleMemberAdditionalDataVO.setDiscontinue("false");	
+	
+	session.save(femaleMemberAdditionalDataVO);
+	session.getTransaction().commit();
+	session.close();
+    }
+    
+    @Override
+    public List<FemaleMemberAdditionalDataVO> getFemaleAditionalDataListByClientId(int clientId) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Collection<FemaleMemberAdditionalDataVO> list = new LinkedHashSet(session.createCriteria(FemaleMemberAdditionalDataVO.class)
+				.add(Restrictions.eq("clientId", clientId))
+				.add(Restrictions.eq("discontinue","false"))
+				.addOrder(Order.desc("id"))
+				.list());
+		session.getTransaction().commit();
+	    return new ArrayList<FemaleMemberAdditionalDataVO>( list ); 
     }
 }
  
