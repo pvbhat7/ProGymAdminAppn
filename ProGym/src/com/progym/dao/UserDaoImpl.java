@@ -58,6 +58,7 @@ public class UserDaoImpl implements UserDao {
     public static final String ACTIVITY_TYPE_NEW_PAYMENT = "New Payment";
     public static final String ACTIVITY_TYPE_UPDATE_CLIENT_EXISTING_PACKAGE = "Update Package";
     public static final String ACTIVITY_TYPE_DELETE_CLIENT_EXISTING_PACKAGE = "Delete Package";
+    public static final String ACTIVITY_TYPE_DELETE_CLIENT_PROFILE = "Delete Client Profile";
 
 	
 	/*
@@ -76,7 +77,7 @@ public class UserDaoImpl implements UserDao {
 		Collection<User> collection = new LinkedHashSet(crit.list());
 		if(collection.size() == 0) {
 			User u1 = new User("a", "a", "Pranav Patil","YES");
-			  User u2 = new User("b", "b","Pooja Patil", "NO");
+			  User u2 = new User("b", "b","Swati HadPad", "NO");
 			  session.save(u1);
 			  session.save(u2);
 			  session.getTransaction().commit();
@@ -103,6 +104,7 @@ public class UserDaoImpl implements UserDao {
 		c1.setAddress(c.getAddress());
 		c1.setBloodGroup(c.getBloodGroup());
 		c1.setPreviousGym(c.getPreviousGym());
+		c1.setDiscontinue("false");
 		session.saveOrUpdate(c1);
 		
 		logActivity(session , c , u , ACTIVITY_TYPE_ADD_NEW_MEMBER , null);		
@@ -114,14 +116,17 @@ public class UserDaoImpl implements UserDao {
 		String refererId = addMemberObject.getReference();
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
-		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), addMemberObject.getBirthDate(), addMemberObject.getRemarks(),"false",null,"0"
+		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), getDdMmYyyyDate(addMemberObject.getBirthDate()), addMemberObject.getRemarks(),"false",null,"0"
 				,addMemberObject.getEmail() , addMemberObject.getAddress() , addMemberObject.getBloodGroup() ,addMemberObject.getReference(), addMemberObject.getPreviousGym());
 		session.save(c);
 		if(!refererId.equalsIgnoreCase("none")){
-			Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));	
-			int referPoints = Integer.parseInt(c1.getReferPoints());
+			Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));
+			if(c1.getReferPoints() != null)
+			{int referPoints = Integer.parseInt(c1.getReferPoints());
 			referPoints++;
-			c1.setReferPoints(String.valueOf(referPoints));
+			c1.setReferPoints(String.valueOf(referPoints));}
+			else
+				c1.setReferPoints("1");
 			session.saveOrUpdate(c1);
 		}
 		
@@ -133,7 +138,7 @@ public class UserDaoImpl implements UserDao {
 	public List<MemberStatPVO> getMembersBy(String filter , String zone) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
-		Criteria crit = session.createCriteria(Client.class);
+		Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false"));
 		Collection<Client> collection = new LinkedHashSet(crit.list());
 		
 		List<Client> cList = new ArrayList<Client>();
@@ -162,6 +167,8 @@ public class UserDaoImpl implements UserDao {
 			c1.add(Restrictions.eq("discontinue", "false"));
 			c1.addOrder(Order.desc("id"));
 			c1.setMaxResults(1);
+			if(!session.isOpen())
+				HibernateUtils.getSessionFactory().openSession();
 			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
 			if(pd != null){
 				try {					
@@ -277,10 +284,10 @@ public class UserDaoImpl implements UserDao {
 		pd1.setPackageName(c.getPackageName());
 		
 		// apply discount on fees
-		int discountedFees = (int)(c.getFees()*(Float.parseFloat(o.getDiscountPercentage())/100.0f));
-		int finalDiscountedFees = c.getFees().intValue() - discountedFees;
+		//int discountedFees = (int)(c.getFees()*(Float.parseFloat(o.getDiscountPercentage())/100.0f));
+		int finalDiscountedFees = c.getFees().intValue() - Integer.parseInt(o.getDiscountPercentage());
 		pd1.setPackageFees(Double.valueOf(finalDiscountedFees));
-		System.out.println("Process - assignnew package - default fees"+c.getFees()+" discount given "+o.getDiscountPercentage()+"  fees after discount "+discountedFees);
+		
 		Client c1 = getClientById(o.getClientId());
 		pd1.setClient(c1);
 		session.save(pd1);
@@ -407,7 +414,10 @@ public class UserDaoImpl implements UserDao {
 		}
 				
 		for(PackageDetails p : newList) {
-			list.add(new PaymentDataPVO(p.getClient().getName(), p.getPackageName(), p.getPackageFees(), p.getPackageStartDate(), p.getPackageEndDate(), p.getPackagePaymentDate(), p.getClient().getGender(),p.getClientPackageStatus(),p.getClient().getId()));
+			if(p.getClient() != null){
+				if(p.getClient().getDiscontinue().equalsIgnoreCase("false"))
+					list.add(new PaymentDataPVO(p.getClient().getName(), p.getPackageName(), p.getPackageFees(), p.getPackageStartDate(), p.getPackageEndDate(), p.getPackagePaymentDate(), p.getClient().getGender(),p.getClientPackageStatus(),p.getClient().getId()));
+			}			
 		}
 		return list;
 	}
@@ -509,36 +519,40 @@ public class UserDaoImpl implements UserDao {
 		int femaleNotPaid = 0;
 		if(packagePaymentCollection != null ){
 			for(PackageDetails p : packagePaymentCollection) {
+				
 				if(p.getClient() != null){
-					if(p.getClient().getGender().equals("male")){
-						male = male + p.getAmountPaid();
-						if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-							maleFullyPaid++;
-						else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-							malePartialPaid++;
-						else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-							maleNotPaid++;
-					}				
-					else if(p.getClient().getGender().equals("female")){
-						female = female + p.getAmountPaid();
-						if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-							femaleFullyPaid++;
-						else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-							femalePartialPaid++;
-						else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
-							femaleNotPaid++;
+					if(p.getClient().getDiscontinue().equalsIgnoreCase("false")){
+						if(p.getClient().getGender().equals("male")){
+							male = male + p.getAmountPaid();
+							if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+								maleFullyPaid++;
+							else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+								malePartialPaid++;
+							else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+								maleNotPaid++;
+						}				
+						else if(p.getClient().getGender().equals("female")){
+							female = female + p.getAmountPaid();
+							if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+								femaleFullyPaid++;
+							else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+								femalePartialPaid++;
+							else if(p.getClientPackageStatus().equalsIgnoreCase("not paid") && p.getDiscontinue().equalsIgnoreCase("false"))
+								femaleNotPaid++;
+						}
 					}	
-				}	
-			}
+				}	// end if
+				
+			}// end for
 		}
 		
 		total = male + female;
 		
 		
 		return new CollectionDashboardPVO(male, female, total, steam,
-				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "male")).list()).size(),
-				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("gender", "female")).list()).size(),
-				new LinkedHashSet(session.createCriteria(Client.class).list()).size(),
+				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("gender", "male")).list()).size(),
+				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("gender", "female")).list()).size(),
+				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).list()).size(),
 				maleFullyPaid,malePartialPaid,maleNotPaid,
 				femaleFullyPaid,femalePartialPaid,femaleNotPaid
 				);
@@ -689,6 +703,30 @@ public class UserDaoImpl implements UserDao {
 				.list());
 		session.getTransaction().commit();
 	    return new ArrayList<FemaleMemberAdditionalDataVO>( list ); 
+    }
+    
+    @Override
+    public void deleteClientProfile(String clientid, User user) {
+    	session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+		client.setDiscontinue("true");
+		session.save(client);
+		logActivity(session , client , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);
+		session.getTransaction().commit();
+		session.close();
+    }
+    
+    @Override
+    public void deletePackage(String pkgid, User user) {
+    	session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		CPackage pd = (CPackage) session.get(CPackage.class, Integer.parseInt(pkgid));
+		pd.setDiscontinue("true");
+		session.save(pd);
+		//logActivity(session ,null , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);
+		session.getTransaction().commit();
+		session.close();    	
     }
 }
  

@@ -66,5 +66,9 @@ public interface UserDao {
 	List<FemaleMemberAdditionalDataVO> getFemaleAditionalDataListByClientId(int clientId);
 
 	void updateMemberToDatabase(Client client, User u);
+
+	void deleteClientProfile(String clientid, User user);
+
+	void deletePackage(String pkgid, User user);
 	  
 	}

@@ -148,8 +148,17 @@ public class UserServiceImpl implements UserService{
 	
 	@Override
 	public void updateMemberToDatabase(Client client, User u) {
-		userDao.updateMemberToDatabase(client , u);
-		
+		userDao.updateMemberToDatabase(client , u);		
+	}
+	
+	@Override
+	public void deleteClientProfile(String clientid, User user) {
+		userDao.deleteClientProfile(clientid , user);
+	}
+	
+	@Override
+	public void deletePackage(String pkgid, User user) {
+		userDao.deletePackage(pkgid , user);		
 	}
 	
 

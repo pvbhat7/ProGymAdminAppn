@@ -43,8 +43,8 @@ response.sendRedirect("login");
                 <div class="row">
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                         <div class="profile-info-inner">
-                            <div class="profile-img">
-                                <img src="img/memberPhotos/${clientObject.id}.jpg" alt="" />
+                            <div class="profile-img" >
+                                <img src="img/${clientObject.id}.jpg" alt="" />
                             </div>
                             <div class="profile-details-hr">
                                 <div class="row">
@@ -86,6 +86,13 @@ response.sendRedirect("login");
                                         </div>
                                     </div>                                    
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+		                                <a href="<c:url value='deleteClientProfile?clientid=${clientObject.id}'/>">
+		                                	<button type="button" class="btn btn-danger btn-lg">Delete Client Profile</button>
+		                                </a>
+	                                </div>                                    
+                                </div>
                                
                                 
                             </div>
@@ -112,6 +119,7 @@ response.sendRedirect("login");
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="review-content-section">            
                                              <button type="button" class="btn btn-info btn-lg" id="myBtn">Add Package</button>
+                                             
 
                                              		<!-- Modal -->
 													  <div class="modal fade" id="myModal" role="dialog">
@@ -572,7 +580,9 @@ response.sendRedirect("login");
                                 
                                 <div class="product-tab-list tab-pane fade" id="edit_profile">
                                     <div class="row">
+                                    
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        
                                             <form:form action="editClientProfile" class="dropzone dropzone-custom needsclick add-professors" id="addTransaction" modelAttribute="editClientProfileFormObject" method="post">
                                             <div class="review-content-section">
                                                 <div class="row">
@@ -598,7 +608,7 @@ response.sendRedirect("login");
                                                         </div> --%>
                                                         <div class="form-group">
                                                         <form:label path="birthDate">Birth Date</form:label>
-                                                            <form:input path="birthDate" name="birthDate" type="text" class="form-control" ></form:input>
+                                                            <form:input disabled="true" path="birthDate" name="birthDate" type="text" class="form-control" ></form:input>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6">

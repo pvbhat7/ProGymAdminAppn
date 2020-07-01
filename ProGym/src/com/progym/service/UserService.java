@@ -65,6 +65,10 @@ public interface UserService {
 
 	void updateMemberToDatabase(Client client, User u);
 
+	void deleteClientProfile(String clientid, User user);
+
+	void deletePackage(String pkgid, User user);
+
 
 	
 

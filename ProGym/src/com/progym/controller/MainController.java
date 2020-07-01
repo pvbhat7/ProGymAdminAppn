@@ -150,17 +150,17 @@ public class MainController {
 	  @ModelAttribute("discountPercentageList")
 	   public Map<String, String> getDiscountPercentageList() {
 		  Map<String,String> discountPercentageList = new LinkedHashMap<String,String>();
-		  discountPercentageList.put("0", "0%");
-		  discountPercentageList.put("10", "10%");
-		  discountPercentageList.put("20", "20%");
-		  discountPercentageList.put("30", "30%");
-		  discountPercentageList.put("40", "40%");
-		  discountPercentageList.put("50", "50%");
-		  discountPercentageList.put("60", "60%");
-		  discountPercentageList.put("70", "70%");
-		  discountPercentageList.put("80", "80%");
-		  discountPercentageList.put("90", "90%");
-		  discountPercentageList.put("100", "100%");
+		  discountPercentageList.put("0", "0");
+		  discountPercentageList.put("100", "100");
+		  discountPercentageList.put("200", "200");
+		  discountPercentageList.put("300", "300");
+		  discountPercentageList.put("400", "400");
+		  discountPercentageList.put("500", "500");
+		  discountPercentageList.put("600", "600");
+		  discountPercentageList.put("700", "700");
+		  discountPercentageList.put("800", "800");
+		  discountPercentageList.put("900", "900");
+		  discountPercentageList.put("1000", "1000");
 		  return discountPercentageList;		  
 	  }
 	  
@@ -431,7 +431,7 @@ public class MainController {
 	      } else {            
 	         System.out.println("Fetching file");
 	         MultipartFile multipartFile = file.getFile();
-	         String uploadPath = session.getServletContext().getRealPath("/img/memberPhotos/");
+	         String uploadPath = session.getServletContext().getRealPath("/img/");
 	         System.out.println("uploaded file path "+uploadPath);
 
 	         //Now do something with file...
@@ -462,4 +462,22 @@ public class MainController {
 			  String uri = "clientProfile?cliendId="+client.getId()+"&gender="+client.getGender()+"";
 			  response.sendRedirect(uri);
 		  }
+	   
+	   @RequestMapping(value = "/deleteClientProfile", method = RequestMethod.GET)
+		  @ResponseBody
+		  public void deleteClientProfile(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+				  @RequestParam String clientid) throws IOException {
+			  User user = (User)session.getAttribute("loggedInUser");
+			  userService.deleteClientProfile(clientid , user);
+			  response.sendRedirect("allMembers?gender=all&zone=none");	  
+		}
+	   
+	   @RequestMapping(value = "/deletePackage", method = RequestMethod.GET)
+		  @ResponseBody
+		  public void deletePackage(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+				  @RequestParam String pkgid) throws IOException {
+			  User user = (User)session.getAttribute("loggedInUser");
+			  userService.deletePackage(pkgid , user);
+			  response.sendRedirect("index");	  
+		}
 }

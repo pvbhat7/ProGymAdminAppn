@@ -34,8 +34,10 @@ response.sendRedirect("login");
 	                                
 	                            </div>
 	                            <div class="product-buttons" align="center">
-	                                <button type="button" class="button-default cart-btn">Edit</button>
+	                                <button type="button" class="button-default cart-btn" disabled="true">Edit</button>
+	                                <a href="<c:url value='deletePackage?pkgid=${pkg.id}'/>">
 	                                <button type="button" class="button-default cart-btn">Delete</button>
+	                                </a>
 	                            </div>
                             
                         </div></br>

@@ -1,5 +1,9 @@
 <%@page import="com.progym.model.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
+ <%
+if(session.getAttribute("loggedInUser") == null)
+response.sendRedirect("login");
+%>
 <div class="left-sidebar-pro">
         <nav id="sidebar" class="">
             </br>

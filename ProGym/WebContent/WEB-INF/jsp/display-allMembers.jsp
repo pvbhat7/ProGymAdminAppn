@@ -81,8 +81,8 @@ response.sendRedirect("login");
                             <div class="asset-inner">
                                 <table>
                                     <tr>
-                                        <th>Image</th>
-                                        <th>Name</th>  
+                                        <!-- <th>Image</th> -->
+                                        <th align="center">Name</th>  
                                         <th>Refer Points</th> 
                                         <th>Days Remaining</th>
                                         <!-- <th>Payment Status</th> -->                                                                                                      
@@ -90,8 +90,8 @@ response.sendRedirect("login");
                                     
                                     <c:forEach items="${membersList}" var="client" varStatus="status">
 	                                    <tr style="background-color:<c:out value="${client.color}"/>">
-	                                        <td align="right"><img src="img/memberPhotos/${client.id}.jpg" alt="" /></td>
-	                                        <td><h3 >
+	                                        <%-- <td align="right"><img src="img/memberPhotos/${client.id}.jpg" alt="" /></td> --%>
+	                                        <td align="center"><h3 >
 	                                        <a style="color: black;" href="<c:url value='clientProfile?cliendId=${client.id}&gender=${client.gender}'/>">
 	                                        <c:out value="${client.name}"/>
 	                                        </a></h3>
