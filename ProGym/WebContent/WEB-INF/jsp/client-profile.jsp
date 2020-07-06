@@ -147,7 +147,7 @@ response.sendRedirect("login");
 													            </br>	
 													            <div class="form-group">
                                                                     <form:select path="discountPercentage" class="form-control">
-																		<form:option value="NONE" label="--- Select Discount Percentage ---"/>
+																		<form:option value="NONE" label="--- Select Discount Amount ---"/>
 																		<form:options items="${discountPercentageList}"/>
 																	</form:select>
                                                                 </div>
@@ -221,6 +221,7 @@ response.sendRedirect("login");
         	<th align="center">Amount</th>
             <th align="center">Date</th>
             <th>Approved ?</th>
+            <th>Invoice</th>
         </tr>
         <c:forEach var = "trans" items = "${c_pkg.paymentTransactions}" varStatus="status1">
         	<tr>
@@ -245,7 +246,9 @@ response.sendRedirect("login");
 	            <c:if test="${trans.isApproved == 'YES'}">
 	            <td bgcolor="#00FF00">&nbsp;&nbsp;<c:out value="${trans.isApproved}"/>&nbsp;&nbsp;</td>
 	            </c:if>
-	            
+	            <td style="border: solid 2px #ddd; padding:10px 10px;"><a href="<c:url value='sendInvoice?txnId=${c_pkg.paymentTransactions[status1.index].id}&cID=${clientPackagesList[status.index].client.id}&email=${clientObject.email}&gender=${clientPackagesList[status.index].client.gender}'/>">
+	            <input class="btn btn-primary btn-xs" type="button" value="&nbsp;&nbsp;Send Invoice&nbsp;&nbsp;" />
+	            </a></td>
             </tr>
   		</c:forEach>                
     </table>
@@ -277,6 +280,17 @@ response.sendRedirect("login");
                 </div>
                 <div class="modal-footer">
                     <form:button id="basicInfo" type="submit" class="btn btn-primary">Add Payment</form:button>
+                    <script>
+//submit search, display loading message
+    $('input[type = submit]').click(function(){
+        $.blockUI({ css: { 
+            border: 'none', 
+            padding: '15px', 
+            backgroundColor: '#000',
+            opacity: .6
+        } }); 
+    });
+</script>
                     <form:button type="button" class="btn btn-default" data-dismiss="modal">Close</form:button>
                 </div>
                 </form:form>
@@ -296,7 +310,7 @@ response.sendRedirect("login");
                 </div>
                 <form action="updateClientAssignedPackage" class="dropzone dropzone-custom needsclick add-professors" method="post">
                 <div class="modal-body">
-                	<label for="psw"><span class="glyphicon"></span> Package</label>
+                	<label for="psw"><span class="glyphicon"></span> Package Name</label>
                     <input id="u_package" name="u_package" class="form-control" type="text" readonly/>
                     </br>
                     <label for="psw"><span class="glyphicon"></span> Package StartDate</label>
@@ -446,6 +460,7 @@ response.sendRedirect("login");
 								                                                <th>Hips</th>
 								                                                <th>Calf</th>
 								                                                <th>Ankle</th>
+								                                                <th>Delete</th>
 								                                            </tr>
 								                                        </thead>
 								                                        <tbody>
@@ -465,6 +480,11 @@ response.sendRedirect("login");
 								                                                <td><c:out value="${obj.hips}"/></td>
 								                                                <td><c:out value="${obj.calf}"/></td>
 								                                                <td><c:out value="${obj.ankle}"/></td>
+								                                                <td>
+								                                                <a href="<c:url value='deleteFemaleClientAdditionalDetails?id=${obj.id}&gender=${clientObject.gender}&clientid=${clientObject.id}'/>">
+								                                                <input class="btn btn-danger btn-xs" type="button" value="Delete" />
+								                                                </a>
+								                                                </td>
 								                                                <%-- <td>
 								                                                <c:if test="${c_pkg.packageFees != c_pkg.amountPaid}">
 								                                                <input class="btnedit btn btn-success btn-xs" type="button" value="Pay" />
@@ -610,6 +630,14 @@ response.sendRedirect("login");
                                                         <form:label path="birthDate">Birth Date</form:label>
                                                             <form:input disabled="true" path="birthDate" name="birthDate" type="text" class="form-control" ></form:input>
                                                         </div>
+                                                        <div class="form-group">
+                                                        <form:label path="height">Height</form:label>
+                                                            <form:input path="height" name="height" type="number" class="form-control" ></form:input>
+                                                        </div>
+                                                        <div class="form-group">
+                                                        <form:label path="weight">Weight</form:label>
+                                                            <form:input path="weight" name="weight" type="number" class="form-control" ></form:input>
+                                                        </div>
                                                     </div>
                                                     <div class="col-lg-6">
                                                         <div class="form-group">
@@ -628,6 +656,7 @@ response.sendRedirect("login");
                                                         <form:label path="previousGym">Previous Gym</form:label>
                                                             <form:input path="previousGym" name="previousGym" type="text" class="form-control" ></form:input>
                                                         </div>
+                                                        
                                                     </div>
                                                     
                                                 </div>

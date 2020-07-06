@@ -1,8 +1,12 @@
 package com.progym.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,13 +52,25 @@ import com.progym.model.PackageDetails;
 import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
 import com.progym.service.UserService;
+import com.progym.utils.EmailUtil;
 import com.smattme.MysqlExportService;
+import com.sun.mail.smtp.SMTPTransport;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 @Controller
 public class MainController {
 
-	
-	
 	@Autowired
 	  UserService userService;
 	
@@ -67,8 +83,8 @@ public class MainController {
 		if(u == null)
 			response.sendRedirect("login");
 		else {
-			
-	    CollectionDashboardPVO c = userService.getDashboardCollection();
+		
+		CollectionDashboardPVO c = userService.getDashboardCollection();
 	    mav.addObject("male",c.getMale());
 	    mav.addObject("female",c.getFemale());
 	    mav.addObject("steam",c.getSteam());
@@ -83,6 +99,7 @@ public class MainController {
 	    mav.addObject("femaleFullPaid",c.getFemaleFullPaid());
 	    mav.addObject("femalePartialPaid",c.getFemalePartialPaid());
 	    mav.addObject("femaleNotPaid",c.getFemaleNotPaid());
+	    mav.addObject("emailInvoiceFlag", getEmailFlag());
 	    }
 	    return mav;
 
@@ -270,6 +287,8 @@ public class MainController {
 	  @RequestMapping(value = "/addPackageForClient", method = RequestMethod.POST)
 	  public void addPackageFromForm(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("clientAddPackageObject") AddClientPackageForm addClientPackageForm) throws IOException {
 		  User user = (User)session.getAttribute("loggedInUser");
+		  if(addClientPackageForm.getDiscountPercentage().equalsIgnoreCase("NONE"))
+			  addClientPackageForm.setDiscountPercentage("0");
 		  userService.addPackageForClientToDatabase(addClientPackageForm , user);
 		  String uri = "clientProfile?cliendId="+addClientPackageForm.getClientId()+"&gender="+addClientPackageForm.getGender()+"";
 		  response.sendRedirect(uri);
@@ -313,7 +332,7 @@ public class MainController {
 			  total = total + p.getFeesPaid(); 
 		  }
 		  mav.addObject("filtername", "1d");
-		  mav.addObject("totalCollection", total);
+		  mav.addObject("totalCollection", total);  
 		  return mav;		  
 	  }
 	  
@@ -384,9 +403,7 @@ public class MainController {
 	  @RequestMapping(value = "/backupDatabase", method = RequestMethod.GET)
 	  public ModelAndView backupDatabase(HttpServletRequest request, HttpServletResponse response) throws ClassNotFoundException, IOException, SQLException {		  
 	    ModelAndView mav = new ModelAndView("index");
-	    
-	  
-	    
+	      
 	    try {
             Runtime rt = Runtime.getRuntime();
             rt.exec("cmd.exe /c start C:\\ab.bat");
@@ -424,10 +441,12 @@ public class MainController {
 	   }
 
 	   @RequestMapping(value="/fileUploadPage", method = RequestMethod.POST)
-	   public String fileUpload(HttpSession session,@Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
-	      if (result.hasErrors()) {
+	   public ModelAndView fileUpload(HttpSession session,@Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
+		   ModelAndView mav = new ModelAndView("index");
+		   if (result.hasErrors()) {
 	         System.out.println("validation errors");
-	         return "fileUploadPage";
+	         mav.setViewName("fileUploadPage");
+	         return mav;
 	      } else {            
 	         System.out.println("Fetching file");
 	         MultipartFile multipartFile = file.getFile();
@@ -437,9 +456,11 @@ public class MainController {
 	         //Now do something with file...
 	         FileCopyUtils.copy(file.getFile().getBytes(), new File(uploadPath+file.getReference()+".jpg"));
 	         String fileName = multipartFile.getOriginalFilename();
-	         System.out.println("member name :"+file.getReference());
 	         model.addAttribute("fileName", fileName);
-	         return "index";
+	         //sendEmail();
+	         //EmailUtil.sendEmail2();
+	         mav.addObject("emailInvoiceFlag", getEmailFlag());
+	         return mav;
 	      }
 	   }
 
@@ -461,7 +482,7 @@ public class MainController {
 		   userService.updateMemberToDatabase(client , u);
 			  String uri = "clientProfile?cliendId="+client.getId()+"&gender="+client.getGender()+"";
 			  response.sendRedirect(uri);
-		  }
+		}
 	   
 	   @RequestMapping(value = "/deleteClientProfile", method = RequestMethod.GET)
 		  @ResponseBody
@@ -480,4 +501,62 @@ public class MainController {
 			  userService.deletePackage(pkgid , user);
 			  response.sendRedirect("index");	  
 		}
+	   
+	   @RequestMapping(value = "/deleteFemaleClientAdditionalDetails", method = RequestMethod.GET)
+		  public void deleteFemaleClientAdditionalDetails(HttpSession session,HttpServletRequest request, HttpServletResponse response,
+				  @RequestParam String id,@RequestParam String gender,@RequestParam String clientid) throws IOException {
+		   User u = (User)session.getAttribute("loggedInUser");  
+		   userService.deleteFemaleClientAdditionalDetails(id , u);
+			  String uri = "clientProfile?cliendId="+clientid+"&gender="+gender+"";
+			  response.sendRedirect(uri);
+		}
+	   
+	   @RequestMapping(value = "/searchMember", method = RequestMethod.GET)
+		  public ModelAndView searchMember(HttpServletRequest request, 
+				  HttpServletResponse response,@RequestParam String searchCriteria) {
+			  ModelAndView mav = new ModelAndView("display-allMembers");
+			  mav.addObject("membersList",userService.getMembersBySearchCriteria(searchCriteria));		  
+		    return mav;
+		  }
+	   
+	   @RequestMapping(value = "/mobilenotifications", method = RequestMethod.GET)
+		  public ModelAndView mobilenotifications(HttpServletRequest request, HttpServletResponse response){		  
+		    ModelAndView mav = new ModelAndView("notifications");
+			  mav.addObject("notificationsList", userService.getMobileNotifications() );		  
+		    return mav;
+		  }
+	   @RequestMapping(value = "/sendPendingInvoices", method = RequestMethod.GET)
+		  public ModelAndView sendPendingInvoices(HttpServletRequest request, HttpServletResponse response){		  
+		    ModelAndView mav = new ModelAndView("index");
+		    mav.addObject("emailInvoiceFlag", getEmailFlag());
+		    userService.sendPendingInvoices();
+		    return mav;
+		  }
+
+	   @RequestMapping(value = "/sendInvoice", method = RequestMethod.GET)
+		  @ResponseBody
+		  public void sendInvoice(HttpServletRequest request, HttpServletResponse response,@RequestParam String txnId,@RequestParam String cID,@RequestParam String email,@RequestParam String gender) throws IOException {
+			  userService.sendInvoice(txnId,email);
+			  String uri = "clientProfile?cliendId="+cID+"&gender="+gender+"";
+			  response.sendRedirect(uri);
+			  }
+	   
+	   @RequestMapping(value = "/toggleInvoiceFlag", method = RequestMethod.GET)
+		  @ResponseBody
+		  public ModelAndView toggleInvoiceFlag(HttpServletRequest request, HttpServletResponse response,@RequestParam String flag) throws IOException {
+		   userService.updateToggleInvoiceFlag(flag);
+		   ModelAndView mav = new ModelAndView("index");
+			if(flag.equalsIgnoreCase("true"))
+			  mav.addObject("emailInvoiceFlag", "ON");
+			else if(flag.equalsIgnoreCase("false"))
+				  mav.addObject("emailInvoiceFlag", "OFF");
+		    return mav;
+		}
+	   
+	   public String getEmailFlag(){
+		   return userService.getToggleInvoiceFlag();
+	   }
+	   
+	   	   
+	   
 }

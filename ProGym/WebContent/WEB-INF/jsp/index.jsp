@@ -1,5 +1,7 @@
 <%@page import="com.progym.model.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.util.List"%>
 <%
 if(session.getAttribute("loggedInUser") == null)
 response.sendRedirect("login");
@@ -128,6 +130,21 @@ response.sendRedirect("login");
                                 </li>
                                 <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i> <span class="counter text-info">${clienttotal}</span></li>
                             </ul>
+                        </div> 
+                        <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                           					 <table>
+                                              <tr><td><h4>Email Flag : </h4></td>
+                                              <td><h4><c:out value="${emailInvoiceFlag}"/></h4></td>
+                                              <td>&nbsp;&nbsp;
+                                              <c:if test="${emailInvoiceFlag == 'ON'}">
+	                                            <a href="toggleInvoiceFlag?flag=false"><button type="submit" class="btn btn-danger btn-md">Turn Off</button></a>
+									            </c:if>
+									            <c:if test="${emailInvoiceFlag == 'OFF'}">
+	                                            <a href="toggleInvoiceFlag?flag=true"><button type="submit" class="btn btn-success btn-md">Turn On</button></a>
+									            </c:if>
+                                              </td>
+                                              </tr>
+                                              </table>
                         </div>  
                                               
                     </div>

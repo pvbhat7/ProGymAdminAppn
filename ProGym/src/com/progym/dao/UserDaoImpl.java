@@ -21,6 +21,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.LogicalExpression;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,10 @@ import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
+import com.progym.model.EmailDataObject;
 import com.progym.model.FemaleMemberAdditionalDataVO;
 import com.progym.model.FilterCollectionObject;
+import com.progym.model.FlagData;
 import com.progym.model.MemberStatPVO;
 import com.progym.model.Notifications;
 import com.progym.model.User;
@@ -43,6 +46,7 @@ import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
+import com.progym.utils.EmailUtil;
 import com.progym.utils.HibernateUtils;
 
 @Repository
@@ -59,6 +63,7 @@ public class UserDaoImpl implements UserDao {
     public static final String ACTIVITY_TYPE_UPDATE_CLIENT_EXISTING_PACKAGE = "Update Package";
     public static final String ACTIVITY_TYPE_DELETE_CLIENT_EXISTING_PACKAGE = "Delete Package";
     public static final String ACTIVITY_TYPE_DELETE_CLIENT_PROFILE = "Delete Client Profile";
+    public static final String ACTIVITY_TYPE_UPDATE_MEMBER_PROFILE = "Upadate Client Profilet";
 
 	
 	/*
@@ -76,11 +81,11 @@ public class UserDaoImpl implements UserDao {
 		Criteria crit = session.createCriteria(User.class);
 		Collection<User> collection = new LinkedHashSet(crit.list());
 		if(collection.size() == 0) {
-			User u1 = new User("a", "a", "Pranav Patil","YES");
-			  User u2 = new User("b", "b","Swati HadPad", "NO");
+			/*User u1 = new User("djpranav77", "pooja.418", "Pranav Patil","YES");
+			  User u2 = new User("swati", "sairaj0909","Swati HadPad", "NO");
 			  session.save(u1);
 			  session.save(u2);
-			  session.getTransaction().commit();
+			  session.getTransaction().commit();*/
 		}
 	  	  
     }
@@ -107,7 +112,7 @@ public class UserDaoImpl implements UserDao {
 		c1.setDiscontinue("false");
 		session.saveOrUpdate(c1);
 		
-		logActivity(session , c , u , ACTIVITY_TYPE_ADD_NEW_MEMBER , null);		
+		logActivity(session , c , u , ACTIVITY_TYPE_UPDATE_MEMBER_PROFILE , null);		
 		session.getTransaction().commit();
     }
 
@@ -117,7 +122,8 @@ public class UserDaoImpl implements UserDao {
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), getDdMmYyyyDate(addMemberObject.getBirthDate()), addMemberObject.getRemarks(),"false",null,"0"
-				,addMemberObject.getEmail() , addMemberObject.getAddress() , addMemberObject.getBloodGroup() ,addMemberObject.getReference(), addMemberObject.getPreviousGym());
+				,addMemberObject.getEmail() , addMemberObject.getAddress() , addMemberObject.getBloodGroup() ,addMemberObject.getReference(), addMemberObject.getPreviousGym(),
+				addMemberObject.getHeight(),addMemberObject.getWeight());
 		session.save(c);
 		if(!refererId.equalsIgnoreCase("none")){
 			Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));
@@ -186,7 +192,8 @@ public class UserDaoImpl implements UserDao {
 			if(m.getDaysRemaining().equals("-"))
 				m.setColor(GREEN);
 			else{
-				if(Integer.parseInt(m.getDaysRemaining())<5 && isFeesNotPaid(c))
+				//if(Integer.parseInt(m.getDaysRemaining())<5 && isFeesNotPaid(c))
+				if(Integer.parseInt(m.getDaysRemaining())<5)
 					m.setColor(RED);
 				else if(Integer.parseInt(m.getDaysRemaining()) > 5 && Integer.parseInt(m.getDaysRemaining()) < 10)
 					m.setColor(YELLOW);
@@ -334,6 +341,7 @@ public class UserDaoImpl implements UserDao {
 	
 	@Override
 	public void createTransaction(PaymentTransaction paymentTransaction ,Boolean isAuthorized, User user) {
+		EmailDataObject eObj = new EmailDataObject();
 		session =  HibernateUtils.getSessionFactory().openSession();
 			session.beginTransaction();
 			String isAuth = "NO";
@@ -351,6 +359,27 @@ public class UserDaoImpl implements UserDao {
 		pd.setPackagePaymentDate(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 		logActivity(session , pd.getClient() , user , ACTIVITY_TYPE_NEW_PAYMENT , String.valueOf(p.getFeesPaid()));
 		session.save(p);
+		eObj.setClientEmail(pd.getClient().getEmail());
+		eObj.setClientName(pd.getClient().getName());
+		eObj.setPackageName(pd.getPackageName());
+		eObj.setPaymentDate(new SimpleDateFormat("dd/MM/YYYY hh:mm:ss").format(new Date()));
+		eObj.setDuration(pd.getPackageStartDate()+" - "+pd.getPackageEndDate());
+		eObj.setRemainingAmount(String.valueOf(pd.getPackageFees()-pd.getAmountPaid()));
+		eObj.setAmount(String.valueOf(paymentTransaction.getFeesPaid()));
+		
+		// get send receipt flag
+		FlagData emailInvoiceFlag = (FlagData) session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey", "EMAIL_INVOICE_FLAG")).uniqueResult();
+		eObj.setPaymentTransactionId(p.getId());
+		if(emailInvoiceFlag.getFlagValue().equalsIgnoreCase("TRUE")){
+			eObj.setIsReceiptSent("TRUE");
+			session.save(eObj);
+			EmailUtil.sendEmail2(eObj);
+		}
+		else{
+			eObj.setIsReceiptSent("FALSE");
+			session.save(eObj);
+		}
+				
 		session.getTransaction().commit();
 		session.close();
 		
@@ -727,6 +756,181 @@ public class UserDaoImpl implements UserDao {
 		//logActivity(session ,null , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);
 		session.getTransaction().commit();
 		session.close();    	
+    }
+    
+    @Override
+    public void deleteFemaleClientAdditionalDetails(String id, User u) {
+    	session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		FemaleMemberAdditionalDataVO vo = (FemaleMemberAdditionalDataVO) session.get(FemaleMemberAdditionalDataVO.class, Integer.parseInt(id));
+		vo.setDiscontinue("true");
+		session.save(vo);
+		//logActivity(session ,null , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);
+		session.getTransaction().commit();
+		session.close();
+    }
+    
+    @Override
+    public List<MemberStatPVO> getMembersBySearchCriteria(String searchCriteria) {
+    	String zone = "none";
+    	String filter= "all";
+    	session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		System.out.println("search criteria"+searchCriteria);
+		Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.like("name", searchCriteria,MatchMode.ANYWHERE));
+		Collection<Client> collection = new LinkedHashSet(crit.list());
+		System.out.println("\n search results :"+collection.size());
+		List<Client> cList = new ArrayList<Client>();
+		for(Client c : collection) {
+			cList.add(c);
+		}
+		List<MemberStatPVO> membersStatPVOs = new ArrayList<>();
+		for(Client c : cList){
+			MemberStatPVO m = new MemberStatPVO();
+			m.setId(c.getId());
+			m.setName(c.getName());
+			m.setGender(c.getGender());
+			m.setReferPoints(c.getReferPoints());
+			//m.setPaymentStatus(getLastPackagePaymentStatus(c));
+			
+			// get recent record
+			Criteria c1 = session.createCriteria(PackageDetails.class);
+			c1.add(Restrictions.eq("client.id", c.getId()));
+			c1.add(Restrictions.eq("discontinue", "false"));
+			c1.addOrder(Order.desc("id"));
+			c1.setMaxResults(1);
+			if(!session.isOpen())
+				HibernateUtils.getSessionFactory().openSession();
+			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
+			if(pd != null){
+				try {					
+					Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
+					Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
+					m.setDaysRemaining(String.valueOf(daysDiff(new Date(), secondDate)));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}	
+			}
+			else{
+				m.setDaysRemaining("-");
+			}
+			
+			if(m.getDaysRemaining().equals("-"))
+				m.setColor(GREEN);
+			else{
+				//if(Integer.parseInt(m.getDaysRemaining())<5 && isFeesNotPaid(c))
+				if(Integer.parseInt(m.getDaysRemaining())<5)
+					m.setColor(RED);
+				else if(Integer.parseInt(m.getDaysRemaining()) > 5 && Integer.parseInt(m.getDaysRemaining()) < 10)
+					m.setColor(YELLOW);
+				else
+					m.setColor(GREEN);	
+			}	
+			
+			membersStatPVOs.add(m);
+		}
+		//session.beginTransaction();
+		//session.getTransaction().commit();
+		session.close();
+		List<MemberStatPVO> membersStatPVOByZones = null;
+		
+		if(zone.equalsIgnoreCase("none")){
+			membersStatPVOByZones = membersStatPVOs;
+		}
+		  else if(zone.equalsIgnoreCase("green")){
+			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,GREEN);  
+		  }
+		  else if(zone.equalsIgnoreCase("red")){
+			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,RED);
+		  }
+		  else if(zone.equalsIgnoreCase("yellow")){
+			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,YELLOW);
+		  }
+		return membersStatPVOByZones;
+    }
+    
+    @Override
+    public List<Notifications> getMobileNotifications() {
+    	List<Notifications> notiList = new ArrayList<Notifications>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria crit = session.createCriteria(Notifications.class);
+		crit.add(Restrictions.eq("discontinue","false"));
+		crit.addOrder(Order.desc("id"));
+		notiList = crit.list();
+		session.close();		
+		List<Notifications> mobileNotification = new ArrayList<Notifications>();
+		for(Notifications n : notiList){
+			if(n.getActivity().equalsIgnoreCase(ACTIVITY_TYPE_NEW_PAYMENT) || 
+					n.getActivity().equalsIgnoreCase(ACTIVITY_TYPE_ADD_NEW_MEMBER)){
+				mobileNotification.add(n);
+			}
+		}
+		return mobileNotification;
+    }
+    
+    @Override
+    public void sendPendingInvoices() {
+    	List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		FlagData emailInvoiceFlag = (FlagData) session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey", "EMAIL_INVOICE_FLAG")).uniqueResult();
+		Criteria crit = session.createCriteria(EmailDataObject.class);
+		crit.add(Restrictions.eq("isReceiptSent","FALSE"));
+		pendingInvoiceList = crit.list();
+		for(EmailDataObject obj : pendingInvoiceList){
+			if(emailInvoiceFlag.getFlagValue().equalsIgnoreCase("TRUE")){
+				EmailUtil.sendEmail2(obj);
+				obj.setIsReceiptSent("TRUE");
+			}
+			session.saveOrUpdate(obj);
+		}
+		session.getTransaction().commit();
+    }
+    
+    @Override
+    public void sendInvoice(String txnId,String email) {
+    	List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		FlagData emailInvoiceFlag = (FlagData) session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey", "EMAIL_INVOICE_FLAG")).uniqueResult();
+		EmailDataObject eObj = (EmailDataObject)session.createCriteria(EmailDataObject.class).add(Restrictions.eq("paymentTransactionId",Integer.parseInt(txnId))).uniqueResult();
+		eObj.setClientEmail(email);
+		
+		if(emailInvoiceFlag.getFlagValue().equalsIgnoreCase("TRUE")){
+			EmailUtil.sendEmail2(eObj);
+		}
+		session.saveOrUpdate(eObj);
+		session.getTransaction().commit();
+		session.close();
+    }
+    
+    @Override
+    public String getToggleInvoiceFlag() {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		String returnvalue ="";
+		FlagData flag = (FlagData)session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey","EMAIL_INVOICE_FLAG")).uniqueResult();
+		session.close();
+		if(flag.getFlagValue().equalsIgnoreCase("TRUE"))
+			returnvalue= "ON";
+		else if(flag.getFlagValue().equalsIgnoreCase("FALSE"))
+			returnvalue ="OFF";
+		return returnvalue;
+    }
+    
+    @Override
+    public void updateToggleInvoiceFlag(String flag) {
+    	List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		FlagData flagObj = (FlagData)session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey","EMAIL_INVOICE_FLAG")).uniqueResult();
+		if(flag.equalsIgnoreCase("true"))
+			flagObj.setFlagValue("TRUE");
+		else if(flag.equalsIgnoreCase("false"))
+			flagObj.setFlagValue("FALSE");
+		session.getTransaction().commit();
+		session.close();
     }
 }
  

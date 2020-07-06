@@ -19,7 +19,7 @@ public class AddMemberObject {
 	private String bloodGroup;	
 	private String reference;	
 	private String previousGym;
-	private int height;
+	private double height;
 	private double weight;
 	private int clientId;
 	
@@ -37,10 +37,10 @@ public class AddMemberObject {
 	public String getName() {
 		return name;
 	}
-	public int getHeight() {
+	public double getHeight() {
 		return height;
 	}
-	public void setHeight(int height) {
+	public void setHeight(double height) {
 		this.height = height;
 	}
 	public double getWeight() {

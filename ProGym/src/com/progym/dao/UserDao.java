@@ -70,5 +70,19 @@ public interface UserDao {
 	void deleteClientProfile(String clientid, User user);
 
 	void deletePackage(String pkgid, User user);
+
+	void deleteFemaleClientAdditionalDetails(String id, User u);
+
+	List<MemberStatPVO> getMembersBySearchCriteria(String searchCriteria);
+
+	List<Notifications> getMobileNotifications();
+
+	void sendPendingInvoices();
+
+	void sendInvoice(String txnId, String email);
+
+	String getToggleInvoiceFlag();
+
+	void updateToggleInvoiceFlag(String flag);
 	  
 	}

@@ -26,9 +26,11 @@ response.sendRedirect("login");
                                 <div class="row">
                                     <div >
                                         <div class="breadcome-heading">
-                                            <form role="search" class="sr-input-func">
-                                                <input type="text" placeholder="Search..." class="search-int form-control">
-                                                <a href="#"><i class="fa fa-search"></i></a>
+                                            <form action="searchMember" role="search" class="sr-input-func">
+                                                <input name="searchCriteria" type="text" placeholder="Search Member..." class="search-int form-control">
+                                                <!-- <input type="submit" value="search" class="fa fa-search"> -->
+                                                <button id="basicInfo" type="submit" class="fa fa-search"></button>
+                                                <!-- <a href="searchMember"><i class="fa fa-search"></i></a> -->
                                             </form>
                                         </div>
                                     </div>                                    
@@ -82,22 +84,22 @@ response.sendRedirect("login");
                                 <table>
                                     <tr>
                                         <!-- <th>Image</th> -->
-                                        <th align="center">Name</th>  
-                                        <th>Refer Points</th> 
-                                        <th>Days Remaining</th>
+                                        <th style="text-align:center;">Name</th>  
+                                        <th style="text-align:center;">Refer Points</th> 
+                                        <th style="text-align:center;">Days Remaining</th>
                                         <!-- <th>Payment Status</th> -->                                                                                                      
                                     </tr>
                                     
                                     <c:forEach items="${membersList}" var="client" varStatus="status">
 	                                    <tr style="background-color:<c:out value="${client.color}"/>">
 	                                        <%-- <td align="right"><img src="img/memberPhotos/${client.id}.jpg" alt="" /></td> --%>
-	                                        <td align="center"><h3 >
+	                                        <td style="text-align:center;"><h3 >
 	                                        <a style="color: black;" href="<c:url value='clientProfile?cliendId=${client.id}&gender=${client.gender}'/>">
 	                                        <c:out value="${client.name}"/>
 	                                        </a></h3>
 	                                        </td>
-	                                        <td><h3><c:out value="${client.referPoints}"/></h3></td>
-	                                        <td><h3><c:out value="${client.daysRemaining}"/></h3></td>
+	                                        <td style="text-align:center;"><h3><c:out value="${client.referPoints}"/></h3></td>
+	                                        <td style="text-align:center;"><h3><c:out value="${client.daysRemaining}"/></h3></td>
 	                                        <%-- <td><h3 style="color: white;"><c:out  value="${client.paymentStatus}"/></h3></td> --%>                                                                                                                       
 	                                    </tr>
                                     </c:forEach>

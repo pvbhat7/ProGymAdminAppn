@@ -28,7 +28,8 @@ public class Client {
 
 	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discontinue,
 			List<PackageDetails> packageDetails,String referPoints,
-			String email , String address , String bloodGroup , String reference , String previousGym) {
+			String email , String address , String bloodGroup , String reference , String previousGym,
+			double height,double weight) {
 		super();
 		this.name = name;
 		this.mobile = mobile;
@@ -43,6 +44,8 @@ public class Client {
 		this.bloodGroup = bloodGroup;	
 		this.reference = reference;	
 		this.previousGym = previousGym;
+		this.height = height;
+		this.weight = weight;
 	}
 
 
@@ -82,11 +85,47 @@ public class Client {
 	@Column
 	private String bloodGroup;
 	
+	public double getHeight() {
+		return height;
+	}
+
+
+
+
+	public void setHeight(double height) {
+		this.height = height;
+	}
+
+
+
+
+	public double getWeight() {
+		return weight;
+	}
+
+
+
+
+	public void setWeight(double weight) {
+		this.weight = weight;
+	}
+
+
+
+
 	@Column
 	private String reference;
 	
 	@Column
 	private String previousGym;
+	
+	@Column
+	private double height;
+	
+	@Column
+	private double weight;
+	
+	
 	
 	//private byte[] photo;
 	

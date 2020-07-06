@@ -137,20 +137,21 @@ response.sendRedirect("login");
                             </ul>
                         </li>
                         
-                        <%
-						User u = (User)session.getAttribute("loggedInUser");
-						if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
-						%>
+                        
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
+	                            <%
+								User u = (User)session.getAttribute("loggedInUser");
+								if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+								%>
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
                                 <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
+                                <%} %>
                                 <li><a title="Data Table" href="fileUploadPage"><span class="mini-sub-pro">Upload Photo</span></a></li>
+                                <li><a title="Data Table" href="sendPendingInvoices"><span class="mini-sub-pro">Invoice Receipts</span></a></li>
                             </ul>
                         </li>
-                        <%} %>
-                        
                       
                     </ul>
                 </nav>
@@ -444,6 +445,27 @@ response.sendRedirect("login");
                                         <div class="breadcome-heading">
                                             <div class="form-group">
 											  <h1>Rs. <c:out value="${totalCollection}"/></h1>
+											</div>
+                                        </div>
+                                    </div> 
+                                </div>
+                                <div class="row" id="total" >
+                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
+                                        <div class="breadcome-heading">
+                                            <div class="form-group">
+                                              <table>
+                                              <tr><td><h4>Email Flag : </h4></td>
+                                              <td><h4><c:out value="${emailInvoiceFlag}"/></h4></td>
+                                              <td>&nbsp;&nbsp;
+                                              <c:if test="${emailInvoiceFlag == 'ON'}">
+	                                            <a href="toggleInvoiceFlag?flag=false"><button type="submit" class="btn btn-danger btn-md">Turn Off</button></a>
+									            </c:if>
+									            <c:if test="${emailInvoiceFlag == 'OFF'}">
+	                                            <a href="toggleInvoiceFlag?flag=true"><button type="submit" class="btn btn-success btn-md">Turn On</button></a>
+									            </c:if>
+                                              </td>
+                                              </tr>
+                                              </table>
 											</div>
                                         </div>
                                     </div> 

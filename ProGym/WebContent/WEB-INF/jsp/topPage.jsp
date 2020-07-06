@@ -41,23 +41,22 @@ response.sendRedirect("login");
                             </ul>
                         </li>
                         
-                        <%
-						User u = (User)session.getAttribute("loggedInUser");
-						if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
-						%>
-                        
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
+	                            <%
+								User u = (User)session.getAttribute("loggedInUser");
+								if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+								%>
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
                                 <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
+                                <li><a title="Data Table" href="sendPendingInvoices"><span class="mini-sub-pro">Invoice Receipts</span></a></li>
+                                <%} %>
                                 <li><a title="Data Table" href="fileUploadPage"><span class="mini-sub-pro">Upload Photo</span></a></li>
                                 
                             </ul>
                         </li>
                         
-                        <%} %>
-                      
                     </ul>
                 </nav>
             </div>
@@ -157,9 +156,7 @@ response.sendRedirect("login");
                                 <nav id="dropdown">
                                     <ul class="mobile-menu-nav">
                                        
-                                       
-                                        
-                                        <!-- <li><a data-toggle="collapse" data-target="#demopro" href="#">Members <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                       <li><a data-toggle="collapse" data-target="#demopro" href="#">Members <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                             <ul id="demopro" class="collapse dropdown-header-top">
                                                 <li><a href="allMembers?gender=all&zone=none">All Members</a>
                                                 </li>
@@ -167,6 +164,8 @@ response.sendRedirect("login");
                                                 </li>                                                
                                             </ul>
                                         </li>
+                                        
+                                        <!-- 
                                         <li><a data-toggle="collapse" data-target="#democrou" href="#">Packages <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                             <ul id="democrou" class="collapse dropdown-header-top">
                                                 <li><a href="malePackage">Male Package</a>
@@ -197,9 +196,8 @@ response.sendRedirect("login");
                                             </ul>
                                         </li> -->
                                         
-                                        <li><a href="fileUploadPage"> Upload Photo<span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
-                                            
-                                        </li>
+                                        <li><a href="fileUploadPage"> Upload Photo<span class="admin-project-icon edu-icon edu-down-arrow"></span></a></li>
+                                        <li><a title="Data Table" href="mobilenotifications"><span class="mini-sub-pro">Notifications</span></a></li>
                                         
                                         
                                         

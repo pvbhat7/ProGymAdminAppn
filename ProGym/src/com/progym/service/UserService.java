@@ -69,6 +69,20 @@ public interface UserService {
 
 	void deletePackage(String pkgid, User user);
 
+	void deleteFemaleClientAdditionalDetails(String id, User u);
+
+	public List<MemberStatPVO> getMembersBySearchCriteria(String searchCriteria);
+
+	List<Notifications> getMobileNotifications();
+
+	void sendPendingInvoices();
+
+	void sendInvoice(String txnId, String email);
+
+	void updateToggleInvoiceFlag(String flag);
+
+	String getToggleInvoiceFlag();
+
 
 	
 

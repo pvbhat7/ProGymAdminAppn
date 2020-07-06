@@ -161,5 +161,39 @@ public class UserServiceImpl implements UserService{
 		userDao.deletePackage(pkgid , user);		
 	}
 	
+	@Override
+	public void deleteFemaleClientAdditionalDetails(String id, User u) {
+		userDao.deleteFemaleClientAdditionalDetails(id,u);
+	}
+	
+	@Override
+	public List<MemberStatPVO> getMembersBySearchCriteria(String searchCriteria) {
+		return userDao.getMembersBySearchCriteria(searchCriteria);
+	}
+	
+	@Override
+	public List<Notifications> getMobileNotifications() {
+		return userDao.getMobileNotifications();
+	}
+	
+	@Override
+	public void sendPendingInvoices() {
+		userDao.sendPendingInvoices();
+	}
+
+	@Override
+	public void sendInvoice(String txnId,String email) {
+		userDao.sendInvoice(txnId,email);
+	}
+	
+	@Override
+	public String getToggleInvoiceFlag() {
+		return userDao.getToggleInvoiceFlag();
+	}
+	
+	@Override
+	public void updateToggleInvoiceFlag(String flag) {
+		userDao.updateToggleInvoiceFlag(flag);
+	}
 
 }

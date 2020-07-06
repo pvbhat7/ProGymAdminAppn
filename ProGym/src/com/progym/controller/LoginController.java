@@ -60,6 +60,7 @@ public class LoginController {
 		    mav.addObject("femaleFullPaid",c.getFemaleFullPaid());
 		    mav.addObject("femalePartialPaid",c.getFemalePartialPaid());
 		    mav.addObject("femaleNotPaid",c.getFemaleNotPaid());
+		    mav.addObject("emailInvoiceFlag", getEmailFlag());
 
 	    return mav;
 	  }
@@ -73,4 +74,8 @@ public class LoginController {
       session.invalidate();
       return "redirect:/login";
   } 
+  
+  public String getEmailFlag(){
+	   return userService.getToggleInvoiceFlag();
+  }
 }

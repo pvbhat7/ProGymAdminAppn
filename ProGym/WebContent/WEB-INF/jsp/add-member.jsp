@@ -45,19 +45,19 @@ response.sendRedirect("login");
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="gender">Gender</form:label>
-                                                                    <form:select path="gender" class="form-control">
+                                                                    <form:select path="gender" class="form-control" required="true">
 																		<form:option value="NONE" label="--- Select Gender ---"/>
 																		<form:options items="${gendersList}"/>
 																	</form:select>
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="height">Height (In cm)</form:label>
-                                                                    <form:input id="height" path="height" name="height" type="number" class="form-control" placeholder="Enter Height" required="true"/>
+                                                                    <form:input id="height" path="height" name="height" type="number" class="form-control" placeholder="Enter Height" />
                                                                     
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="weight">Weight (In kg)</form:label>
-                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" required="true"/>
+                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" />
                                                                     
                                                                 </div>
                                                                                                                                 
@@ -66,12 +66,12 @@ response.sendRedirect("login");
                                                             <div class="form-group">
                                                                 <div class="input-mark-inner mg-b-22">
                                                                 <form:label path="birthDate">BirthDate</form:label>
-                                                                    <input name="birthDate" path="birthDate" id="birthDate" type="date" class="form-control" placeholder="Date of Birth" required="true" placeholder="Enter DOB">
+                                                                    <input name="birthDate" path="birthDate" id="birthDate" type="date" class="form-control" placeholder="Date of Birth"  placeholder="Enter DOB">
                                                                 </div>
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="email">Email</form:label>
-                                                                    <form:input id="email" path="email" name="email" type="email" class="form-control" placeholder="Email Id" required="true"/>
+                                                                    <form:input id="email" path="email" name="email" type="email" value="test@test.com" class="form-control" placeholder="Email Id" />
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="address">Address</form:label>
@@ -86,7 +86,7 @@ response.sendRedirect("login");
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="previousGym">Previous Gym</form:label>
-                                                                    <form:input id="previousGym" path="previousGym" name="previousGym" type="text" class="form-control" placeholder="Previous Gym Name" required="true"/>
+                                                                    <form:input id="previousGym" path="previousGym" name="previousGym" value="no" type="text" class="form-control" placeholder="Previous Gym Name" />
                                                                     
                                                                 </div>
                                                                 <div class="form-group">
