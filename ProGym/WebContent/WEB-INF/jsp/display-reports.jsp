@@ -448,28 +448,7 @@ response.sendRedirect("login");
 											</div>
                                         </div>
                                     </div> 
-                                </div>
-                                <div class="row" id="total" >
-                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
-                                        <div class="breadcome-heading">
-                                            <div class="form-group">
-                                              <table>
-                                              <tr><td><h4>Email Flag : </h4></td>
-                                              <td><h4><c:out value="${emailInvoiceFlag}"/></h4></td>
-                                              <td>&nbsp;&nbsp;
-                                              <c:if test="${emailInvoiceFlag == 'ON'}">
-	                                            <a href="toggleInvoiceFlag?flag=false"><button type="submit" class="btn btn-danger btn-md">Turn Off</button></a>
-									            </c:if>
-									            <c:if test="${emailInvoiceFlag == 'OFF'}">
-	                                            <a href="toggleInvoiceFlag?flag=true"><button type="submit" class="btn btn-success btn-md">Turn On</button></a>
-									            </c:if>
-                                              </td>
-                                              </tr>
-                                              </table>
-											</div>
-                                        </div>
-                                    </div> 
-                                </div>
+                                </div>                                
                             </div>
                         </div>
                     </div>

@@ -265,8 +265,6 @@ public class MainController {
 	  @ResponseBody
 	  public ModelAndView clientProfile(HttpSession session,@RequestParam String cliendId,@RequestParam String gender) throws InterruptedException {
 		  ModelAndView mav = new ModelAndView("client-profile");		  
-		  mav.clear();
-		  mav.setViewName("client-profile");
 		  mav.addObject("clientAddPackageObject", new AddClientPackageForm());
 		  Client client = userService.getClientById(Integer.parseInt(cliendId));
 		  mav.addObject("clientObject", client);

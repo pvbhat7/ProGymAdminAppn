@@ -75,14 +75,14 @@ response.sendRedirect("login");
                                     </div>
                                     <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
                                         <div class="address-hr tb-sm-res-d-n dps-tb-ntn">
-                                            <p><b>Email</b><br /> ${clientObject.email}</p>
+                                            <p><b>Refer Points</b><br /> ${clientObject.referPoints}</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
                                         <div class="address-hr">
-                                            <p><b>Refer Points</b><br /> ${clientObject.referPoints}</p>
+                                            <p><b>Email</b><br /> ${clientObject.email}</p>
                                         </div>
                                     </div>                                    
                                 </div>

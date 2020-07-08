@@ -33,6 +33,9 @@ public class PaymentTransaction {
 	@Column
 	public String isApproved;
 	
+	@Column
+	private String discontinue;
+	
 	
 	public String getPaymentDate() {
 		return paymentDate;
@@ -52,12 +55,13 @@ public class PaymentTransaction {
 	public void setFeesPaid(double feesPaid) {
 		this.feesPaid = feesPaid;
 	}
-	public PaymentTransaction(String paymentDate, int packageDetailsId, double feesPaid , String isApproved) {
+	public PaymentTransaction(String paymentDate, int packageDetailsId, double feesPaid , String isApproved , String discontinue) {
 		super();
 		this.paymentDate = paymentDate;
 		this.packageDetailsId = packageDetailsId;
 		this.feesPaid = feesPaid;
 		this.isApproved = isApproved ;
+		this.discontinue = discontinue;
 	}
 	public PaymentTransaction() {
 		super();
@@ -80,6 +84,12 @@ public class PaymentTransaction {
 	}
 	public void setIsApproved(String isApproved) {
 		this.isApproved = isApproved;
+	}
+	public String getDiscontinue() {
+		return discontinue;
+	}
+	public void setDiscontinue(String discontinue) {
+		this.discontinue = discontinue;
 	}
 	
 	

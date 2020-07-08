@@ -300,9 +300,7 @@ public class UserDaoImpl implements UserDao {
 		session.save(pd1);
 		logActivity(session , c1 , user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT , String.valueOf(pd1.getPackageFees()));
 		session.getTransaction().commit();
-		
-
-		
+		session.close();		
 	}
 
 	@Override
@@ -348,7 +346,7 @@ public class UserDaoImpl implements UserDao {
 			if(isAuthorized)
 				isAuth= "YES";
 			
-		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),isAuth);
+		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),isAuth,"false");
 		PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", paymentTransaction.getPackageDetailsId())).uniqueResult();
 		pd.setAmountPaid(pd.getAmountPaid()+paymentTransaction.getFeesPaid());
 		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
@@ -470,6 +468,8 @@ public class UserDaoImpl implements UserDao {
 	}
 	
 	public String getDdMmYyyyDate(String oldDate){
+		if(oldDate.equals(""))
+			return new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar c = Calendar.getInstance();
 		try{
@@ -487,7 +487,7 @@ public class UserDaoImpl implements UserDao {
 	public List<CollectionPVO> getCollectionBy(FilterCollectionObject filter) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		List<CollectionPVO> collectionPVOList = new ArrayList<CollectionPVO>();
-		 Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.ne("clientPackageStatus", "not paid")).list());
+		 Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.ne("clientPackageStatus", "not paid")).add(Restrictions.eq("discontinue", "false")).list());
 		if(filter.getFilter().equals("GMY")) {
 			for(PackageDetails p : packagePaymentCollection) {
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -739,6 +739,13 @@ public class UserDaoImpl implements UserDao {
     	session =  HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+		//client.setDiscontinue("true");
+		for(PackageDetails pd : client.getPackageDetails()){
+			pd.setDiscontinue("true");
+			for(PaymentTransaction ptxn : pd.getPaymentTransactions()){
+				ptxn.setDiscontinue("true");
+			}
+		}
 		client.setDiscontinue("true");
 		session.save(client);
 		logActivity(session , client , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);

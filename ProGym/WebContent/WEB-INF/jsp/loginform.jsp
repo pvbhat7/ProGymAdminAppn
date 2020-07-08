@@ -42,11 +42,11 @@
 					</span>
 					
 					<div class="wrap-input100 rs1-wrap-input100 validate-input m-b-20" data-validate="Type user name">
-						<form:input id="username" path="username" class="input100" type="text" name="username" value="a" placeholder="User name" autofocus="autofocus"/>
+						<form:input id="username" path="username" class="input100" type="text" name="username" value="" placeholder="User name" autofocus="autofocus"/>
 						<span class="focus-input100"></span>
 					</div>
 					<div class="wrap-input100 rs2-wrap-input100 validate-input m-b-20" data-validate="Type password">
-						<form:input class="input100" type="password" id="password" path="password" value="a" name="password" placeholder="Password"/>
+						<form:input class="input100" type="password" id="password" path="password" value="" name="password" placeholder="Password"/>
 						<span class="focus-input100"></span>
 					</div>
 					
