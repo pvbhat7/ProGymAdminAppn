@@ -27,60 +27,7 @@ response.sendRedirect("login");
 		<!--Main page content -->
         <div class="analytics-sparkle-area">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <a href="#">
-                        <div class="analytics-sparkle-line reso-mg-b-30">
-                            <div class="analytics-content">
-                                <h5>Gym Collection - MALE</h5>
-                                <h2>Rs. <span class="counter">${male}</span> </h2>
-                                <div class="progress m-b-0">
-                                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">20% Complete</span> </div>
-                                </div>
-                            </div>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                    <a href="#">
-                        <div class="analytics-sparkle-line reso-mg-b-30">
-                            <div class="analytics-content">
-                                <h5>Gym Collection - FEMALE</h5>
-                                <h2>Rs. <span class="counter">${female}</span> </h2>
-                                <div class="progress m-b-0">
-                                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">230% Complete</span> </div>
-                                </div>
-                            </div>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <a href="#">
-                        <div class="analytics-sparkle-line reso-mg-b-30 table-mg-t-pro dk-res-t-pro-30">
-                            <div class="analytics-content">
-                                <h5>Steam Collection</h5>
-                                <h2>Rs. <span class="counter">${steam}</span> </h2>
-                                <div class="progress m-b-0">
-                                    <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">20% Complete</span> </div>
-                                </div>
-                            </div>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <a href="#">
-                        <div class="analytics-sparkle-line table-mg-t-pro dk-res-t-pro-30">
-                            <div class="analytics-content">
-                                <h5>Total Collection</h5>
-                                <h2>Rs. <span class="counter">${total}</span> </h2>
-                                <div class="progress m-b-0">
-                                    <div class="progress-bar progress-bar-inverse" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:100%;"> <span class="sr-only">230% Complete</span> </div>
-                                </div>
-                            </div>
-                        </div>
-                        </a>
-                    </div>
-                </div>
+                
             </div>
         </div>
         <%} %>

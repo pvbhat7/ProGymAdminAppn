@@ -49,9 +49,9 @@ response.sendRedirect("login");
 								if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
 								%>
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
-                                <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
                                 <li><a title="Data Table" href="sendPendingInvoices"><span class="mini-sub-pro">Invoice Receipts</span></a></li>
                                 <%} %>
+                                <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
                                 <li><a title="Data Table" href="fileUploadPage"><span class="mini-sub-pro">Upload Photo</span></a></li>
                                 
                             </ul>

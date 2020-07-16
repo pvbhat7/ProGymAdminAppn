@@ -48,6 +48,9 @@ import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
 import com.progym.utils.EmailUtil;
 import com.progym.utils.HibernateUtils;
+import java.util.*;
+import org.joda.time.*;
+import org.joda.time.format.*;
 
 @Repository
 public class UserDaoImpl implements UserDao {
@@ -220,6 +223,8 @@ public class UserDaoImpl implements UserDao {
 		  else if(zone.equalsIgnoreCase("yellow")){
 			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,YELLOW);
 		  }
+		
+		Collections.sort(membersStatPVOByZones);
 		return membersStatPVOByZones;
 	}
 	
@@ -536,23 +541,55 @@ public class UserDaoImpl implements UserDao {
 	public CollectionDashboardPVO getDashboardCollection() {
 		session = HibernateUtils.getSessionFactory().openSession();
 		Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.eq("discontinue", "false")).list());
+		
+		String currentMonthName;
+		String lastMonthName;
+		
 		Double male=0.00;
 		Double female=0.00;
 		Double total=0.00;
 		Double steam=0.00;
+		
+		Double currentMonthMaleCollection=0.00;
+		Double currentMonthFemaleCollection=0.00;
+		Double currentMonthSteamCollection=0.00;
+		Double currentMonthTotalCollection=0.00;
+		
+		Double lastMonthMaleCollection=0.00;
+		Double lastMonthFemaleCollection=0.00;
+		Double lastMonthSteamCollection=0.00;
+		Double lastMonthTotalCollection=0.00;
+		
 		int maleFullyPaid = 0;
 		int malePartialPaid = 0;
 		int maleNotPaid = 0;
 		int femaleFullyPaid = 0;
 		int femalePartialPaid = 0;
 		int femaleNotPaid = 0;
+		java.time.LocalDate today = java.time.LocalDate.now();
+		int systemMonth = today.getMonthValue();
+		int systemYear = today.getYear();
+		currentMonthName = getMonthName(systemMonth);
+		lastMonthName = getMonthName(systemMonth-1);
 		if(packagePaymentCollection != null ){
 			for(PackageDetails p : packagePaymentCollection) {
 				
 				if(p.getClient() != null){
 					if(p.getClient().getDiscontinue().equalsIgnoreCase("false")){
 						if(p.getClient().getGender().equals("male")){
+							// collect total amount in male variable
 							male = male + p.getAmountPaid();
+							
+							int packagePaymentMonth = getMonthFromDate(p.getPackagePaymentDate());
+							int year = getYearFromDate(p.getPackagePaymentDate());
+							// collect current month & last month collection
+							if(systemMonth == packagePaymentMonth && systemYear == year)
+								currentMonthMaleCollection = currentMonthMaleCollection + p.getAmountPaid();
+							else if((systemMonth-1) == packagePaymentMonth && systemYear == packagePaymentMonth){
+								lastMonthMaleCollection = lastMonthMaleCollection + p.getAmountPaid();
+							}
+							
+							
 							if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
 								maleFullyPaid++;
 							else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
@@ -561,7 +598,18 @@ public class UserDaoImpl implements UserDao {
 								maleNotPaid++;
 						}				
 						else if(p.getClient().getGender().equals("female")){
+							// collect total amount in female variable
 							female = female + p.getAmountPaid();
+							
+							int packagePaymentMonth = getMonthFromDate(p.getPackagePaymentDate());
+							int year = getYearFromDate(p.getPackagePaymentDate());
+							// collect current month & last month collection
+							if(systemMonth == packagePaymentMonth && systemYear == year)
+								currentMonthFemaleCollection = currentMonthFemaleCollection + p.getAmountPaid();
+							else if((systemMonth-1) == packagePaymentMonth && systemYear == packagePaymentMonth){
+								lastMonthFemaleCollection = lastMonthFemaleCollection + p.getAmountPaid();
+							}
+							
 							if(p.getClientPackageStatus().equalsIgnoreCase("fully-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
 								femaleFullyPaid++;
 							else if(p.getClientPackageStatus().equalsIgnoreCase("partial-paid") && p.getDiscontinue().equalsIgnoreCase("false"))
@@ -576,6 +624,8 @@ public class UserDaoImpl implements UserDao {
 		}
 		
 		total = male + female;
+		currentMonthTotalCollection = currentMonthMaleCollection + currentMonthFemaleCollection + currentMonthSteamCollection;
+		lastMonthTotalCollection = lastMonthMaleCollection + lastMonthFemaleCollection + lastMonthSteamCollection;
 		
 		
 		return new CollectionDashboardPVO(male, female, total, steam,
@@ -583,7 +633,10 @@ public class UserDaoImpl implements UserDao {
 				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("gender", "female")).list()).size(),
 				new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).list()).size(),
 				maleFullyPaid,malePartialPaid,maleNotPaid,
-				femaleFullyPaid,femalePartialPaid,femaleNotPaid
+				femaleFullyPaid,femalePartialPaid,femaleNotPaid,
+				currentMonthMaleCollection,currentMonthFemaleCollection,currentMonthSteamCollection,currentMonthTotalCollection,
+				lastMonthMaleCollection,lastMonthFemaleCollection,lastMonthSteamCollection,lastMonthTotalCollection,
+				currentMonthName , lastMonthName
 				);
 		
 	}
@@ -679,11 +732,13 @@ public class UserDaoImpl implements UserDao {
 	}
     
     @Override
-    public List<Notifications> getNotifications() {
+    public List<Notifications> getNotifications(User user) {
     	List<Notifications> notiList = new ArrayList<Notifications>();
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		Criteria crit = session.createCriteria(Notifications.class);
+		if(user.getAuthorizedToApprovePayment().equals("NO"))
+			crit.add(Restrictions.eq("trainer","Swati Hadpad"));	
 		crit.add(Restrictions.eq("discontinue","false"));
 		crit.addOrder(Order.desc("id"));
 		notiList = crit.list();
@@ -783,10 +838,8 @@ public class UserDaoImpl implements UserDao {
     	String filter= "all";
     	session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
-		System.out.println("search criteria"+searchCriteria);
 		Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.like("name", searchCriteria,MatchMode.ANYWHERE));
 		Collection<Client> collection = new LinkedHashSet(crit.list());
-		System.out.println("\n search results :"+collection.size());
 		List<Client> cList = new ArrayList<Client>();
 		for(Client c : collection) {
 			cList.add(c);
@@ -938,6 +991,52 @@ public class UserDaoImpl implements UserDao {
 			flagObj.setFlagValue("FALSE");
 		session.getTransaction().commit();
 		session.close();
+    }
+    
+    public int getMonthFromDate(String dt){
+    	if(dt == null || dt.equals(""))
+    		return -1;
+	    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withLocale(Locale.UK);
+	    LocalDate date = formatter.parseLocalDate(dt);
+	    return date.getMonthOfYear();	    
+    }
+    
+    public int getYearFromDate(String dt){
+    	if(dt == null || dt.equals(""))
+    		return -1;
+	    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy").withLocale(Locale.UK);
+	    LocalDate date = formatter.parseLocalDate(dt);
+	    return date.getYear();  
+    }
+    
+    public String getMonthName(int monthId){
+    	String month = null;
+    	if(monthId == 1)
+    		month = "January";
+    	if(monthId == 2)
+    		month = "February";
+    	if(monthId == 3)
+    		month = "March";
+    	if(monthId == 4)
+    		month = "April";
+    	if(monthId == 5)
+    		month = "May";
+    	if(monthId == 6)
+    		month = "June";
+    	if(monthId == 7)
+    		month = "July";
+    	if(monthId == 8)
+    		month = "August";
+    	if(monthId == 9)
+    		month = "September";
+    	if(monthId == 10)
+    		month = "October";
+    	if(monthId == 11)
+    		month = "November";
+    	if(monthId == 12)
+    		month = "December";
+    	
+    	return month;
     }
 }
  

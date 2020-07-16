@@ -23,19 +23,14 @@ response.sendRedirect("login");
                     <div class="row">
                         <div align="center">
                             <div class="breadcome-list">
-                                <div class="row">
-                                    <div >
+                                
                                         <div class="breadcome-heading">
                                             <form action="searchMember" role="search" class="sr-input-func">
-                                                <input name="searchCriteria" type="text" placeholder="Search Member..." class="search-int form-control">
-                                                <!-- <input type="submit" value="search" class="fa fa-search"> -->
+                                                <input style="color:green;" name="searchCriteria" type="text" placeholder="Search Member..." class="search-int form-control">
                                                 <button id="basicInfo" type="submit" class="fa fa-search"></button>
-                                                <!-- <a href="searchMember"><i class="fa fa-search"></i></a> -->
                                             </form>
                                         </div>
-                                    </div>                                    
-                                </div>
-                            </div>
+							</div>
                         </div>
                     </div>
                 </div>

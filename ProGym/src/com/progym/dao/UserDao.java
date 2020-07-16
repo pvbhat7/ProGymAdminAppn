@@ -57,7 +57,7 @@ public interface UserDao {
 
 	List<ReferenceVO> getReferenceList();
 
-	List<Notifications> getNotifications();
+	List<Notifications> getNotifications(User user);
 
 	void discardNotification(String notiId);
 

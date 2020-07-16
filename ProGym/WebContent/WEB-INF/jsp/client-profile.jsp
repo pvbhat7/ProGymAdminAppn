@@ -228,7 +228,18 @@ response.sendRedirect("login");
 	            <td>&nbsp;&nbsp;<c:out value="${trans.feesPaid}"/>&nbsp;&nbsp;</td>
 	            <td>&nbsp;&nbsp;<c:out value="${trans.paymentDate}"/>&nbsp;&nbsp;</td>
 	            <c:if test="${trans.isApproved == 'NO'}">
+	            
+	            <%
+	            if(((User)session.getAttribute("loggedInUser")).getAuthorizedToApprovePayment().equals("YES")){
+	            %>
+	            <td height="40">&nbsp;&nbsp;
+	            <%
+	            }
+	            else{
+	            %>
 	            <td height="40" bgcolor="#FF3333">&nbsp;&nbsp;
+	            <%} %>
+	            
 	            <%
 	            if(((User)session.getAttribute("loggedInUser")).getAuthorizedToApprovePayment().equals("YES")){
 	            %>

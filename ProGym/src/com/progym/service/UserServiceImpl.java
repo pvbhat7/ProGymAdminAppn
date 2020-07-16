@@ -127,8 +127,8 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public List<Notifications> getNotifications() {
-	return 	userDao.getNotifications();
+	public List<Notifications> getNotifications(User user) {
+	return 	userDao.getNotifications(user);
 	}
 	
 	@Override

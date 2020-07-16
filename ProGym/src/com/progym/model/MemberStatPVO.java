@@ -1,6 +1,6 @@
 package com.progym.model;
 
-public class MemberStatPVO {
+public class MemberStatPVO implements Comparable<MemberStatPVO>{
 	
 	private int id;
 	private String name;
@@ -58,6 +58,10 @@ public class MemberStatPVO {
 	}
 	public void setPaymentStatus(String paymentStatus) {
 		this.paymentStatus = paymentStatus;
+	}
+	@Override
+	public int compareTo(MemberStatPVO o) {
+		return this.getDaysRemaining().compareTo(o.getDaysRemaining());
 	}
 	
 	

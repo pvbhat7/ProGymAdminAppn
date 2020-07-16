@@ -257,11 +257,30 @@ public class MainController {
 	  
 	  @RequestMapping(value = "/allReports", method = RequestMethod.GET)
 	  public ModelAndView showAllReports(HttpServletRequest request, HttpServletResponse response) {
-		  ModelAndView mav = new ModelAndView("display-reports");
-	    return mav;
+		  ModelAndView mav = new ModelAndView("display-reports");		    
+	    return fillCollectionDashboardData(mav);
 	  }
 	  
-	  @RequestMapping(value = "/clientProfile", method = RequestMethod.GET)
+	  private ModelAndView fillCollectionDashboardData(ModelAndView mav) {
+		  CollectionDashboardPVO c = userService.getDashboardCollection();
+		  mav.addObject("male",c.getMale());
+		    mav.addObject("female",c.getFemale());
+		    mav.addObject("steam",c.getSteam());
+		    mav.addObject("total",c.getTotal());		    
+		    mav.addObject("currentMale",c.getCurrentMonthMaleCollection());
+		    mav.addObject("currentFemale",c.getCurrentMonthFemaleCollection());
+		    mav.addObject("currentSteam",c.getCurrentMonthSteamCollection());
+		    mav.addObject("currentTotal",c.getCurrentMonthTotalCollection());	    
+		    mav.addObject("lastMale",c.getLastMonthMaleCollection());
+		    mav.addObject("lastFemale",c.getLastMonthFemaleCollection());
+		    mav.addObject("lastSteam",c.getLastMonthSteamCollection());
+		    mav.addObject("lastTotal",c.getLastMonthTotalCollection());		    
+		    mav.addObject("currentMonthName",c.getCurrentMonth());
+		    mav.addObject("lasttMonthName",c.getLastMonth());
+		    return mav;
+	}
+
+	@RequestMapping(value = "/clientProfile", method = RequestMethod.GET)
 	  @ResponseBody
 	  public ModelAndView clientProfile(HttpSession session,@RequestParam String cliendId,@RequestParam String gender) throws InterruptedException {
 		  ModelAndView mav = new ModelAndView("client-profile");		  
@@ -331,7 +350,7 @@ public class MainController {
 		  }
 		  mav.addObject("filtername", "1d");
 		  mav.addObject("totalCollection", total);  
-		  return mav;		  
+		  return fillCollectionDashboardData(mav);		  
 	  }
 	  
 	  @RequestMapping(value = "/viewCollectionByGD", method = RequestMethod.GET)
@@ -347,7 +366,7 @@ public class MainController {
 		  }
 		  mav.addObject("filtername", "2d");
 		  mav.addObject("totalCollection", total);
-		  return mav;		  
+		  return fillCollectionDashboardData(mav);		  
 	  }
 	  
 	  @RequestMapping(value = "/viewCollectionByG", method = RequestMethod.GET)
@@ -363,7 +382,7 @@ public class MainController {
 		  }
 		  mav.addObject("filtername", "3d");
 		  mav.addObject("totalCollection", total);
-		  return mav;		  
+		  return fillCollectionDashboardData(mav);		  
 	  }
 	  
 	  
@@ -382,7 +401,6 @@ public class MainController {
 			  @RequestParam String u_clientid,@RequestParam String u_gender) throws IOException {
 		  User user = (User)session.getAttribute("loggedInUser");
 		  userService.updateClintAssignedPackage(u_pkgId,u_startdate,u_enddate,u_fees ,user);
-		  System.out.println(u_clientid+" - "+u_fees+" - "+u_gender+" - "+u_pkgId+" - "+u_startdate);
 		  String uri = "clientProfile?cliendId="+u_clientid+"&gender="+u_gender+"";
 		  response.sendRedirect(uri);
 		  
@@ -415,9 +433,10 @@ public class MainController {
 	  }
 	  
 	  @RequestMapping(value = "/notifications", method = RequestMethod.GET)
-	  public ModelAndView notifications(HttpServletRequest request, HttpServletResponse response){		  
+	  public ModelAndView notifications(HttpSession session, HttpServletRequest request, HttpServletResponse response){
+		  User user = (User)session.getAttribute("loggedInUser");
 	    ModelAndView mav = new ModelAndView("notifications");
-		  mav.addObject("notificationsList", userService.getNotifications() );		  
+		  mav.addObject("notificationsList", userService.getNotifications(user) );		  
 	    return mav;
 	  }
 	  
@@ -442,14 +461,11 @@ public class MainController {
 	   public ModelAndView fileUpload(HttpSession session,@Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
 		   ModelAndView mav = new ModelAndView("index");
 		   if (result.hasErrors()) {
-	         System.out.println("validation errors");
 	         mav.setViewName("fileUploadPage");
 	         return mav;
 	      } else {            
-	         System.out.println("Fetching file");
 	         MultipartFile multipartFile = file.getFile();
 	         String uploadPath = session.getServletContext().getRealPath("/img/");
-	         System.out.println("uploaded file path "+uploadPath);
 
 	         //Now do something with file...
 	         FileCopyUtils.copy(file.getFile().getBytes(), new File(uploadPath+file.getReference()+".jpg"));

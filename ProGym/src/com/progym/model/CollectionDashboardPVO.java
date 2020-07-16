@@ -42,6 +42,17 @@ public class CollectionDashboardPVO {
 	private Double female;
 	private Double total;
 	private Double steam;
+	
+	private Double currentMonthMaleCollection;
+	private Double currentMonthFemaleCollection;
+	private Double currentMonthSteamCollection;
+	private Double currentMonthTotalCollection;
+	
+	private Double lastMonthMaleCollection;
+	private Double lastMonthFemaleCollection;
+	private Double lastMonthSteamCollection;
+	private Double lastMonthTotalCollection;
+	
 	private int maletotal;
 	private int femaletotal;
 	private int clienttotal;
@@ -52,6 +63,22 @@ public class CollectionDashboardPVO {
 	private int femalePartialPaid;
 	private int femaleNotPaid;
 	
+	private String currentMonth;
+	private String lastMonth;
+	
+	
+	public String getCurrentMonth() {
+		return currentMonth;
+	}
+	public void setCurrentMonth(String currentMonth) {
+		this.currentMonth = currentMonth;
+	}
+	public String getLastMonth() {
+		return lastMonth;
+	}
+	public void setLastMonth(String lastMonth) {
+		this.lastMonth = lastMonth;
+	}
 	public Double getMale() {
 		return male;
 	}
@@ -95,14 +122,15 @@ public class CollectionDashboardPVO {
 		this.clienttotal = clienttotal;
 	}
 	
-	@Override
-	public String toString() {
-		return "CollectionDashboardPVO [male=" + male + ", female=" + female + ", total=" + total + ", steam=" + steam
-				+ ", maletotal=" + maletotal + ", femaletotal=" + femaletotal + ", clienttotal=" + clienttotal + "]";
-	}
+	
 	public CollectionDashboardPVO(Double male, Double female, Double total, Double steam, int maletotal,
 			int femaletotal, int clienttotal, int maleFullPaid, int malePartialPaid, int maleNotPaid,
-			int femaleFullPaid, int femalePartialPaid, int femaleNotPaid) {
+			int femaleFullPaid, int femalePartialPaid, int femaleNotPaid,
+			Double currentMonthMaleCollection,Double currentMonthFemaleCollection,Double currentMonthSteamCollection,Double currentMonthTotalCollection,
+			Double lastMonthMaleCollection,Double lastMonthFemaleCollection,Double lastMonthSteamCollection,Double lastMonthTotalCollection,
+			String currentMonthName , String lastMonthName
+			
+			) {
 		super();
 		this.male = male;
 		this.female = female;
@@ -117,7 +145,87 @@ public class CollectionDashboardPVO {
 		this.femaleFullPaid = femaleFullPaid;
 		this.femalePartialPaid = femalePartialPaid;
 		this.femaleNotPaid = femaleNotPaid;
+		
+		this.currentMonthMaleCollection = currentMonthMaleCollection;
+		this.currentMonthFemaleCollection = currentMonthFemaleCollection;
+		this.lastMonthSteamCollection = lastMonthSteamCollection;
+		this.currentMonthTotalCollection = currentMonthTotalCollection;
+		
+		this.lastMonthMaleCollection = lastMonthMaleCollection;
+		this.lastMonthFemaleCollection = lastMonthFemaleCollection;
+		this.lastMonthSteamCollection = lastMonthSteamCollection;
+		this.lastMonthTotalCollection = lastMonthTotalCollection;
+		
+		this.currentMonth = currentMonthName;		
+		this.lastMonth = lastMonthName;		
 	}
+	public Double getCurrentMonthMaleCollection() {
+		return currentMonthMaleCollection;
+	}
+	public void setCurrentMonthMaleCollection(Double currentMonthMaleCollection) {
+		this.currentMonthMaleCollection = currentMonthMaleCollection;
+	}
+	public Double getCurrentMonthFemaleCollection() {
+		return currentMonthFemaleCollection;
+	}
+	public void setCurrentMonthFemaleCollection(Double currentMonthFemaleCollection) {
+		this.currentMonthFemaleCollection = currentMonthFemaleCollection;
+	}
+	public Double getCurrentMonthSteamCollection() {
+		return currentMonthSteamCollection;
+	}
+	public void setCurrentMonthSteamCollection(Double currentMonthSteamCollection) {
+		this.currentMonthSteamCollection = currentMonthSteamCollection;
+	}
+	public Double getCurrentMonthTotalCollection() {
+		return currentMonthTotalCollection;
+	}
+	public void setCurrentMonthTotalCollection(Double currentMonthTotalCollection) {
+		this.currentMonthTotalCollection = currentMonthTotalCollection;
+	}
+	public Double getLastMonthMaleCollection() {
+		return lastMonthMaleCollection;
+	}
+	public void setLastMonthMaleCollection(Double lastMonthMaleCollection) {
+		this.lastMonthMaleCollection = lastMonthMaleCollection;
+	}
+	public Double getLastMonthFemaleCollection() {
+		return lastMonthFemaleCollection;
+	}
+	public void setLastMonthFemaleCollection(Double lastMonthFemaleCollection) {
+		this.lastMonthFemaleCollection = lastMonthFemaleCollection;
+	}
+	public Double getLastMonthSteamCollection() {
+		return lastMonthSteamCollection;
+	}
+	public void setLastMonthSteamCollection(Double lastMonthSteamCollection) {
+		this.lastMonthSteamCollection = lastMonthSteamCollection;
+	}
+	public Double getLastMonthTotalCollection() {
+		return lastMonthTotalCollection;
+	}
+	public void setLastMonthTotalCollection(Double lastMonthTotalCollection) {
+		this.lastMonthTotalCollection = lastMonthTotalCollection;
+	}
+	@Override
+	public String toString() {
+		return "CollectionDashboardPVO [male=" + male + ", female=" + female + ", total=" + total + ", steam=" + steam
+				+ ", currentMonthMaleCollection=" + currentMonthMaleCollection + ", currentMonthFemaleCollection="
+				+ currentMonthFemaleCollection + ", currentMonthSteamCollection=" + currentMonthSteamCollection
+				+ ", currentMonthTotalCollection=" + currentMonthTotalCollection + ", lastMonthMaleCollection="
+				+ lastMonthMaleCollection + ", lastMonthFemaleCollection=" + lastMonthFemaleCollection
+				+ ", lastMonthSteamCollection=" + lastMonthSteamCollection + ", lastMonthTotalCollection="
+				+ lastMonthTotalCollection + ", maletotal=" + maletotal + ", femaletotal=" + femaletotal
+				+ ", clienttotal=" + clienttotal + ", maleFullPaid=" + maleFullPaid + ", malePartialPaid="
+				+ malePartialPaid + ", maleNotPaid=" + maleNotPaid + ", femaleFullPaid=" + femaleFullPaid
+				+ ", femalePartialPaid=" + femalePartialPaid + ", femaleNotPaid=" + femaleNotPaid + ", currentMonth="
+				+ currentMonth + ", lastMonth=" + lastMonth + "]";
+	}
+	
+	
+	
+	
+	
 	
 	
 	
