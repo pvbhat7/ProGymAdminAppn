@@ -36,7 +36,25 @@ public class PaymentTransaction {
 	@Column
 	private String discontinue;
 	
+	@Column
+	private String clientId;
 	
+	@Column
+	private String clientGender;
+	
+	
+	public String getClientId() {
+		return clientId;
+	}
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+	public String getClientGender() {
+		return clientGender;
+	}
+	public void setClientGender(String clientGender) {
+		this.clientGender = clientGender;
+	}
 	public String getPaymentDate() {
 		return paymentDate;
 	}

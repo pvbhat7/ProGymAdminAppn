@@ -277,6 +277,8 @@ response.sendRedirect("login");
                 </div>
                 <form:form action="addTransaction" class="dropzone dropzone-custom needsclick add-professors" id="addTransaction" modelAttribute="transactionObject" method="post">
                 <div class="modal-body">
+					<form:input path="clientId" value="${clientObject.id}" title="" name="clientId" type="hidden" class="form-control" ></form:input>
+					<form:input path="clientGender" value="${clientObject.gender}" title="" name="clientGender" type="hidden" class="form-control" ></form:input>
                 	<label for="psw"><span class="glyphicon"></span> Package</label>
                     <input id="txt_item" class="form-control" type="text" readonly/>
                     </br>
@@ -290,7 +292,7 @@ response.sendRedirect("login");
                                         
                 </div>
                 <div class="modal-footer">
-                    <form:button id="basicInfo" type="submit" class="btn btn-primary">Add Payment</form:button>
+                    <form:button id="basicInfo" type="submit" class="btn btn-primary" onclick="this.disabled=true;this.value='Submitting...'; this.form.submit();">Add Payment</form:button>
                     <script>
 //submit search, display loading message
     $('input[type = submit]').click(function(){

@@ -25,6 +25,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -54,6 +55,10 @@ import org.joda.time.format.*;
 
 @Repository
 public class UserDaoImpl implements UserDao {
+	
+	
+	@Autowired  
+	 private TaskExecutor taskExecutor;  
 	
     public static final long MILLISECONDS_IN_DAY = (long) (1000 * 60 * 60 * 24);
     public static final String RED = "#FF0000";
@@ -376,7 +381,14 @@ public class UserDaoImpl implements UserDao {
 		if(emailInvoiceFlag.getFlagValue().equalsIgnoreCase("TRUE")){
 			eObj.setIsReceiptSent("TRUE");
 			session.save(eObj);
-			EmailUtil.sendEmail2(eObj);
+			 taskExecutor.execute(new Runnable() {  
+				   @Override  
+				   public void run() {  
+				     // your background task here  
+					   EmailUtil.sendEmail2(eObj);
+				   }  
+				 }); 
+			
 		}
 		else{
 			eObj.setIsReceiptSent("FALSE");

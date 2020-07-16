@@ -22,6 +22,8 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
@@ -73,6 +75,9 @@ public class MainController {
 
 	@Autowired
 	  UserService userService;
+	
+	 
+
 	
 	  
 		@RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -289,7 +294,8 @@ public class MainController {
 		  mav.addObject("clientObject", client);
 		  mav.addObject("clientPackagesList", userService.getClientPackagesByClient(client));
 		  mav.addObject("femaleAditionalDataList", userService.getFemaleAditionalDataListByClientId(client.getId()));
-		  mav.addObject("transactionObject", new PaymentTransaction());
+		  PaymentTransaction pt = new PaymentTransaction();
+		  mav.addObject("transactionObject",pt );
 		  FemaleMemberAdditionalDataVO fm = new FemaleMemberAdditionalDataVO();
 		  fm.setClientId(Integer.valueOf(cliendId));
 		  fm.setGender(gender);
@@ -333,7 +339,9 @@ public class MainController {
 		  if(u != null && u.getAuthorizedToApprovePayment().equals("YES"))
 			  isAuthorized = Boolean.TRUE;
 		  userService.createTransaction(paymentTransaction,isAuthorized , u);
-		  response.sendRedirect("allMembers?gender=all&zone=none");
+		  //response.sendRedirect("allMembers?gender=all&zone=none");
+		  String uri = "clientProfile?cliendId="+paymentTransaction.getClientId()+"&gender="+paymentTransaction.getClientGender()+"";
+		  response.sendRedirect(uri);
 	  }
 	  
 	 
@@ -570,6 +578,14 @@ public class MainController {
 	   public String getEmailFlag(){
 		   return userService.getToggleInvoiceFlag();
 	   }
+	   
+	   @Bean  
+	   public TaskExecutor getTaskExecutor() {  
+	     ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();  
+	     threadPoolTaskExecutor.setCorePoolSize(1);  
+	     threadPoolTaskExecutor.setMaxPoolSize(5);  
+	     return threadPoolTaskExecutor;  
+	   } 
 	   
 	   	   
 	   
