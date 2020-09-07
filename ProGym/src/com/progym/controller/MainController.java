@@ -5,7 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -292,6 +296,7 @@ public class MainController {
 		  mav.addObject("clientAddPackageObject", new AddClientPackageForm());
 		  Client client = userService.getClientById(Integer.parseInt(cliendId));
 		  mav.addObject("clientObject", client);
+		  mav.addObject("refferalName", userService.getReferralName(cliendId));
 		  mav.addObject("clientPackagesList", userService.getClientPackagesByClient(client));
 		  mav.addObject("femaleAditionalDataList", userService.getFemaleAditionalDataListByClientId(client.getId()));
 		  PaymentTransaction pt = new PaymentTransaction();
@@ -585,7 +590,34 @@ public class MainController {
 	     threadPoolTaskExecutor.setCorePoolSize(1);  
 	     threadPoolTaskExecutor.setMaxPoolSize(5);  
 	     return threadPoolTaskExecutor;  
-	   } 
+	   }
+	   
+	   @RequestMapping(value = "/steamView", method = RequestMethod.GET)
+		  public ModelAndView steamView(HttpServletRequest request, HttpServletResponse response){		  
+		    ModelAndView mav = new ModelAndView("steamView");
+		    try{  
+		    	Class.forName("com.mysql.jdbc.Driver");  
+		    	Connection con=DriverManager.getConnection(  
+		    	"jdbc:mysql://185.210.145.1:3306/u808027801_progym","u808027801_djpranav77","Snehal@1326");  
+		    	//here sonoo is database name, root is username and password  
+		    	Statement stmt=con.createStatement();  
+		    	ResultSet rs=stmt.executeQuery("select * from gymmember");  
+		    	while(rs.next())  
+		    	System.out.println(rs.getInt(1)+"  "+rs.getString(2));  
+		    	con.close();  
+		    	}catch(Exception e){ System.out.println(e);}  
+			  /*mav.addObject("notificationsList", userService.getMobileNotifications() );*/		  
+		    return mav;
+		  }
+	   
+	   
+	   @RequestMapping(value = "/redeemReferPoints", method = RequestMethod.GET)
+		  public void redeemReferPoints(HttpServletRequest request, HttpServletResponse response,@RequestParam String clientid,@RequestParam String gender) throws IOException {
+		   System.out.println(clientid+" "+gender);
+		   userService.redeemReferPoints(clientid);
+		   String uri = "clientProfile?cliendId="+clientid+"&gender="+gender+"";
+		   response.sendRedirect(uri);
+		}
 	   
 	   	   
 	   

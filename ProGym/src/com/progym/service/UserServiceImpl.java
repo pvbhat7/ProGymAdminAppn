@@ -196,4 +196,14 @@ public class UserServiceImpl implements UserService{
 		userDao.updateToggleInvoiceFlag(flag);
 	}
 
+	@Override
+	public String getReferralName(String cliendId) {
+		return userDao.getReferralName(cliendId);
+	}
+
+	@Override
+	public void redeemReferPoints(String clientid) {
+		userDao.redeemReferPoints(clientid);		
+	}
+
 }

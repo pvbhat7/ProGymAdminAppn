@@ -597,7 +597,7 @@ public class UserDaoImpl implements UserDao {
 							// collect current month & last month collection
 							if(systemMonth == packagePaymentMonth && systemYear == year)
 								currentMonthMaleCollection = currentMonthMaleCollection + p.getAmountPaid();
-							else if((systemMonth-1) == packagePaymentMonth && systemYear == packagePaymentMonth){
+							else if((systemMonth-1) == packagePaymentMonth && systemYear == year){
 								lastMonthMaleCollection = lastMonthMaleCollection + p.getAmountPaid();
 							}
 							
@@ -618,7 +618,7 @@ public class UserDaoImpl implements UserDao {
 							// collect current month & last month collection
 							if(systemMonth == packagePaymentMonth && systemYear == year)
 								currentMonthFemaleCollection = currentMonthFemaleCollection + p.getAmountPaid();
-							else if((systemMonth-1) == packagePaymentMonth && systemYear == packagePaymentMonth){
+							else if((systemMonth-1) == packagePaymentMonth && systemYear == year){
 								lastMonthFemaleCollection = lastMonthFemaleCollection + p.getAmountPaid();
 							}
 							
@@ -952,7 +952,13 @@ public class UserDaoImpl implements UserDao {
 		pendingInvoiceList = crit.list();
 		for(EmailDataObject obj : pendingInvoiceList){
 			if(emailInvoiceFlag.getFlagValue().equalsIgnoreCase("TRUE")){
-				EmailUtil.sendEmail2(obj);
+				taskExecutor.execute(new Runnable() {  
+					   @Override  
+					   public void run() {  
+					     // your background task here  
+						   EmailUtil.sendEmail2(obj);
+					   }  
+					 });
 				obj.setIsReceiptSent("TRUE");
 			}
 			session.saveOrUpdate(obj);
@@ -970,7 +976,13 @@ public class UserDaoImpl implements UserDao {
 		eObj.setClientEmail(email);
 		
 		if(emailInvoiceFlag.getFlagValue().equalsIgnoreCase("TRUE")){
-			EmailUtil.sendEmail2(eObj);
+			taskExecutor.execute(new Runnable() {  
+				   @Override  
+				   public void run() {  
+				     // your background task here  
+					   EmailUtil.sendEmail2(eObj);
+				   }  
+				 });
 		}
 		session.saveOrUpdate(eObj);
 		session.getTransaction().commit();
@@ -1050,6 +1062,35 @@ public class UserDaoImpl implements UserDao {
     	
     	return month;
     }
+
+	@Override
+	public String getReferralName(String cliendId) {
+		String space = "\\n";
+		String referrals = "\'";
+		List<Client> pkgList = new ArrayList<Client>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Collection<Client> clients = new LinkedHashSet(session.createCriteria(Client.class)
+				.add(Restrictions.eq("reference", cliendId))
+				.list());
+		for(Client  c: clients) {
+			referrals = referrals + c.getName()+space;
+		}
+		referrals = referrals + "\'";
+	    session.getTransaction().commit();
+	    return referrals;
+	}
+	
+	@Override
+	public void redeemReferPoints(String clientid) {
+		session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+		client.setReferPoints("0");
+		session.save(client);
+		session.getTransaction().commit();
+		session.close();		
+	}
 }
  
 

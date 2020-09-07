@@ -83,6 +83,10 @@ public interface UserService {
 
 	String getToggleInvoiceFlag();
 
+	String getReferralName(String cliendId);
+
+	void redeemReferPoints(String clientid);
+
 
 	
 

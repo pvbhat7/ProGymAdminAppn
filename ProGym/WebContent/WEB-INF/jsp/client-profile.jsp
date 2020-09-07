@@ -75,7 +75,10 @@ response.sendRedirect("login");
                                     </div>
                                     <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
                                         <div class="address-hr tb-sm-res-d-n dps-tb-ntn">
-                                            <p><b>Refer Points</b><br /> ${clientObject.referPoints}</p>
+                                            <%-- <p><b>Refer Points</b><br /> ${clientObject.referPoints}</p> --%>
+                                            <button type="button" id="btnreferral" class="btn btn-primary btn-block btn-xs">
+											  Refer Points : ${clientObject.referPoints}
+											</button>
                                         </div>
                                     </div>
                                 </div>
@@ -88,10 +91,14 @@ response.sendRedirect("login");
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
-		                                <a href="<c:url value='deleteClientProfile?clientid=${clientObject.id}'/>">
-		                                	<button type="button" class="btn btn-danger btn-lg">Delete Client Profile</button>
+		                                
+	                                </div>
+	                                <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+		                                <a href="<c:url value='deleteClientProfile?gender=${clientObject.gender}&clientid=${clientObject.id}'/>">
+		                                	<img src="img/delete.png" alt="" width="50" height="60"/>
 		                                </a>
-	                                </div>                                    
+	                                </div>
+	                                                                   
                                 </div>
                                
                                 
@@ -119,9 +126,75 @@ response.sendRedirect("login");
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="review-content-section">            
                                              <button type="button" class="btn btn-info btn-lg" id="myBtn">Add Package</button>
-                                             
+<!-- Refer points show modal -->
+<div class="modal fade bd-example-modal-sm" id="myModalww" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
 
-                                             		<!-- Modal -->
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Refer System</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body" align="center">
+          <table class="table table-striped" align="center">
+    <thead>
+      <tr align="center">
+      	<th>Refer Points</th>  
+        <th>Referral</th>        
+      </tr>
+    </thead>
+    <tbody>
+    
+	      <tr>
+	      	<td>${clientObject.referPoints}</td>  
+	        <td>        
+	        <textarea style="color:red;" id="refField" disabled="disabled"></textarea>
+	        </td>        
+	      </tr>      
+           
+    </tbody>
+  </table>
+  </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+      <c:if test="${clientObject.referPoints == '2'}">
+      <a href="<c:url value='redeemReferPoints?gender=${clientObject.gender}&clientid=${clientObject.id}'/>">
+      <button type="button" class="btn btn-success">Redeem Points</button>
+      </a>
+      </c:if>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+	$(document).ready(function(){
+	$("#btnreferral").click(function(){
+	
+	
+	//get data from table row
+	
+    var reffrralName = ${refferalName};
+    console.log(reffrralName.trim());
+    $("#refField").val(reffrralName.trim());
+    
+    //open modal
+    $("#myModalww").modal();
+
+    $("#btnsave").click(function () {                            
+    })
+	
+	
+	});
+	});
+</script>
+<!-- end Refer points show modal -->
+
+                                             		<!-- Add package modal -->
 													  <div class="modal fade" id="myModal" role="dialog">
 													    <div class="modal-dialog">
 													    
@@ -371,12 +444,7 @@ response.sendRedirect("login");
             //open modal
             $("#payModel").modal();
 
-            $("#btnsave").click(function () {
-                //make ajax request to update data
-
-                //and in ajax success callback function 
-                //hide modal
-                //$("#myModal").modal("hide")              
+            $("#btnsave").click(function () {                            
             })
         })
         
@@ -421,6 +489,8 @@ response.sendRedirect("login");
         })
     })
 </script>
+
+ 
 								                                                
 								                                                 
 								                                            </tr>

@@ -84,5 +84,9 @@ public interface UserDao {
 	String getToggleInvoiceFlag();
 
 	void updateToggleInvoiceFlag(String flag);
+
+	String getReferralName(String cliendId);
+
+	void redeemReferPoints(String clientid);
 	  
 	}
