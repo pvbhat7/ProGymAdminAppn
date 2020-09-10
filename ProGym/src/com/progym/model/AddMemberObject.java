@@ -22,11 +22,7 @@ public class AddMemberObject {
 	private double height;
 	private double weight;
 	private int clientId;
-	
-	
-	
-	
-	
+	private String occupation;
 	
 	public int getClientId() {
 		return clientId;
@@ -107,8 +103,12 @@ public class AddMemberObject {
 	public void setPreviousGym(String previousGym) {
 		this.previousGym = previousGym;
 	}
-	
-	
+	public String getOccupation() {
+		return occupation;
+	}
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
 	
 	
 	

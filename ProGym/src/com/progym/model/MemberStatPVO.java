@@ -10,6 +10,7 @@ public class MemberStatPVO implements Comparable<MemberStatPVO>{
 	private String gender;
 	private String color;
 	private String paymentStatus;
+	private String profileActiveFlag;
 	
 	public String getName() {
 		return name;
@@ -63,6 +64,13 @@ public class MemberStatPVO implements Comparable<MemberStatPVO>{
 	public int compareTo(MemberStatPVO o) {
 		return this.getDaysRemaining().compareTo(o.getDaysRemaining());
 	}
+	public String getProfileActiveFlag() {
+		return profileActiveFlag;
+	}
+	public void setProfileActiveFlag(String profileActiveFlag) {
+		this.profileActiveFlag = profileActiveFlag;
+	}
+	
 	
 	
 	

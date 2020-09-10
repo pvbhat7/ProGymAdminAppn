@@ -29,7 +29,7 @@ public class Client {
 	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discontinue,
 			List<PackageDetails> packageDetails,String referPoints,
 			String email , String address , String bloodGroup , String reference , String previousGym,
-			double height,double weight) {
+			double height,double weight,String occupation,String profileActiveFlag) {
 		super();
 		this.name = name;
 		this.mobile = mobile;
@@ -46,6 +46,8 @@ public class Client {
 		this.previousGym = previousGym;
 		this.height = height;
 		this.weight = weight;
+		this.occupation = occupation;
+		this.profileActiveFlag = profileActiveFlag;
 	}
 
 
@@ -84,6 +86,12 @@ public class Client {
 	
 	@Column
 	private String bloodGroup;
+	
+	@Column
+	private String occupation;
+	
+	@Column
+	private String profileActiveFlag;
 	
 	public double getHeight() {
 		return height;
@@ -274,26 +282,40 @@ public class Client {
 		return reference;
 	}
 
-
-
-
 	public void setReference(String reference) {
 		this.reference = reference;
 	}
-
-
-
 
 	public String getPreviousGym() {
 		return previousGym;
 	}
 
-
-
-
 	public void setPreviousGym(String previousGym) {
 		this.previousGym = previousGym;
 	}
+
+	public String getOccupation() {
+		return occupation;
+	}
+
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
+	
+	
+
+	public String getProfileActiveFlag() {
+		return profileActiveFlag;
+	}
+
+
+
+
+	public void setProfileActiveFlag(String profileActiveFlag) {
+		this.profileActiveFlag = profileActiveFlag;
+	}
+
+
 
 
 	@Override
@@ -301,18 +323,6 @@ public class Client {
 		return "Client [id=" + id + ", name=" + name + ", mobile=" + mobile + ", gender=" + gender + ", birthDate="
 				+ birthDate + ", remarks=" + remarks + ", discontinue=" + discontinue + ", packageDetails="
 				+ packageDetails + "]";
-	}
-	
-	
-	
-	
-
-
-
-	
-	
-	
-	
-		
+	}		
     
 }

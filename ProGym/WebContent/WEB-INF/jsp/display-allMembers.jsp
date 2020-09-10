@@ -43,6 +43,7 @@ response.sendRedirect("login");
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="product-status-wrap">
                         <a href="allMembers?gender=all&zone=none"><button type="button" class="btn btn-primary" id="myBtn">All</button></a>&nbsp;&nbsp;
+                        <a href="allMembers?gender=all&zone=none"><button type="button" class="btn btn-danger" id="myBtn">Disabled Members</button></a>&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -82,6 +83,7 @@ response.sendRedirect("login");
                                         <th style="text-align:center;">Name</th>  
                                         <th style="text-align:center;">Refer Points</th> 
                                         <th style="text-align:center;">Days Remaining</th>
+                                        <th style="text-align:center;">Enable/Disable</th>
                                         <!-- <th>Payment Status</th> -->                                                                                                      
                                     </tr>
                                     
@@ -95,6 +97,19 @@ response.sendRedirect("login");
 	                                        </td>
 	                                        <td style="text-align:center;"><h3><c:out value="${client.referPoints}"/></h3></td>
 	                                        <td style="text-align:center;"><h3><c:out value="${client.daysRemaining}"/></h3></td>
+	                                        
+	                                        <c:if test="${client.profileActiveFlag == 'enable'}">
+	                                        <td style="text-align:center;">
+	                                        <a href="enableDisableMember?selectflag=disable&cliendId=${client.id}"><button type="button" class="btn btn-danger" id="myBtn">Disable</button></a>
+	                                        </td>
+	                                        </c:if>
+	                                        
+	                                        <c:if test="${client.profileActiveFlag == 'disable'}">
+	                                        <td style="text-align:center;">
+	                                        <a href="enableDisableMember?selectflag=enable&cliendId=${client.id}"><button type="button" class="btn btn-success" id="myBtn">Enable</button></a>
+	                                        </td>
+	                                        </c:if>
+	                                        
 	                                        <%-- <td><h3 style="color: white;"><c:out  value="${client.paymentStatus}"/></h3></td> --%>                                                                                                                       
 	                                    </tr>
                                     </c:forEach>

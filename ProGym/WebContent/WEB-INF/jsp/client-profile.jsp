@@ -142,7 +142,7 @@ response.sendRedirect("login");
           <table class="table table-striped" align="center">
     <thead>
       <tr align="center">
-      	<th>Refer Points</th>  
+      	<th>Points</th>  
         <th>Referral</th>        
       </tr>
     </thead>

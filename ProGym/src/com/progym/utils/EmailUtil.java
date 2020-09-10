@@ -108,18 +108,18 @@ public class EmailUtil {
             	"    </thead>"+
             	"    <tbody>"+
             	"      <tr>"+
-            	"        <td style=\"height:15px;font-size:12px;font-weight:400;padding:0px 10px;\"></br>Hi "+eObj.getClientName()+"</td>		"+
+            	"        <td style=\"height:15px;font-size:12px;font-weight:400;padding:0px 0px 0px 0px;\"></br>Hi "+eObj.getClientName()+"</td>		"+
             	"      </tr>"+
             	"	  <tr>"+
-            	"        <td style=\"height:15px;font-weight:400;font-size:12px;padding:0px 10px 10px;\"></br>We have received your payment</td>		"+
+            	"        <td style=\"height:15px;font-weight:400;font-size:12px;padding:0px 0px 5px;\"></br>We have received your payment</td>		"+
             	"      </tr>"+
             	"	  "+
             	"      <tr>"+
-            	"        <td colspan=\"2\" style=\"border: solid 2px #ddd; padding:10px 10px;\">"+
+            	"        <td colspan=\"2\" style=\"border: solid 1px #FFAD00; padding:10px 10px;\">"+
             	"          <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Package Name</span>"+eObj.getPackageName()+"</p>"+
             	"          <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Duration</span>"+eObj.getDuration()+"</p>"+
             	"		  <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Payment Date</span>"+eObj.getPaymentDate()+"</p>"+
-            	"		  <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Transaction Status</span><b style=\"color:green;font-weight:normal;margin:0\">Success</b></p>"+
+            	"		  <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Transaction Status</span><b style=\"color:#28D537;font-weight:normal;margin:0\">Success</b></p>"+
             	"		  <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Paid Amount</span>Rs. "+eObj.getAmount()+"</p>"+
             	"		  <p style=\"font-size:10px;margin:0 0 6px 0;\"><span style=\"font-weight:bold;display:inline-block;min-width:100px\">Remaining Amount</span>Rs. "+eObj.getRemainingAmount()+"</p>"+
             	"        </td>"+
@@ -129,10 +129,24 @@ public class EmailUtil {
             	"    </tbody>"+
             	"    <tfooter>"+
             	"      <tr>"+
-            	"        <td colspan=\"2\" style=\"font-size:12px;padding:20px 15px 0 15px;\">"+
-            	"          <strong style=\"display:block;margin:0 0 10px 0;\">Regards</strong> Pro Gym<br> Adinath Nagar,Kalamba,</br>Pin-416007, Kolhapur, Maharashtra, India<br><br>"+
-            	"          <b>Phone:</b> +91 8796655176<br>"+
-            	"          <b>Email:</b> progymkop@gmail.com"+
+            	"        <td colspan=\"2\" style=\"font-size:12px;padding:10px 15px 10px 15px;\">"+
+            	"          <strong style=\"display:block;margin:0 0 10px 0;\">Regards</strong> Pro Gym,Kolhapur<br>"+
+            	"          <b>Phone:</b>(8796655176) (0231-2950426)"+
+            	"        </td>"+
+            	"      </tr>"+
+            	"      <tr>"+
+            	"        <td>"+
+            	"<a href=\"https://www.facebook.com/djpranav77\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/fb_icn.png\" alt=\"fb_icon\"></a>"+
+            	"<a href=\"https://www.instagram.com/progymkop/\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/insta_icn.jpg\" alt=\"insta_icn\"></a>"+
+            	"<a href=\"https://wa.link/1frr6m\"><img style=\"padding:2px 3px 0px 5px; max-width: 30px;\" src=\"https://www.linkpicture.com/q/waff.png\" alt=\"whatsapp_icn\"></a></br>"+
+            	"        </td>"+
+            	"      </tr>"+
+            	"      <tr>"+
+            	"        <td align=\"center\" colspan=\"2\" style=\"border: solid 1px #28FF00; font-size:9px;padding:1px 8px 8px 8px;\">"+
+            	"          <b>Software Developed By :<a href=\"https://www.facebook.com/pvbhat7\">Prashant Bhat</a></b>"+
+            	"<a href=\"tel:8796238220\"><img style=\"padding:2px 3px 0px 7px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/call_icn.png\" alt=\"call_icon\"></a>"+
+            	"<a href=\"https://wa.link/socany\"><img style=\"padding:2px 3px 0px 5px; max-width: 30px;\" src=\"https://www.linkpicture.com/q/waff.png\" alt=\"whatsapp_icon\"></a>"+
+            	"<a href=\"mailto:bhatprashant1994@gmail.com?subject=Software Development Enquiry&body=Hi , I need more infor about software development , referred by ProGym\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/eml.png\" alt=\"email_icon\">"+
             	"        </td>"+
             	"      </tr>"+
             	"    </tfooter>"+

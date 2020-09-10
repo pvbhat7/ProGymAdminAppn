@@ -131,7 +131,7 @@ public class UserDaoImpl implements UserDao {
 		session.beginTransaction();
 		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), getDdMmYyyyDate(addMemberObject.getBirthDate()), addMemberObject.getRemarks(),"false",null,"0"
 				,addMemberObject.getEmail() , addMemberObject.getAddress() , addMemberObject.getBloodGroup() ,addMemberObject.getReference(), addMemberObject.getPreviousGym(),
-				addMemberObject.getHeight(),addMemberObject.getWeight());
+				addMemberObject.getHeight(),addMemberObject.getWeight(),addMemberObject.getOccupation(),"enable");
 		session.save(c);
 		if(!refererId.equalsIgnoreCase("none")){
 			Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));
@@ -173,6 +173,7 @@ public class UserDaoImpl implements UserDao {
 			m.setName(c.getName());
 			m.setGender(c.getGender());
 			m.setReferPoints(c.getReferPoints());
+			m.setProfileActiveFlag(c.getProfileActiveFlag());
 			//m.setPaymentStatus(getLastPackagePaymentStatus(c));
 			
 			// get recent record

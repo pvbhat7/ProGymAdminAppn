@@ -57,10 +57,12 @@ response.sendRedirect("login");
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="weight">Weight (In kg)</form:label>
-                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" />
-                                                                    
+                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" />                                                                    
                                                                 </div>
-                                                                                                                                
+                                                                <div class="form-group">
+                                                                <form:label path="address">Occupation</form:label>
+                                                                    <form:input id="occupation" path="occupation" name="occupation" type="text" class="form-control" placeholder="Occupation"/>
+                                                                </div>                                                                                                                                
                                                             </div>
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="form-group">
