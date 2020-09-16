@@ -1,5 +1,7 @@
 package com.progym.model;
 
+import java.util.List;
+
 public class CollectionDashboardPVO {
 
 	public int getMaleFullPaid() {
@@ -63,8 +65,13 @@ public class CollectionDashboardPVO {
 	private int femalePartialPaid;
 	private int femaleNotPaid;
 	
+	private Long enableMembers;
+	private Long disableMembers;
+	
 	private String currentMonth;
 	private String lastMonth;
+	
+	private List<String> birthdayNameList;
 	
 	
 	public String getCurrentMonth() {
@@ -128,9 +135,7 @@ public class CollectionDashboardPVO {
 			int femaleFullPaid, int femalePartialPaid, int femaleNotPaid,
 			Double currentMonthMaleCollection,Double currentMonthFemaleCollection,Double currentMonthSteamCollection,Double currentMonthTotalCollection,
 			Double lastMonthMaleCollection,Double lastMonthFemaleCollection,Double lastMonthSteamCollection,Double lastMonthTotalCollection,
-			String currentMonthName , String lastMonthName
-			
-			) {
+			String currentMonthName , String lastMonthName,List<String> birthdayNameList,Long enableMembersCount ,Long disableMembersCount) {
 		super();
 		this.male = male;
 		this.female = female;
@@ -158,6 +163,9 @@ public class CollectionDashboardPVO {
 		
 		this.currentMonth = currentMonthName;		
 		this.lastMonth = lastMonthName;		
+		this.birthdayNameList = birthdayNameList;
+		this.enableMembers = enableMembersCount;
+		this.disableMembers = disableMembersCount;
 	}
 	public Double getCurrentMonthMaleCollection() {
 		return currentMonthMaleCollection;
@@ -221,6 +229,26 @@ public class CollectionDashboardPVO {
 				+ ", femalePartialPaid=" + femalePartialPaid + ", femaleNotPaid=" + femaleNotPaid + ", currentMonth="
 				+ currentMonth + ", lastMonth=" + lastMonth + "]";
 	}
+	public List<String> getBirthdayNameList() {
+		return birthdayNameList;
+	}
+	public void setBirthdayNameList(List<String> birthdayNameList) {
+
+	}
+	public Long getEnableMembers() {
+		return enableMembers;
+	}
+	public void setEnableMembers(Long enableMembers) {
+		this.enableMembers = enableMembers;
+	}
+	public Long getDisableMembers() {
+		return disableMembers;
+	}
+	public void setDisableMembers(Long disableMembers) {
+		this.disableMembers = disableMembers;
+	}
+	
+	
 	
 	
 	

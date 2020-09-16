@@ -8,7 +8,15 @@ response.sendRedirect("login");
 <html class="no-js" lang="en">
 
 <head>
-<jsp:include page="header.jsp" />    
+<jsp:include page="header.jsp" />  
+<script>
+window.onload = function() {
+	height.value = "";
+	weight.value = "";
+	
+	
+	};
+</script>  
 </head>
 
 <body>
@@ -52,7 +60,7 @@ response.sendRedirect("login");
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="height">Height (In cm)</form:label>
-                                                                    <form:input id="height" path="height" name="height" type="number" class="form-control" placeholder="Enter Height" />
+                                                                    <form:input id="height" path="height" name="height"  type="number" class="form-control" placeholder="Enter Height" />
                                                                     
                                                                 </div>
                                                                 <div class="form-group">
@@ -73,7 +81,7 @@ response.sendRedirect("login");
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="email">Email</form:label>
-                                                                    <form:input id="email" path="email" name="email" type="email" value="test@test.com" class="form-control" placeholder="Email Id" />
+                                                                    <form:input  id="email" path="email" name="email" type="email" value="test@test.com" class="form-control" placeholder="Email Id" />
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="address">Address</form:label>

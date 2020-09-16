@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public List<MemberStatPVO> getMembersBy(String filter , String zone) {
-		return userDao.getMembersBy(filter , zone);
+	public List<MemberStatPVO> getMembersBy(String filter , String zone , String enableDisable) {
+		return userDao.getMembersBy(filter , zone , enableDisable);
 		
 	}
 
@@ -205,5 +205,60 @@ public class UserServiceImpl implements UserService{
 	public void redeemReferPoints(String clientid) {
 		userDao.redeemReferPoints(clientid);		
 	}
+	
+	@Override
+	public void updateProfileActiveFlag(String clientid, String selectflag) {
+		userDao.updateProfileActiveFlag(clientid,selectflag);
+	}
+	
+	@Override
+	public void triggerEnableDisableProfileBatch() {
+		userDao.triggerEnableDisableProfileBatch();
+	}
+	
+	@Override
+	public void sendFeesReminder(String clientid) {
+		userDao.sendFeesReminder(clientid);
+	}
 
+	@Override
+	public List<String> getTodaysBirthdays() {
+		return userDao.getTodaysBirthdays();
+	}
+
+	@Override
+	public void sendBdayWish(String name) {
+		userDao.sendBdayWish(name);	
+	}
+	
+	@Override
+	public void createNewEmail(String emailSubject, String receiver) {
+		userDao.createNewEmail(emailSubject , receiver);		
+	}
+	
+	@Override
+	public void createNewSms(String smsContent, String receiver) {
+		userDao.createNewSms(smsContent , receiver);
+	}
+	
+	@Override
+	public String getSmsFlag() {
+		return userDao.getSmsFlag();
+	}
+	
+	@Override
+	public void updateSmsFlag(String flag) {
+		userDao.updateSmsFlag(flag);
+	}
+	
+	@Override
+	public void sendReminderToSingleClient(String clientname, String clientid, String daysLeft, String packageName,
+			String packageDuration, String pendingFees, String feesPaid, String packageTotalFees) {
+		userDao.sendReminderToSingleClient(clientname,clientid,daysLeft,packageName,packageDuration,pendingFees,feesPaid,packageTotalFees);
+	}
+	
+	@Override
+	public void triggerFeesPaymentReminderBatch() {
+		userDao.triggerFeesPaymentReminderBatch();	
+	}
 }

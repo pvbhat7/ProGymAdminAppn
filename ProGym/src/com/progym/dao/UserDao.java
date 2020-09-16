@@ -27,7 +27,7 @@ public interface UserDao {
 
 	void addMemberToDatabase(AddMemberObject addMemberObject , User user, String userType);
 
-	public List<MemberStatPVO> getMembersBy(String filter , String zone);
+	public List<MemberStatPVO> getMembersBy(String filter , String zone, String enableDisable);
 
 	void addPackageToDatabase(AddPackageObject addPackageObject , User user);
 
@@ -88,5 +88,28 @@ public interface UserDao {
 	String getReferralName(String cliendId);
 
 	void redeemReferPoints(String clientid);
-	  
-	}
+
+	void updateProfileActiveFlag(String clientid, String selectflag);
+
+	void triggerEnableDisableProfileBatch();
+
+	void sendFeesReminder(String clientid);
+	
+	public List<String> getTodaysBirthdays();
+
+	void sendBdayWish(String name);
+
+	void createNewEmail(String emailSubject, String receiver);
+
+	void createNewSms(String smsContent, String receiver);
+
+	String getSmsFlag();
+
+	void updateSmsFlag(String flag);
+
+	void sendReminderToSingleClient(String clientname, String clientid, String daysLeft, String packageName,
+			String packageDuration, String pendingFees, String feesPaid, String packageTotalFees);
+
+	void triggerFeesPaymentReminderBatch();
+
+}

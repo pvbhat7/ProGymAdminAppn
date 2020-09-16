@@ -42,6 +42,9 @@ public class PaymentTransaction {
 	@Column
 	private String clientGender;
 	
+	@Column
+	private String paymentMode;
+	
 	
 	public String getClientId() {
 		return clientId;
@@ -73,13 +76,14 @@ public class PaymentTransaction {
 	public void setFeesPaid(double feesPaid) {
 		this.feesPaid = feesPaid;
 	}
-	public PaymentTransaction(String paymentDate, int packageDetailsId, double feesPaid , String isApproved , String discontinue) {
+	public PaymentTransaction(String paymentDate, int packageDetailsId, double feesPaid , String isApproved , String discontinue,String paymentMode) {
 		super();
 		this.paymentDate = paymentDate;
 		this.packageDetailsId = packageDetailsId;
 		this.feesPaid = feesPaid;
 		this.isApproved = isApproved ;
 		this.discontinue = discontinue;
+		this.paymentMode = paymentMode;
 	}
 	public PaymentTransaction() {
 		super();
@@ -109,6 +113,13 @@ public class PaymentTransaction {
 	public void setDiscontinue(String discontinue) {
 		this.discontinue = discontinue;
 	}
+	public String getPaymentMode() {
+		return paymentMode;
+	}
+	public void setPaymentMode(String paymentMode) {
+		this.paymentMode = paymentMode;
+	}
+	
 	
 	
 	

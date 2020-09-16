@@ -39,6 +39,7 @@
         <mapping class="com.progym.model.FemaleMemberAdditionalDataVO"/>
         <mapping class="com.progym.model.FlagData"/>
         <mapping class="com.progym.model.EmailDataObject"/>
+        <mapping class="com.progym.model.BatchLogs"/>
             
 
     </session-factory>

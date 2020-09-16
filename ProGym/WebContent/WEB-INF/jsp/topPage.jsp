@@ -21,7 +21,7 @@ response.sendRedirect("login");
                             <ul class="submenu-angle" aria-expanded="false">
                                 <!-- <li><a title="All Students" href="maleMembers"><span class="mini-sub-pro">Male</span></a></li>
                                 <li><a title="Add Students" href="femaleMembers"><span class="mini-sub-pro">Female</span></a></li> -->
-                                <li><a title="Edit Students" href="allMembers?gender=all&zone=none"><span class="mini-sub-pro">All Members</span></a></li>
+                                <li><a title="Edit Students" href="allMembers?gender=all&zone=none&enableDisable=enable"><span class="mini-sub-pro">All Members</span></a></li>
                                 <li><a title="Students Profile" href="addMember"><span class="mini-sub-pro">Add Member</span></a></li>
                             </ul>
                         </li>
@@ -94,7 +94,7 @@ response.sendRedirect("login");
                                             <ul class="nav navbar-nav mai-top-nav">
                                                 <li class="nav-item"><a href="index" class="nav-link">Home</a>
                                                 </li>
-                                                <li class="nav-item"><a href="allMembers?gender=all&zone=none" class="nav-link">Members</a>
+                                                <li class="nav-item"><a href="allMembers?gender=all&zone=none&enableDisable=enable" class="nav-link">Members</a>
                                                 </li>
                                                 <li class="nav-item dropdown res-dis-nn">
                                                     <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">Packages <span class="angle-down-topmenu"><i class="fa fa-angle-down"></i></span></a>

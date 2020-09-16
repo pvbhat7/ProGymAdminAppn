@@ -92,7 +92,6 @@ public class MainController {
 		if(u == null)
 			response.sendRedirect("login");
 		else {
-		
 		CollectionDashboardPVO c = userService.getDashboardCollection();
 	    mav.addObject("male",c.getMale());
 	    mav.addObject("female",c.getFemale());
@@ -109,6 +108,10 @@ public class MainController {
 	    mav.addObject("femalePartialPaid",c.getFemalePartialPaid());
 	    mav.addObject("femaleNotPaid",c.getFemaleNotPaid());
 	    mav.addObject("emailInvoiceFlag", getEmailFlag());
+	    mav.addObject("smsFlag", getSmsFlag());
+	    mav.addObject("enableMembers", c.getEnableMembers());
+	    mav.addObject("disableMembers", c.getDisableMembers());
+	    mav.addObject("birthdayNameList", c.getBirthdayNameList());
 	    }
 	    return mav;
 
@@ -118,7 +121,6 @@ public class MainController {
 	  public ModelAndView showMaleMembers(HttpServletRequest request, HttpServletResponse response) {		  
 	    ModelAndView mav = new ModelAndView("display-members");
 	    mav.clear();
-	    //mav.addObject("membersList",userService.getMembersBy("male"));
 	    mav.setViewName("display-members");
 	    return mav;
 	  }
@@ -127,16 +129,15 @@ public class MainController {
 	  public ModelAndView showFemaleMembers(HttpServletRequest request, HttpServletResponse response) {
 		  ModelAndView mav = new ModelAndView("display-members");
 		  mav.clear();
-		  //mav.addObject("membersList",userService.getMembersBy("female"));
 		  mav.setViewName("display-members");
 	    return mav;
 	  }
 	  
 	  @RequestMapping(value = "/allMembers", method = RequestMethod.GET)
 	  public ModelAndView showAllMembers(HttpServletRequest request, 
-			  HttpServletResponse response,@RequestParam String gender , @RequestParam String zone) {
+			  HttpServletResponse response,@RequestParam String gender , @RequestParam String zone , @RequestParam String enableDisable) {
 		  ModelAndView mav = new ModelAndView("display-allMembers");
-		  mav.addObject("membersList",userService.getMembersBy(gender,zone));		  
+		  mav.addObject("membersList",userService.getMembersBy(gender,zone,enableDisable));		  
 	    return mav;
 	  }
 	  
@@ -152,7 +153,7 @@ public class MainController {
 		  User user = (User)session.getAttribute("loggedInUser");
 		  if(user != null){
 		  userService.addMemberToDatabase(addMemberObject,user,"new");
-		  response.sendRedirect("allMembers?gender=all&zone=none");
+		  response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
 		  }
 		  else
 			  response.sendRedirect("login");
@@ -218,6 +219,14 @@ public class MainController {
 			gendersList.put("male", "Male");
 			gendersList.put("female", "Female");
 			return gendersList;		  
+	  }
+	  
+	  @ModelAttribute("paymentModes")
+	   public Map<String, String> getPaymentModes() {
+		  Map<String,String> paymentModes = new LinkedHashMap<String,String>();
+		  paymentModes.put("cash", "cash");
+		  paymentModes.put("online", "online");
+		  return paymentModes;		  
 	  }
 	  
 	  @ModelAttribute("packagesList")
@@ -334,7 +343,7 @@ public class MainController {
 	  public void addPackageFromFormToDb(HttpSession session, HttpServletRequest request, HttpServletResponse response,@ModelAttribute("addPackageObject") AddPackageObject addPackageObject) throws IOException {
 		  User user = (User)session.getAttribute("loggedInUser");
 		  userService.addPackageToDatabase(addPackageObject , user);
-		  response.sendRedirect("allMembers?gender=all&zone=none");
+		  response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
 	  }
 	  
 	  @RequestMapping(value = "/addTransaction", method = RequestMethod.POST)
@@ -344,7 +353,6 @@ public class MainController {
 		  if(u != null && u.getAuthorizedToApprovePayment().equals("YES"))
 			  isAuthorized = Boolean.TRUE;
 		  userService.createTransaction(paymentTransaction,isAuthorized , u);
-		  //response.sendRedirect("allMembers?gender=all&zone=none");
 		  String uri = "clientProfile?cliendId="+paymentTransaction.getClientId()+"&gender="+paymentTransaction.getClientGender()+"";
 		  response.sendRedirect(uri);
 	  }
@@ -517,7 +525,7 @@ public class MainController {
 				  @RequestParam String clientid) throws IOException {
 			  User user = (User)session.getAttribute("loggedInUser");
 			  userService.deleteClientProfile(clientid , user);
-			  response.sendRedirect("allMembers?gender=all&zone=none");	  
+			  response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");	  
 		}
 	   
 	   @RequestMapping(value = "/deletePackage", method = RequestMethod.GET)
@@ -571,17 +579,40 @@ public class MainController {
 	   @RequestMapping(value = "/toggleInvoiceFlag", method = RequestMethod.GET)
 		  @ResponseBody
 		  public ModelAndView toggleInvoiceFlag(HttpServletRequest request, HttpServletResponse response,@RequestParam String flag) throws IOException {
-		   userService.updateToggleInvoiceFlag(flag);
+		   userService.updateToggleInvoiceFlag(flag);		   
 		   ModelAndView mav = new ModelAndView("index");
-			if(flag.equalsIgnoreCase("true"))
-			  mav.addObject("emailInvoiceFlag", "ON");
-			else if(flag.equalsIgnoreCase("false"))
-				  mav.addObject("emailInvoiceFlag", "OFF");
-		    return mav;
+		   addToggleFlags(mav);
+		   return mav;
+		}
+	   
+	   public ModelAndView addToggleFlags(ModelAndView mav){
+		   if(userService.getToggleInvoiceFlag().equalsIgnoreCase("ON"))
+			   mav.addObject("emailInvoiceFlag", "ON");
+		   else
+			   mav.addObject("emailInvoiceFlag", "OFF");
+		   
+		   if(userService.getSmsFlag().equalsIgnoreCase("ON"))
+			   mav.addObject("smsFlag", "ON");
+		   else
+			   mav.addObject("smsFlag", "OFF");
+		   return mav;
+	   }
+	   
+	   @RequestMapping(value = "/toggleSmsFlag", method = RequestMethod.GET)
+		  @ResponseBody
+		  public ModelAndView toggleSmsFlag(HttpServletRequest request, HttpServletResponse response,@RequestParam String flag) throws IOException {
+		   userService.updateSmsFlag(flag);
+		   ModelAndView mav = new ModelAndView("index");
+		   addToggleFlags(mav);
+		   return mav;
 		}
 	   
 	   public String getEmailFlag(){
 		   return userService.getToggleInvoiceFlag();
+	   }
+	   
+	   public String getSmsFlag(){
+		   return userService.getSmsFlag();
 	   }
 	   
 	   @Bean  
@@ -606,7 +637,6 @@ public class MainController {
 		    	System.out.println(rs.getInt(1)+"  "+rs.getString(2));  
 		    	con.close();  
 		    	}catch(Exception e){ System.out.println(e);}  
-			  /*mav.addObject("notificationsList", userService.getMobileNotifications() );*/		  
 		    return mav;
 		  }
 	   
@@ -618,6 +648,59 @@ public class MainController {
 		   String uri = "clientProfile?cliendId="+clientid+"&gender="+gender+"";
 		   response.sendRedirect(uri);
 		}
+	   
+	   @RequestMapping(value = "/enableDisableMember", method = RequestMethod.GET)
+		  public void enableDisableMember(HttpServletRequest request, HttpServletResponse response,
+				  @RequestParam String selectflag,@RequestParam String clientid) throws IOException {
+		   userService.updateProfileActiveFlag(clientid,selectflag);
+		   if(selectflag.equals("enable"))
+		   response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=disable");
+		   if(selectflag.equals("disable"))
+			   response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
+		}
+	   
+	   @RequestMapping(value = "/sendReminder", method = RequestMethod.GET)
+		  public void sendReminder(HttpServletRequest request, HttpServletResponse response,@RequestParam String clientid) throws IOException {
+		   userService.sendFeesReminder(clientid);
+		   response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
+		}
+	   
+	   @RequestMapping(value = "/sendBdayWish", method = RequestMethod.GET)
+		  public void sendBdayWish(HttpServletRequest request, HttpServletResponse response,@RequestParam String name) throws IOException {
+		   userService.sendBdayWish(name);
+		   response.sendRedirect("index");
+		}
+	   
+	   @RequestMapping(value = "/createNewEmail", method = RequestMethod.GET)
+		  public void createNewEmail(HttpServletRequest request, HttpServletResponse response,@RequestParam String emailSubject,String receiver) throws IOException {
+		   userService.createNewEmail(emailSubject,receiver);
+		   response.sendRedirect("index");
+		}
+	   
+	   @RequestMapping(value = "/createNewSms", method = RequestMethod.GET)
+		  public void createNewSms(HttpServletRequest request, HttpServletResponse response,@RequestParam String smsContent,String receiver) throws IOException {
+		   userService.createNewSms(smsContent,receiver);
+		   response.sendRedirect("index");
+		}
+	   
+	   @RequestMapping(value = "/sendReminderToSingleClient", method = RequestMethod.GET)
+		  public void sendReminderToSingleClient(HttpServletRequest request, HttpServletResponse response,
+				  @RequestParam String clientname,@RequestParam String clientid,
+				  @RequestParam String daysLeft,@RequestParam String packageName,
+				  @RequestParam String packageDuration,@RequestParam String pendingFees,
+				  @RequestParam String feesPaid,@RequestParam String packageTotalFees) throws IOException {
+		   userService.sendReminderToSingleClient(clientname,clientid,daysLeft,packageName,packageDuration,pendingFees,feesPaid,packageTotalFees);
+		   response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
+		}
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
 	   
 	   	   
 	   

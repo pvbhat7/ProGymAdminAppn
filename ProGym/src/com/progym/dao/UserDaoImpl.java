@@ -23,6 +23,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Repository;
 import com.progym.model.AddClientPackageForm;
 import com.progym.model.AddMemberObject;
 import com.progym.model.AddPackageObject;
+import com.progym.model.BatchLogs;
 import com.progym.model.CPackage;
 import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
@@ -47,8 +49,13 @@ import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
+import com.progym.utils.BdayEmailTemplate;
 import com.progym.utils.EmailUtil;
+import com.progym.utils.FeesReminderEmail;
 import com.progym.utils.HibernateUtils;
+import com.progym.utils.SendSmsUtil;
+import com.progym.utils.PromotionalEmailTemplate;
+
 import java.util.*;
 import org.joda.time.*;
 import org.joda.time.format.*;
@@ -62,7 +69,7 @@ public class UserDaoImpl implements UserDao {
 	
     public static final long MILLISECONDS_IN_DAY = (long) (1000 * 60 * 60 * 24);
     public static final String RED = "#FF0000";
-    public static final String YELLOW = "#FCFF00";
+    public static final String YELLOW = "#FAF201";
     public static final String GREEN = "#1CFF00";
     public static final String ACTIVITY_TYPE_ADD_NEW_MEMBER = "Add New Client";
     public static final String ACTIVITY_TYPE_ADD_NEW_PACKAGE = "Create New Package";
@@ -149,12 +156,13 @@ public class UserDaoImpl implements UserDao {
 		session.getTransaction().commit();
 	}
 
-	public List<MemberStatPVO> getMembersBy(String filter , String zone) {
+	public List<MemberStatPVO> getMembersBy(String filter , String zone , String enableDisable) {
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
-		Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false"));
+		Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("profileActiveFlag", enableDisable));
 		Collection<Client> collection = new LinkedHashSet(crit.list());
 		
+		// clients list as per zone selection
 		List<Client> cList = new ArrayList<Client>();
 		for(Client c : collection) {
 			if(filter.equals("all"))
@@ -166,6 +174,8 @@ public class UserDaoImpl implements UserDao {
 					cList.add(c);
 			}
 		}
+		
+		// creating display object
 		List<MemberStatPVO> membersStatPVOs = new ArrayList<>();
 		for(Client c : cList){
 			MemberStatPVO m = new MemberStatPVO();
@@ -174,30 +184,40 @@ public class UserDaoImpl implements UserDao {
 			m.setGender(c.getGender());
 			m.setReferPoints(c.getReferPoints());
 			m.setProfileActiveFlag(c.getProfileActiveFlag());
-			//m.setPaymentStatus(getLastPackagePaymentStatus(c));
+			m.setName(c.getName());
+			m.setEmail(c.getEmail());
+			m.setMobile(c.getMobile());
 			
-			// get recent record
+			// get recent package record and set days remaining
 			Criteria c1 = session.createCriteria(PackageDetails.class);
 			c1.add(Restrictions.eq("client.id", c.getId()));
 			c1.add(Restrictions.eq("discontinue", "false"));
 			c1.addOrder(Order.desc("id"));
 			c1.setMaxResults(1);
+			
 			if(!session.isOpen())
 				HibernateUtils.getSessionFactory().openSession();
 			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
+			
 			if(pd != null){
-				try {					
+				m.setPaymentStatus(pd.getClientPackageStatus().toUpperCase());
+				try {		
+					m.setPackageDuration(pd.getPackageStartDate()+" - "+pd.getPackageEndDate());
+					m.setPackageName(pd.getPackageName());
+					m.setFeesPaid(String.valueOf(pd.getAmountPaid()));
+					m.setPackageTotalFees(String.valueOf(pd.getPackageFees()));
+					m.setPendingFees(String.valueOf(pd.getPackageFees()-pd.getAmountPaid()));
 					Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
 					Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
 					m.setDaysRemaining(String.valueOf(daysDiff(new Date(), secondDate)));
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}	
+				} catch (ParseException e) {}	
 			}
 			else{
 				m.setDaysRemaining("-");
+				m.setPaymentStatus("-");
 			}
 			
+			// Based on days remaining , set display color
 			if(m.getDaysRemaining().equals("-"))
 				m.setColor(GREEN);
 			else{
@@ -215,8 +235,9 @@ public class UserDaoImpl implements UserDao {
 		//session.beginTransaction();
 		//session.getTransaction().commit();
 		session.close();
-		List<MemberStatPVO> membersStatPVOByZones = null;
 		
+		// Filtering display object based on selected color by end user
+		List<MemberStatPVO> membersStatPVOByZones = null;		
 		if(zone.equalsIgnoreCase("none")){
 			membersStatPVOByZones = membersStatPVOs;
 		}
@@ -230,10 +251,27 @@ public class UserDaoImpl implements UserDao {
 			  membersStatPVOByZones = getMembersByZones(membersStatPVOs,YELLOW);
 		  }
 		
-		Collections.sort(membersStatPVOByZones);
-		return membersStatPVOByZones;
+		// pushing no package members at end of list
+		return pushingNoPackageMembersToEnd(membersStatPVOByZones);
 	}
 	
+	private List<MemberStatPVO> pushingNoPackageMembersToEnd(List<MemberStatPVO> membersStatPVOByZones) {
+		List<MemberStatPVO> noPackageMembers = new ArrayList<>();
+		List<MemberStatPVO> withPackageMembers = new ArrayList<>();
+		for(MemberStatPVO member : membersStatPVOByZones){
+			if(member.getDaysRemaining().equals("-"))
+				noPackageMembers.add(member);
+			else
+				withPackageMembers.add(member);
+		}
+		
+		// sorting as per days remaining
+		Collections.sort(withPackageMembers);
+				
+		withPackageMembers.addAll(noPackageMembers);
+		return withPackageMembers;
+	}
+
 	private boolean isFeesNotPaid(Client c) {
 		boolean flag = false;
 		List<PackageDetails> pdList = getClientPackagesByClient(c);
@@ -357,7 +395,7 @@ public class UserDaoImpl implements UserDao {
 			if(isAuthorized)
 				isAuth= "YES";
 			
-		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),isAuth,"false");
+		PaymentTransaction p = new PaymentTransaction(new SimpleDateFormat("dd/MM/yyyy").format(new Date()), paymentTransaction.getPackageDetailsId(), paymentTransaction.getFeesPaid(),isAuth,"false",paymentTransaction.getPaymentMode());
 		PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", paymentTransaction.getPackageDetailsId())).uniqueResult();
 		pd.setAmountPaid(pd.getAmountPaid()+paymentTransaction.getFeesPaid());
 		CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
@@ -387,6 +425,13 @@ public class UserDaoImpl implements UserDao {
 				   public void run() {  
 				     // your background task here  
 					   EmailUtil.sendEmail2(eObj);
+					   String mobile = pd.getClient().getMobile();
+					   String body = "Hi "+pd.getClient().getName()+"\n ProGym has received your payment of Rs."+paymentTransaction.getFeesPaid()+" for package "+pd.getPackageName();
+					   if(mobile.length() == 10){
+						   System.out.println("sending payment transaction sms \n mobile : "+mobile+"\n Body : "+body);
+						   SendSmsUtil.triggerSms(mobile, body);   
+					   }
+					   
 				   }  
 				 }); 
 			
@@ -554,9 +599,14 @@ public class UserDaoImpl implements UserDao {
 	public CollectionDashboardPVO getDashboardCollection() {
 		session = HibernateUtils.getSessionFactory().openSession();
 		Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.eq("discontinue", "false")).list());
-		
 		String currentMonthName;
 		String lastMonthName;
+		Long enableMembersCount = 0L;
+		Long disableMembersCount = 0L;
+		
+		
+		enableMembersCount = (Long)((Criteria)session.createCriteria(Client.class).add( Restrictions.eq("discontinue", "false")).add( Restrictions.eq("profileActiveFlag", "enable")).setProjection(Projections.rowCount())).list().get(0);
+		disableMembersCount = (Long)((Criteria)session.createCriteria(Client.class).add( Restrictions.eq("discontinue", "false")).add( Restrictions.eq("profileActiveFlag", "disable")).setProjection(Projections.rowCount())).list().get(0);
 		
 		Double male=0.00;
 		Double female=0.00;
@@ -649,8 +699,7 @@ public class UserDaoImpl implements UserDao {
 				femaleFullyPaid,femalePartialPaid,femaleNotPaid,
 				currentMonthMaleCollection,currentMonthFemaleCollection,currentMonthSteamCollection,currentMonthTotalCollection,
 				lastMonthMaleCollection,lastMonthFemaleCollection,lastMonthSteamCollection,lastMonthTotalCollection,
-				currentMonthName , lastMonthName
-				);
+				currentMonthName , lastMonthName,getTodaysBirthdays(),enableMembersCount,disableMembersCount);
 		
 	}
 
@@ -753,6 +802,7 @@ public class UserDaoImpl implements UserDao {
 		if(user.getAuthorizedToApprovePayment().equals("NO"))
 			crit.add(Restrictions.eq("trainer","Swati Hadpad"));	
 		crit.add(Restrictions.eq("discontinue","false"));
+		crit.setMaxResults(50);
 		crit.addOrder(Order.desc("id"));
 		notiList = crit.list();
 		session.close();		
@@ -864,6 +914,9 @@ public class UserDaoImpl implements UserDao {
 			m.setName(c.getName());
 			m.setGender(c.getGender());
 			m.setReferPoints(c.getReferPoints());
+			m.setProfileActiveFlag(c.getProfileActiveFlag());
+			m.setEmail(c.getEmail());
+			m.setMobile(c.getMobile());
 			//m.setPaymentStatus(getLastPackagePaymentStatus(c));
 			
 			// get recent record
@@ -876,25 +929,32 @@ public class UserDaoImpl implements UserDao {
 				HibernateUtils.getSessionFactory().openSession();
 			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
 			if(pd != null){
+				m.setPaymentStatus(pd.getClientPackageStatus());
 				try {					
 					Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
 					Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
 					m.setDaysRemaining(String.valueOf(daysDiff(new Date(), secondDate)));
+					m.setPackageDuration(pd.getPackageStartDate()+" - "+pd.getPackageEndDate());
+					m.setPackageName(pd.getPackageName());
+					m.setFeesPaid(String.valueOf(pd.getAmountPaid()));
+					m.setPackageTotalFees(String.valueOf(pd.getPackageFees()));
+					m.setPendingFees(String.valueOf(pd.getPackageFees()-pd.getAmountPaid()));					
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}	
 			}
 			else{
 				m.setDaysRemaining("-");
+				m.setPaymentStatus("-");
 			}
 			
 			if(m.getDaysRemaining().equals("-"))
 				m.setColor(GREEN);
 			else{
 				//if(Integer.parseInt(m.getDaysRemaining())<5 && isFeesNotPaid(c))
-				if(Integer.parseInt(m.getDaysRemaining())<5)
+				if(Integer.parseInt(m.getDaysRemaining()) < 0)
 					m.setColor(RED);
-				else if(Integer.parseInt(m.getDaysRemaining()) > 5 && Integer.parseInt(m.getDaysRemaining()) < 10)
+				else if(Integer.parseInt(m.getDaysRemaining()) >= 0 && Integer.parseInt(m.getDaysRemaining()) <= 5)
 					m.setColor(YELLOW);
 				else
 					m.setColor(GREEN);	
@@ -1091,6 +1151,334 @@ public class UserDaoImpl implements UserDao {
 		session.save(client);
 		session.getTransaction().commit();
 		session.close();		
+	}
+	
+	@Override
+	public void updateProfileActiveFlag(String clientid, String selectflag) {
+		session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+		client.setProfileActiveFlag(selectflag);
+		session.save(client);
+		session.getTransaction().commit();
+		session.close();		
+	}
+	
+	@Override
+	public void triggerEnableDisableProfileBatch() {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false"));
+		Collection<Client> collection = new LinkedHashSet(crit.list());
+		List<Client> cList = new ArrayList<>();
+		cList.addAll(collection);
+		
+		// creating display object
+		for(Client c : cList){
+			
+			// get recent package record and set days remaining
+			Criteria c1 = session.createCriteria(PackageDetails.class);
+			c1.add(Restrictions.eq("client.id", c.getId()));
+			c1.add(Restrictions.eq("discontinue", "false"));
+			c1.addOrder(Order.desc("id"));
+			c1.setMaxResults(1);
+			
+			if(!session.isOpen())
+				HibernateUtils.getSessionFactory().openSession();
+			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
+			
+			if(pd != null){
+				try {		
+					if(pd.getPackageStartDate() != null && pd.getPackageEndDate() != null){
+						Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
+						Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
+						int daysLeft = daysDiff(new Date(), secondDate);
+						if(daysLeft < -31){
+							c.setProfileActiveFlag("disable");
+							session.saveOrUpdate(c);
+						}	
+					}					
+				} catch (ParseException e) {}	
+			}
+			else{}
+		}
+		session.getTransaction().commit();
+		session.close();
+	}
+	
+	@Override
+	public void sendFeesReminder(String clientid) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		
+		// get recent package record and set days remaining
+					Criteria c1 = session.createCriteria(PackageDetails.class);
+					c1.add(Restrictions.eq("client.id", clientid));
+					c1.add(Restrictions.eq("discontinue", "false"));
+					c1.addOrder(Order.desc("id"));
+					c1.setMaxResults(1);
+					
+					if(!session.isOpen())
+						HibernateUtils.getSessionFactory().openSession();
+					PackageDetails pd = ((PackageDetails)c1.uniqueResult());
+					
+					if(pd != null){
+						String packageStatus = pd.getClientPackageStatus().toUpperCase();
+						try {					
+							Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
+							Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
+							String daysRemaining = String.valueOf(daysDiff(new Date(), secondDate));
+						} catch (ParseException e) {}	
+					}
+					else{
+						// no days
+					}
+	}
+	
+	public List<String> getTodaysBirthdays(){
+		String todaysDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+		java.time.LocalDate today = java.time.LocalDate.now();
+		int systemMonth = today.getMonthValue();
+		int systemDate = today.getDayOfMonth();
+		
+		Collection clients = new LinkedHashSet(session.createCriteria(Client.class)
+				.add(Restrictions.eq("discontinue", "false"))
+				.list());
+		List<Client> list = new ArrayList<>();
+		List<String> listNames = new ArrayList<>();
+		list.addAll(clients);
+		for(Client c : list){
+			Date bday;
+			try {
+				bday = new SimpleDateFormat("dd/MM/yyyy").parse(c.getBirthDate());
+				int month_ = bday.getMonth()+1;
+				int date = bday.getDate();
+				if(date == systemDate && month_ == systemMonth)
+				listNames.add(c.getName());
+			} catch (ParseException e) {}
+		}	
+		return listNames;
+	}
+	
+	@Override
+	public void sendBdayWish(String name) {
+		Session session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client c = (Client)session.createCriteria(Client.class).add(Restrictions.eq("name", name)).uniqueResult();
+		taskExecutor.execute(new Runnable() {  
+			   @Override  
+			   public void run() { BdayEmailTemplate.sendEmail2(c.getEmail(),name); } }); 
+		session.getTransaction().commit();
+		session.close();	
+	}
+	
+	@Override
+	public void createNewEmail(String emailSubject, String filter) {
+		
+		List<String> emailsList = new ArrayList<>();
+		Session session= HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria crit = session.createCriteria(Client.class);
+		if(filter.equals("sendToEnable"))
+			crit.add(Restrictions.eq("profileActiveFlag", "enable"));
+		if(filter.equals("sendToDisable"))
+			crit.add(Restrictions.eq("profileActiveFlag", "disable"));
+		if(filter.equals("sendToEnableDisable"))
+			crit.add(Restrictions.eq("discontinue", "false"));
+		
+		Collection<Client> collection = new LinkedHashSet(crit.list());
+		List<Client> cList = new ArrayList<>();
+		cList.addAll(collection);
+		int counter = 0;
+		for(Client c : cList){
+			/*taskExecutor.execute(new Runnable() 
+			{  
+				   @Override  
+				   public void run() { 
+					   PromotionalEmailTemplate.sendEmail(emailSubject , c.getEmail() , c.getName() , imageUrl);				    
+				   } 
+			}); */
+		}
+		taskExecutor.execute(new Runnable() 
+		{  
+			   @Override  
+			   public void run() { 
+				   PromotionalEmailTemplate.sendEmail("bhatprashant1994@gmail.com" , "Prashant Bhat" ,emailSubject, "https://www.linkpicture.com/q/rsz_bday_wish.jpg");				    
+			   } 
+		}); 
+	}
+	
+	@Override
+	public void createNewSms(String smsContent, String filter) {
+		if(getSmsFlag().equalsIgnoreCase("ON")){
+			List<String> emailsList = new ArrayList<>();
+			Session session= HibernateUtils.getSessionFactory().openSession();
+			session.beginTransaction();
+			Criteria crit = session.createCriteria(Client.class);
+			if(filter.equals("sendToEnable"))
+				crit.add(Restrictions.eq("profileActiveFlag", "enable"));
+			if(filter.equals("sendToDisable"))
+				crit.add(Restrictions.eq("profileActiveFlag", "disable"));
+			if(filter.equals("sendToEnableDisable"))
+				crit.add(Restrictions.eq("discontinue", "false"));
+			
+			Collection<Client> collection = new LinkedHashSet(crit.list());
+			List<Client> cList = new ArrayList<>();
+			cList.addAll(collection);
+			int counter = 0;
+			for(Client c : cList){
+				String mobile = c.getMobile();
+				if(mobile != null && mobile.length() == 10){
+					taskExecutor.execute(new Runnable() 
+					{  
+						   @Override  
+						   public void run() { 
+							   SendSmsUtil.triggerSms(c.getMobile(), "Hi "+c.getName()+"\n"+smsContent);				    
+						   } 
+					});	
+				}			 
+			}	
+		}		
+	}
+	
+	@Override
+	public String getSmsFlag() {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		String returnvalue ="";
+		FlagData flag = (FlagData)session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey","SMS_FLAG")).uniqueResult();
+		if(flag.getFlagValue().equalsIgnoreCase("TRUE"))
+			returnvalue= "ON";
+		else if(flag.getFlagValue().equalsIgnoreCase("FALSE"))
+			returnvalue ="OFF";
+		session.getTransaction().commit();
+		session.close();
+		return returnvalue;
+	}
+	
+	public Boolean checkIsBatchCompleted(String batchName , String date) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		String returnvalue ="";
+		BatchLogs batch = (BatchLogs)session.createCriteria(BatchLogs.class).add(Restrictions.eq("batchName",batchName)).add(Restrictions.eq("date", date)).uniqueResult();
+		session.getTransaction().commit();
+		session.close();
+		return batch != null ? true : false;
+	}
+	
+	
+	@Override
+	public void updateSmsFlag(String flag) {
+		List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		FlagData flagObj = (FlagData)session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey","SMS_FLAG")).uniqueResult();
+		if(flag.equalsIgnoreCase("true"))
+			flagObj.setFlagValue("TRUE");
+		else if(flag.equalsIgnoreCase("false"))
+			flagObj.setFlagValue("FALSE");
+		session.getTransaction().commit();
+		session.close();
+	}
+	
+	
+	/*Automatic send reminder : 0-5 days left : 1 time/day
+	days extra (renew package req mail): -1 -> -7 :   everyday
+	days extra (renew package req mail): -7 -> -7 : - 10,20,30 --> specific day email*/
+
+	
+	
+	@Override
+	public void sendReminderToSingleClient(String clientname, String clientid, String daysLeft, String packageName,
+			String packageDuration, String pendingFees, String feesPaid, String packageTotalFees) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client c = (Client)getClientById(Integer.parseInt(clientid));
+		
+		if(getToggleInvoiceFlag().equalsIgnoreCase("ON")){
+			// send email reminder
+			String email = c.getEmail();
+			if(email.contains("@"));{
+				String subject = "ProGym Fee's reminder";
+				taskExecutor.execute(new Runnable() 
+				{  
+					   @Override  
+					   public void run() { 
+						   FeesReminderEmail.sendEmail(c.getEmail(), subject, c.getName(), packageName, packageDuration, daysLeft, feesPaid, pendingFees,packageTotalFees);				    
+					   } 
+				});				
+			}
+		}
+		
+		String body = "Hi "+c.getName()+"\nYour package <"+packageName+"> will expire in "+daysLeft+" days \nPlease pay your pending fees of Rs."+pendingFees+"\n\nfrom - ProGym Kolhapur.";
+		System.out.println(body);
+		// send sms reminder
+		if(getSmsFlag().equalsIgnoreCase("ON")){
+			String number = c.getMobile();
+			if(number != null && number.length() == 10){
+				taskExecutor.execute(new Runnable() 
+				{  
+					   @Override  
+					   public void run() { 
+						   SendSmsUtil.triggerSms(number, body);
+					   } 
+				});
+			}	
+		}
+	}
+	
+	@Override
+	public void triggerFeesPaymentReminderBatch(){
+		System.out.println("Batch Started : triggerFeesPaymentReminderBatch");
+		String todaysDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+		String batchName ="FEES_REMINDER_BATCH"; 
+		if(!checkIsBatchCompleted(batchName, todaysDate)){
+			List<MemberStatPVO> memberStatPVOs = getMembersBy("all", "none", "enable");
+			
+			
+			for(MemberStatPVO m : memberStatPVOs){
+				if(getToggleInvoiceFlag().equalsIgnoreCase("ON")){
+					String email = m.getEmail();
+					if(email.contains("@"));{
+						String subject = "ProGym Fee's reminder";
+						System.out.println("email sent :"+email);
+						/*taskExecutor.execute(new Runnable() 
+						{  
+							   @Override  
+							   public void run() { 
+								   FeesReminderEmail.sendEmail(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees());				    
+							   } 
+						});*/
+					}	
+				}
+				if(getSmsFlag().equalsIgnoreCase("ON")){
+					String body = "Hi "+m.getName()+"\nYour package <"+m.getPackageName()+"> will expire in "+m.getDaysRemaining()+" days \nPlease pay your pending fees of Rs."+m.getPendingFees()+"\n\nfrom - ProGym Kolhapur.";
+					String number = m.getMobile();
+					if(number != null && number.length() == 10){
+						System.out.println("sms sent :"+number);
+						/*taskExecutor.execute(new Runnable() 
+						{  
+							   @Override  
+							   public void run() { 
+								   SendSmsUtil.triggerSms(number, body);
+							   } 
+						});*/
+					}
+				}			
+						
+		}// end method
+			updateBatchCompletedStatus(batchName,todaysDate);
+		}// end if	
+		System.out.println("Batch finished : triggerFeesPaymentReminderBatch");
+	}
+
+	private void updateBatchCompletedStatus(String batchName, String todaysDate) {
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		BatchLogs batchObject = new BatchLogs(batchName,todaysDate,"completed");
+		session.save(batchObject);	
+		session.getTransaction().commit();
+		session.close();
 	}
 }
  

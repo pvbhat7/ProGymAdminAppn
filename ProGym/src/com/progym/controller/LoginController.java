@@ -43,7 +43,7 @@ public class LoginController {
 		    System.out.println("user found in logincontroller");
 
 		  session.setAttribute("loggedInUser", u);
-		  
+		  userService.triggerEnableDisableProfileBatch();
 		  ModelAndView mav = new ModelAndView("index");
 		    CollectionDashboardPVO c = userService.getDashboardCollection();
 		    mav.addObject("male",c.getMale());
@@ -61,6 +61,16 @@ public class LoginController {
 		    mav.addObject("femalePartialPaid",c.getFemalePartialPaid());
 		    mav.addObject("femaleNotPaid",c.getFemaleNotPaid());
 		    mav.addObject("emailInvoiceFlag", getEmailFlag());
+		    mav.addObject("smsFlag", getSmsFlag());
+		    mav.addObject("enableMembers", c.getEnableMembers());
+		    mav.addObject("disableMembers", c.getDisableMembers());
+		    mav.addObject("birthdayNameList", c.getBirthdayNameList());
+		    
+		    //run UpdateEnableDisable profile batch
+		    userService.triggerEnableDisableProfileBatch();
+		    
+		    // run send payment reminder batch
+		    userService.triggerFeesPaymentReminderBatch();
 
 	    return mav;
 	  }
@@ -77,5 +87,9 @@ public class LoginController {
   
   public String getEmailFlag(){
 	   return userService.getToggleInvoiceFlag();
+  }
+  
+  public String getSmsFlag(){
+	   return userService.getSmsFlag();
   }
 }
