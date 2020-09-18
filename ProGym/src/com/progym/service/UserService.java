@@ -18,6 +18,7 @@ import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
+import com.progym.model.SmsLogs;
 
 public interface UserService {
 
@@ -97,7 +98,7 @@ public interface UserService {
 
 	void sendBdayWish(String name);
 
-	void createNewEmail(String emailSubject, String receiver);
+	void createNewEmail(String emailSubject, String receiver, String image);
 
 	void createNewSms(String smsContent, String receiver);
 
@@ -109,6 +110,10 @@ public interface UserService {
 			String packageDuration, String pendingFees, String feesPaid, String packageTotalFees);
 
 	void triggerFeesPaymentReminderBatch();
+
+	List<SmsLogs> getSmsLogs();
+
+	void renewPackage(String clientid, User user);
 	
 
 }

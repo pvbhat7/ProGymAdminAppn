@@ -150,6 +150,8 @@ response.sendRedirect("login");
                                 <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
                                 <li><a title="Data Table" href="fileUploadPage"><span class="mini-sub-pro">Upload Photo</span></a></li>
                                 <li><a title="Data Table" href="sendPendingInvoices"><span class="mini-sub-pro">Invoice Receipts</span></a></li>
+                                <li><a title="Data Table" href="steamView"><span class="mini-sub-pro">Steam</span></a></li>
+                                <li><a title="Data Table" href="getSmsLogs"><span class="mini-sub-pro">SMS Logs</span></a></li>
                             </ul>
                         </li>
                       

@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.progym.model.AddClientPackageForm;
 import com.progym.model.AddMemberObject;
@@ -39,12 +40,14 @@ import com.progym.model.Client;
 import com.progym.model.CollectionDashboardPVO;
 import com.progym.model.CollectionPVO;
 import com.progym.model.EmailDataObject;
+import com.progym.model.EmailPVO;
 import com.progym.model.FemaleMemberAdditionalDataVO;
 import com.progym.model.FilterCollectionObject;
 import com.progym.model.FlagData;
 import com.progym.model.MemberStatPVO;
 import com.progym.model.Notifications;
 import com.progym.model.User;
+import com.progym.model.SmsLogs;
 import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
@@ -189,14 +192,15 @@ public class UserDaoImpl implements UserDao {
 			m.setMobile(c.getMobile());
 			
 			// get recent package record and set days remaining
+			if(session == null || !session.isOpen())
+			session = HibernateUtils.getSessionFactory().openSession();
 			Criteria c1 = session.createCriteria(PackageDetails.class);
 			c1.add(Restrictions.eq("client.id", c.getId()));
 			c1.add(Restrictions.eq("discontinue", "false"));
 			c1.addOrder(Order.desc("id"));
 			c1.setMaxResults(1);
 			
-			if(!session.isOpen())
-				HibernateUtils.getSessionFactory().openSession();
+			
 			PackageDetails pd = ((PackageDetails)c1.uniqueResult());
 			
 			if(pd != null){
@@ -210,6 +214,7 @@ public class UserDaoImpl implements UserDao {
 					Date firstDate=new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageStartDate());
 					Date secondDate = new SimpleDateFormat("dd/MM/yyyy").parse(pd.getPackageEndDate());
 					m.setDaysRemaining(String.valueOf(daysDiff(new Date(), secondDate)));
+					m.setPackagePaymentStatus(pd.getClientPackageStatus());
 				} catch (ParseException e) {}	
 			}
 			else{
@@ -349,7 +354,6 @@ public class UserDaoImpl implements UserDao {
 		session.save(pd1);
 		logActivity(session , c1 , user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT , String.valueOf(pd1.getPackageFees()));
 		session.getTransaction().commit();
-		session.close();		
 	}
 
 	@Override
@@ -430,6 +434,8 @@ public class UserDaoImpl implements UserDao {
 					   if(mobile.length() == 10){
 						   System.out.println("sending payment transaction sms \n mobile : "+mobile+"\n Body : "+body);
 						   SendSmsUtil.triggerSms(mobile, body);   
+						   SmsLogs smsLogs = new SmsLogs(pd.getClient().getName(),pd.getClient().getMobile(),body,String.valueOf(new Date()));
+						   session.save(smsLogs);
 					   }
 					   
 				   }  
@@ -512,38 +518,7 @@ public class UserDaoImpl implements UserDao {
 		return list;
 	}
 	
-	public String addDaysToDate(String oldDate , int daysToAdd) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar c = Calendar.getInstance();
-		try{
-		   //Setting the date to the given date
-		   c.setTime(sdf.parse(oldDate));
-		}catch(ParseException e){
-			e.printStackTrace();
-		 }
-		   
-		//Number of Days to add
-		c.add(Calendar.DAY_OF_MONTH, daysToAdd);  
-		//Date after adding the days to the given date
-		String newDate = sdf.format(c.getTime());
-		
-		return newDate;
-	}
 	
-	public String getDdMmYyyyDate(String oldDate){
-		if(oldDate.equals(""))
-			return new SimpleDateFormat("dd/MM/yyyy").format(new Date());
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar c = Calendar.getInstance();
-		try{
-		   //Setting the date to the given date
-		   c.setTime(sdf.parse(oldDate));
-		}catch(ParseException e){
-			e.printStackTrace();
-		 }
-		
-		return new SimpleDateFormat("dd/MM/yyyy").format(c.getTime());
-	}
 	
 	
 	@Override
@@ -938,7 +913,8 @@ public class UserDaoImpl implements UserDao {
 					m.setPackageName(pd.getPackageName());
 					m.setFeesPaid(String.valueOf(pd.getAmountPaid()));
 					m.setPackageTotalFees(String.valueOf(pd.getPackageFees()));
-					m.setPendingFees(String.valueOf(pd.getPackageFees()-pd.getAmountPaid()));					
+					m.setPendingFees(String.valueOf(pd.getPackageFees()-pd.getAmountPaid()));	
+					m.setPackagePaymentStatus(pd.getClientPackageStatus());
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}	
@@ -1056,11 +1032,11 @@ public class UserDaoImpl implements UserDao {
 		session.beginTransaction();
 		String returnvalue ="";
 		FlagData flag = (FlagData)session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey","EMAIL_INVOICE_FLAG")).uniqueResult();
-		session.close();
 		if(flag.getFlagValue().equalsIgnoreCase("TRUE"))
 			returnvalue= "ON";
 		else if(flag.getFlagValue().equalsIgnoreCase("FALSE"))
 			returnvalue ="OFF";
+		session.close();
 		return returnvalue;
     }
     
@@ -1269,11 +1245,10 @@ public class UserDaoImpl implements UserDao {
 			   @Override  
 			   public void run() { BdayEmailTemplate.sendEmail2(c.getEmail(),name); } }); 
 		session.getTransaction().commit();
-		session.close();	
 	}
 	
 	@Override
-	public void createNewEmail(String emailSubject, String filter) {
+	public void createNewEmail(String emailSubject, String filter,String image) {
 		
 		List<String> emailsList = new ArrayList<>();
 		Session session= HibernateUtils.getSessionFactory().openSession();
@@ -1291,27 +1266,25 @@ public class UserDaoImpl implements UserDao {
 		cList.addAll(collection);
 		int counter = 0;
 		for(Client c : cList){
-			/*taskExecutor.execute(new Runnable() 
+			taskExecutor.execute(new Runnable() 
 			{  
 				   @Override  
 				   public void run() { 
-					   PromotionalEmailTemplate.sendEmail(emailSubject , c.getEmail() , c.getName() , imageUrl);				    
+					   PromotionalEmailTemplate.sendEmail(c.getEmail(),c.getName() ,emailSubject, image);				    
 				   } 
-			}); */
-		}
-		taskExecutor.execute(new Runnable() 
-		{  
-			   @Override  
-			   public void run() { 
-				   PromotionalEmailTemplate.sendEmail("bhatprashant1994@gmail.com" , "Prashant Bhat" ,emailSubject, "https://www.linkpicture.com/q/rsz_bday_wish.jpg");				    
-			   } 
-		}); 
+			}); 
+		}		 
 	}
 	
 	@Override
 	public void createNewSms(String smsContent, String filter) {
+		System.out.println("method called: createNewSms");
 		if(getSmsFlag().equalsIgnoreCase("ON")){
-			List<String> emailsList = new ArrayList<>();
+			taskExecutor.execute(new Runnable() 
+			{  
+				   @Override  
+				   public void run() {
+					   
 			Session session= HibernateUtils.getSessionFactory().openSession();
 			session.beginTransaction();
 			Criteria crit = session.createCriteria(Client.class);
@@ -1329,15 +1302,21 @@ public class UserDaoImpl implements UserDao {
 			for(Client c : cList){
 				String mobile = c.getMobile();
 				if(mobile != null && mobile.length() == 10){
-					taskExecutor.execute(new Runnable() 
-					{  
-						   @Override  
-						   public void run() { 
-							   SendSmsUtil.triggerSms(c.getMobile(), "Hi "+c.getName()+"\n"+smsContent);				    
-						   } 
-					});	
+					System.out.println("members found :"+cList.size());
+					String body = "Hi "+c.getName()+"\n"+smsContent;
+					   SendSmsUtil.triggerSms(c.getMobile(), body);
+					   SmsLogs smsLogs = new SmsLogs(c.getName(),c.getMobile(),body,String.valueOf(new Date()));
+					   session.save(smsLogs);
+					 
+							   
+							   
+						   
 				}			 
-			}	
+			}//end for
+			session.getTransaction().commit();
+			
+				   } 
+			});	
 		}		
 	}
 	
@@ -1351,8 +1330,6 @@ public class UserDaoImpl implements UserDao {
 			returnvalue= "ON";
 		else if(flag.getFlagValue().equalsIgnoreCase("FALSE"))
 			returnvalue ="OFF";
-		session.getTransaction().commit();
-		session.close();
 		return returnvalue;
 	}
 	
@@ -1361,15 +1338,12 @@ public class UserDaoImpl implements UserDao {
 		session.beginTransaction();
 		String returnvalue ="";
 		BatchLogs batch = (BatchLogs)session.createCriteria(BatchLogs.class).add(Restrictions.eq("batchName",batchName)).add(Restrictions.eq("date", date)).uniqueResult();
-		session.getTransaction().commit();
-		session.close();
 		return batch != null ? true : false;
 	}
 	
 	
 	@Override
 	public void updateSmsFlag(String flag) {
-		List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
 		session = HibernateUtils.getSessionFactory().openSession();
 		session.beginTransaction();
 		FlagData flagObj = (FlagData)session.createCriteria(FlagData.class).add(Restrictions.eq("flagKey","SMS_FLAG")).uniqueResult();
@@ -1377,25 +1351,19 @@ public class UserDaoImpl implements UserDao {
 			flagObj.setFlagValue("TRUE");
 		else if(flag.equalsIgnoreCase("false"))
 			flagObj.setFlagValue("FALSE");
+		session.saveOrUpdate(flagObj);
 		session.getTransaction().commit();
-		session.close();
 	}
-	
-	
-	/*Automatic send reminder : 0-5 days left : 1 time/day
-	days extra (renew package req mail): -1 -> -7 :   everyday
-	days extra (renew package req mail): -7 -> -7 : - 10,20,30 --> specific day email*/
-
-	
-	
+		
 	@Override
 	public void sendReminderToSingleClient(String clientname, String clientid, String daysLeft, String packageName,
 			String packageDuration, String pendingFees, String feesPaid, String packageTotalFees) {
-		session = HibernateUtils.getSessionFactory().openSession();
-		session.beginTransaction();
+		System.out.println("method : sendReminderToSingleClient");
+		String emailFlag = getToggleInvoiceFlag();
+		String smsFlag = getSmsFlag();
 		Client c = (Client)getClientById(Integer.parseInt(clientid));
-		
-		if(getToggleInvoiceFlag().equalsIgnoreCase("ON")){
+		String messageLine = "Kindly pay your pending fees";
+		if(emailFlag.equalsIgnoreCase("ON")){
 			// send email reminder
 			String email = c.getEmail();
 			if(email.contains("@"));{
@@ -1404,73 +1372,119 @@ public class UserDaoImpl implements UserDao {
 				{  
 					   @Override  
 					   public void run() { 
-						   FeesReminderEmail.sendEmail(c.getEmail(), subject, c.getName(), packageName, packageDuration, daysLeft, feesPaid, pendingFees,packageTotalFees);				    
+						   FeesReminderEmail.sendEmail(c.getEmail(), subject, c.getName(), packageName, packageDuration, daysLeft, feesPaid, pendingFees,packageTotalFees,messageLine);				    
 					   } 
 				});				
 			}
 		}
 		
-		String body = "Hi "+c.getName()+"\nYour package <"+packageName+"> will expire in "+daysLeft+" days \nPlease pay your pending fees of Rs."+pendingFees+"\n\nfrom - ProGym Kolhapur.";
-		System.out.println(body);
+		String body = "PRO GYM KOP\n\nHi "+c.getName()+"\nYour package <"+packageName+"> will expire in "+daysLeft+" days \nPlease pay your pending fees of Rs."+pendingFees+" by click on this link mpay.me/8796655176";
 		// send sms reminder
-		if(getSmsFlag().equalsIgnoreCase("ON")){
+		
+		
+		if(smsFlag.equalsIgnoreCase("ON")){
 			String number = c.getMobile();
-			if(number != null && number.length() == 10){
-				taskExecutor.execute(new Runnable() 
-				{  
-					   @Override  
-					   public void run() { 
-						   SendSmsUtil.triggerSms(number, body);
-					   } 
-				});
+			if(number != null && number.length() == 10){				 
+				session = HibernateUtils.getSessionFactory().openSession();
+				   session.beginTransaction();  
+				   SendSmsUtil.triggerSms(number, body);
+				   SmsLogs smsLogs = new SmsLogs(c.getName(),c.getMobile(),body,String.valueOf(new Date()));						   
+				   session.save(smsLogs);
+				   session.getTransaction().commit();
+				
 			}	
-		}
+		}		
 	}
 	
 	@Override
 	public void triggerFeesPaymentReminderBatch(){
+		
 		System.out.println("Batch Started : triggerFeesPaymentReminderBatch");
+		List<EmailPVO> emailPVOList = new ArrayList<>();
 		String todaysDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 		String batchName ="FEES_REMINDER_BATCH"; 
+		List<SmsLogs> smsLogsList = new ArrayList<>();
 		if(!checkIsBatchCompleted(batchName, todaysDate)){
 			List<MemberStatPVO> memberStatPVOs = getMembersBy("all", "none", "enable");
-			
-			
 			for(MemberStatPVO m : memberStatPVOs){
+				String packagePaymentStatus = m.getPackagePaymentStatus();
 				if(getToggleInvoiceFlag().equalsIgnoreCase("ON")){
 					String email = m.getEmail();
 					if(email.contains("@"));{
 						String subject = "ProGym Fee's reminder";
-						System.out.println("email sent :"+email);
-						/*taskExecutor.execute(new Runnable() 
-						{  
-							   @Override  
-							   public void run() { 
-								   FeesReminderEmail.sendEmail(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees());				    
-							   } 
-						});*/
+								   if(Integer.parseInt(m.getDaysRemaining()) > 0 && Integer.parseInt(m.getDaysRemaining()) <= 5){
+									   	   String messageLine ="";
+											   if(!packagePaymentStatus.equalsIgnoreCase("fully-paid"))
+												   messageLine = "Kindly pay your pending fees";
+											   else
+												   messageLine = "PRO GYM KOP \n\nYour package will expire in "+m.getDaysRemaining();
+										emailPVOList.add(new EmailPVO(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),messageLine));
+										   
+									}
+								   else if(Integer.parseInt(m.getDaysRemaining()) < 0 && Integer.parseInt(m.getDaysRemaining()) > -8)
+									{ 
+										final String messageLine  = "PRO GYM KOP \n\nYour gym package is expired , Please renew your packages & pay if you have any pending fees by click on this link mpay.me/8796655176";
+										emailPVOList.add(new EmailPVO(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),messageLine));										
+									}
+							
+					
 					}	
-				}
+				}// end toggle check	
+			}// end for				
+			
+	taskExecutor.execute(new Runnable() 
+	{
+				
+		@Override  
+		public void run() {
+			for(MemberStatPVO m : memberStatPVOs){				
 				if(getSmsFlag().equalsIgnoreCase("ON")){
 					String body = "Hi "+m.getName()+"\nYour package <"+m.getPackageName()+"> will expire in "+m.getDaysRemaining()+" days \nPlease pay your pending fees of Rs."+m.getPendingFees()+"\n\nfrom - ProGym Kolhapur.";
 					String number = m.getMobile();
 					if(number != null && number.length() == 10){
 						System.out.println("sms sent :"+number);
-						/*taskExecutor.execute(new Runnable() 
-						{  
-							   @Override  
-							   public void run() { 
+						
 								   SendSmsUtil.triggerSms(number, body);
-							   } 
-						});*/
+								   smsLogsList.add(new SmsLogs(m.getName(),m.getMobile(),body,String.valueOf(new Date())));
 					}
 				}			
 						
 		}// end method
+			session = HibernateUtils.getSessionFactory().openSession();
+			session.beginTransaction();
+			for(SmsLogs s : smsLogsList){
+				session.save(s);
+			}
+			session.getTransaction().commit();
 			updateBatchCompletedStatus(batchName,todaysDate);
+			
+			} 
+				});// end taskexecuter 2
 		}// end if	
+		
+		// send emails
+		System.out.println("email pvo size"+emailPVOList.size());
+		sendEmails(emailPVOList);
 		System.out.println("Batch finished : triggerFeesPaymentReminderBatch");
+			   
+			   
 	}
+	
+	public void sendEmails(List<EmailPVO> emailPVOList){		
+		for(EmailPVO m : emailPVOList){
+			System.out.println("sending email to :"+m.getEmail());
+			taskExecutor.execute(new Runnable() 
+			{  
+				   @Override  
+				   public void run() {
+					   System.out.println("sending payment reminder email :"+m.getEmail());
+					   FeesReminderEmail.sendEmail(m.getEmail(), m.getSubject(), m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),m.getMessageLine());
+				   }
+			});	
+		}		
+	}
+	
+	
 
 	private void updateBatchCompletedStatus(String batchName, String todaysDate) {
 		session = HibernateUtils.getSessionFactory().openSession();
@@ -1478,8 +1492,109 @@ public class UserDaoImpl implements UserDao {
 		BatchLogs batchObject = new BatchLogs(batchName,todaysDate,"completed");
 		session.save(batchObject);	
 		session.getTransaction().commit();
-		session.close();
 	}
+	
+	@Override
+	public List<SmsLogs> getSmsLogs() {
+		List<SmsLogs> smsList = new ArrayList<SmsLogs>();
+		session = HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Criteria crit = session.createCriteria(SmsLogs.class);
+		crit.setMaxResults(50);
+		crit.addOrder(Order.desc("id"));
+		smsList = crit.list();
+		session.getTransaction().commit();
+		return smsList;
+	}
+	
+	@Override
+	public void renewPackage(String clientid , User user) {
+		// get current list & add to existing list - pkgdetails
+				// 
+				session = HibernateUtils.getSessionFactory().openSession();
+				session.beginTransaction();
+				
+				Criteria c1 = session.createCriteria(PackageDetails.class);
+				c1.add(Restrictions.eq("client.id", Integer.parseInt(clientid)));
+				c1.add(Restrictions.eq("discontinue", "false"));
+				c1.addOrder(Order.desc("id"));
+				c1.setMaxResults(1);
+				PackageDetails pd = ((PackageDetails)c1.uniqueResult());
+				System.out.println("pkg found :"+pd.getPackageStartDate());
+				System.out.println("pkg found :"+pd.getPackageEndDate());
+				
+				
+				PackageDetails pd1 = new PackageDetails();
+				pd1.setClientPackageStatus("not paid");
+				CPackage c = (CPackage) session.load(CPackage.class, pd.getcPackageId());
+				System.out.println("new start date"+addDaysToDateToddmmyyyy(pd.getPackageEndDate(), 1));
+				pd1.setPackageStartDate(addDaysToDateToddmmyyyy(pd.getPackageEndDate(), 1));
+				pd1.setPackageEndDate(addDaysToDateToddmmyyyy(pd1.getPackageStartDate() ,  c.getDays()));
+				pd1.setcPackageId(pd.getcPackageId());
+				pd1.setDiscontinue("false");
+				pd1.setAmountPaid(0.0);	
+				pd1.setPackageName(c.getPackageName());
+				pd1.setPackageFees(c.getFees());
+				
+				Client client = getClientById(Integer.parseInt(clientid));
+				pd1.setClient(client);
+				session.save(pd1);
+				logActivity(session , client , user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT , String.valueOf(pd1.getPackageFees()));
+				session.getTransaction().commit();
+				//session.close();
+	}
+	
+	public String addDaysToDate(String oldDate , int daysToAdd) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c = Calendar.getInstance();
+		try{
+		   //Setting the date to the given date
+		   c.setTime(sdf.parse(oldDate));
+		}catch(ParseException e){
+			e.printStackTrace();
+		 }
+		   
+		//Number of Days to add
+		c.add(Calendar.DAY_OF_MONTH, daysToAdd);  
+		//Date after adding the days to the given date
+		String newDate = sdf.format(c.getTime());
+		
+		return newDate;
+	}
+	
+	public String addDaysToDateToddmmyyyy(String oldDate , int daysToAdd) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Calendar c = Calendar.getInstance();
+		try{
+		   //Setting the date to the given date
+		   c.setTime(sdf.parse(oldDate));
+		}catch(ParseException e){
+			e.printStackTrace();
+		 }
+		   
+		//Number of Days to add
+		c.add(Calendar.DAY_OF_MONTH, daysToAdd);  
+		//Date after adding the days to the given date
+		String newDate = sdf.format(c.getTime());
+		
+		return newDate;
+	}
+	
+	public String getDdMmYyyyDate(String oldDate){
+		if(oldDate.equals(""))
+			return new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c = Calendar.getInstance();
+		try{
+		   //Setting the date to the given date
+		   c.setTime(sdf.parse(oldDate));
+		}catch(ParseException e){
+			e.printStackTrace();
+		 }
+		
+		return new SimpleDateFormat("dd/MM/yyyy").format(c.getTime());
+	}
+	
 }
  
 

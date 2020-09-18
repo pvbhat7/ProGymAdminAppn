@@ -18,6 +18,7 @@ public class MemberStatPVO implements Comparable<MemberStatPVO>{
 	private String packageTotalFees;
 	private String email;
 	private String mobile;
+	private String packagePaymentStatus;
 	
 	public String getMobile() {
 		return mobile;
@@ -118,6 +119,12 @@ public class MemberStatPVO implements Comparable<MemberStatPVO>{
 	}
 	public void setPackageTotalFees(String packageTotalFees) {
 		this.packageTotalFees = packageTotalFees;
+	}
+	public String getPackagePaymentStatus() {
+		return packagePaymentStatus;
+	}
+	public void setPackagePaymentStatus(String packagePaymentStatus) {
+		this.packagePaymentStatus = packagePaymentStatus;
 	}
 	
 	

@@ -461,6 +461,14 @@ public class MainController {
 	    return mav;
 	  }
 	  
+	  @RequestMapping(value = "/getSmsLogs", method = RequestMethod.GET)
+	  public ModelAndView getSmsLogs(HttpSession session, HttpServletRequest request, HttpServletResponse response){
+		  User user = (User)session.getAttribute("loggedInUser");
+	    ModelAndView mav = new ModelAndView("smsLogs");
+		  mav.addObject("smsLogsList", userService.getSmsLogs() );		  
+	    return mav;
+	  }
+	  
 	  @RequestMapping(value = "/discardNotification", method = RequestMethod.GET)
 	  @ResponseBody
 	  public void discardNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response,
@@ -672,8 +680,8 @@ public class MainController {
 		}
 	   
 	   @RequestMapping(value = "/createNewEmail", method = RequestMethod.GET)
-		  public void createNewEmail(HttpServletRequest request, HttpServletResponse response,@RequestParam String emailSubject,String receiver) throws IOException {
-		   userService.createNewEmail(emailSubject,receiver);
+		  public void createNewEmail(HttpServletRequest request, HttpServletResponse response,@RequestParam String emailSubject,String receiver , String image) throws IOException {
+		   userService.createNewEmail(emailSubject,receiver,image);
 		   response.sendRedirect("index");
 		}
 	   
@@ -691,6 +699,15 @@ public class MainController {
 				  @RequestParam String feesPaid,@RequestParam String packageTotalFees) throws IOException {
 		   userService.sendReminderToSingleClient(clientname,clientid,daysLeft,packageName,packageDuration,pendingFees,feesPaid,packageTotalFees);
 		   response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
+		}
+	   
+	   
+	   @RequestMapping(value = "/renewPackage", method = RequestMethod.GET)
+		  public void renewPackage(HttpSession session,HttpServletRequest request, HttpServletResponse response,@RequestParam String clientid,@RequestParam String gender) throws IOException {
+		   User user = (User)session.getAttribute("loggedInUser");
+		   userService.renewPackage(clientid,user);
+		   String uri = "clientProfile?cliendId="+clientid+"&gender="+gender+"";
+		   response.sendRedirect(uri);
 		}
 	   
 	   

@@ -22,6 +22,7 @@ import com.progym.model.PackageDetails;
 import com.progym.model.PaymentDataPVO;
 import com.progym.model.PaymentTransaction;
 import com.progym.model.ReferenceVO;
+import com.progym.model.SmsLogs;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -232,8 +233,8 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public void createNewEmail(String emailSubject, String receiver) {
-		userDao.createNewEmail(emailSubject , receiver);		
+	public void createNewEmail(String emailSubject, String receiver,String image) {
+		userDao.createNewEmail(emailSubject , receiver,image);		
 	}
 	
 	@Override
@@ -260,5 +261,15 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void triggerFeesPaymentReminderBatch() {
 		userDao.triggerFeesPaymentReminderBatch();	
+	}
+	
+	@Override
+	public List<SmsLogs> getSmsLogs() {
+		return userDao.getSmsLogs();
+	}
+	
+	@Override
+	public void renewPackage(String clientid , User user) {
+		userDao.renewPackage(clientid , user);
 	}
 }

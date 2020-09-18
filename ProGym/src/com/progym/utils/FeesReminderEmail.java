@@ -66,7 +66,7 @@ public class FeesReminderEmail {
         }
     }
    
-   public static void sendEmail(String email , String subject , String clientName , String packageName , String packageDuration , String daysLeft , String paidFees , String pendingFees , String totalPackageFees){
+   public static void sendEmail(String email , String subject , String clientName , String packageName , String packageDuration , String daysLeft , String paidFees , String pendingFees , String totalPackageFees , String messageLine){
 	   Properties prop = System.getProperties();
         prop.put("mail.smtp.host", SMTP_SERVER); //optional, defined in SMTPTransport
         prop.put("mail.smtp.port", "587"); // default port 25
@@ -105,7 +105,7 @@ public class FeesReminderEmail {
             	"        <td style=\"height:15px;font-size:12px;font-weight:400;padding:0px 0px 0px 0px;\"></br>Hi "+clientName+"</td>		"+
             	"      </tr>"+
             	"	  <tr>"+
-            	"        <td style=\"height:15px;font-weight:400;font-size:12px;padding:0px 0px 5px;\"></br>Kindly pay your pending fees.</td>		"+
+            	"        <td style=\"height:15px;font-weight:400;font-size:12px;padding:0px 0px 5px;\"></br>"+messageLine+"</td>		"+
             	"      </tr>"+
             	"	  "+
             	"      <tr>"+

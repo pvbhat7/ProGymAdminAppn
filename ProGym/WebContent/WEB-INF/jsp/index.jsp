@@ -267,8 +267,7 @@ response.sendRedirect("login");
   </div>
   
   <div class="form-group">
-    <label for="exampleFormControlFile1">Select Attachment</label>
-    <input type="file" class="form-control-file" id="exampleFormControlFile1">
+    <input name="image" type="text" class="form-control" id="image" placeholder="Enter Image Url" required="required">
   </div>
   <div class="modal-body" align="center">
   <button type="submit" class="btn btn-success btn-lg">Send Email</button>
