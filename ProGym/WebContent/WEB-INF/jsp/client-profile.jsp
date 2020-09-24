@@ -33,14 +33,23 @@
          window.onload = function() {
          	weight.value = "";
          	height.value = "";
+         	if(document.getElementById('neck') != null)
          	neck.value = "";
+         	if(document.getElementById('chest') != null)
          	chest.value = "";
+         	if(document.getElementById('weist') != null)
          	weist.value = "";
+         	if(document.getElementById('arm') != null)
          	arm.value = "";
+         	if(document.getElementById('thigh') != null)
          	thigh.value = "";
+         	if(document.getElementById('upperHips') != null)
          	upperHips.value = "";
+         	if(document.getElementById('hips') != null)
          	hips.value = "";
+         	if(document.getElementById('Calf') != null)
          	Calf.value = "";
+         	if(document.getElementById('ankle') != null)
          	ankle.value = "";
          	};
       </script>
@@ -55,7 +64,7 @@
                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                   <div class="profile-info-inner">
                      <div class="profile-img" >
-                        <img src="img/${clientObject.id}.jpg" alt="" />
+                        <%-- <img src="img/${clientObject.id}.jpg" alt="" /> --%>
                      </div>
                      <div class="profile-details-hr">
                         <div class="row">
@@ -439,16 +448,13 @@
                                                                            <div class="modal-body">
                                                                               <label for="psw"><span class="glyphicon"></span> Package Name</label>
                                                                               <input id="u_package" name="u_package" class="form-control" type="text" readonly/>
-                                                                              </br>
+                                                                              
                                                                               <label for="psw"><span class="glyphicon"></span> Package StartDate</label>
                                                                               <input id="u_startdate" name="u_startdate" class="form-control" type="date" readonly/>
-                                                                              </br>
                                                                               <label for="psw"><span class="glyphicon"></span> Package EndDate</label>
                                                                               <input id="u_enddate" name="u_enddate" class="form-control" type="date"/>
-                                                                              </br>
                                                                               <label for="psw"><span class="glyphicon"></span> Fees </label>
                                                                               <input id="u_fees" name="u_fees" class="form-control" type="number" />
-                                                                              </br>
                                                                               <input id="u_pkgId" class="form-control" type="hidden" name="u_pkgId" />
                                                                               <input id="u_clientid" class="form-control" type="hidden" value="<%out.print(((Client)request.getAttribute("clientObject")).getId());%>" name="u_clientid" />
                                                                               <input id="u_gender" class="form-control" type="hidden" name="u_gender" value="<%out.print(((Client)request.getAttribute("clientObject")).getGender());%>"/>
@@ -494,12 +500,12 @@
                                                                           var packageName = $(this).parent().prev().prev().prev().prev().prev().prev().text();
                                                                           var startdate = $(this).parent().prev().prev().prev().prev().prev().text();
                                                                           var enddate = $(this).parent().prev().prev().prev().prev().text();
-                                                                          var fees = $(this).parent().prev().prev().text();
+                                                                          var fees = $(this).parent().prev().prev().text().replace(/\s+/g, '');
                                                                           var initial = startdate.split(/\//);
-                                                                          var formattedDate = [ initial[2], initial[1], initial[0] ].join('-');
+                                                                          var formattedDate = [initial[2],initial[1],initial[0]].join('-').replace(/\s+/g, '');
+                                                                          
                                                                           var initialEndDate = enddate.split(/\//);
-                                                                          var initial = startdate.split(/\//);
-                                                                          var formattedEndDate = [ initialEndDate[2], initialEndDate[1], initialEndDate[0] ].join('-');
+                                                                          var formattedEndDate = [ initialEndDate[2], initialEndDate[1], initialEndDate[0] ].join('-').replace(/\s+/g, '');
                                                                           
                                                                           //assign to value for input box inside modal
                                                                           $("#u_pkgId").val(packageId);
@@ -724,7 +730,7 @@
                         <div class="product-tab-list tab-pane fade" id="edit_profile">
                            <div class="row">
                               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                 <form:form action="editClientProfile" class="dropzone dropzone-custom needsclick add-professors" id="addTransaction" modelAttribute="editClientProfileFormObject" method="post">
+                                 <form:form action="editClientProfile" class="dropzone dropzone-custom needsclick add-professors" id="editClientProfileFormObjectid" modelAttribute="editClientProfileFormObject" method="post">
                                     <div class="review-content-section">
                                        <div class="row">
                                           <div class="col-lg-6">

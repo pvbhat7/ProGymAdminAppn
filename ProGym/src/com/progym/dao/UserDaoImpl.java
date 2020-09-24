@@ -1412,22 +1412,22 @@ public class UserDaoImpl implements UserDao {
 					String email = m.getEmail();
 					if(email.contains("@"));{
 						String subject = "ProGym Fee's reminder";
-								   if(Integer.parseInt(m.getDaysRemaining()) > 0 && Integer.parseInt(m.getDaysRemaining()) <= 5){
-									   	   String messageLine ="";
-											   if(!packagePaymentStatus.equalsIgnoreCase("fully-paid"))
-												   messageLine = "Kindly pay your pending fees";
-											   else
-												   messageLine = "PRO GYM KOP \n\nYour package will expire in "+m.getDaysRemaining();
-										emailPVOList.add(new EmailPVO(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),messageLine));
-										   
-									}
-								   else if(Integer.parseInt(m.getDaysRemaining()) < 0 && Integer.parseInt(m.getDaysRemaining()) > -8)
-									{ 
-										final String messageLine  = "PRO GYM KOP \n\nYour gym package is expired , Please renew your packages & pay if you have any pending fees by click on this link mpay.me/8796655176";
-										emailPVOList.add(new EmailPVO(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),messageLine));										
-									}
-							
-					
+						if(!m.getDaysRemaining().equalsIgnoreCase("-")){
+							if(Integer.parseInt(m.getDaysRemaining()) > 0 && Integer.parseInt(m.getDaysRemaining()) <= 5){
+							   	   String messageLine ="";
+									   if(!packagePaymentStatus.equalsIgnoreCase("fully-paid"))
+										   messageLine = "Kindly pay your pending fees";
+									   else
+										   messageLine = "PRO GYM KOP \n\nYour package will expire in "+m.getDaysRemaining();
+								emailPVOList.add(new EmailPVO(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),messageLine));
+								   
+							}
+						   else if(Integer.parseInt(m.getDaysRemaining()) < 0 && Integer.parseInt(m.getDaysRemaining()) > -8)
+							{ 
+								final String messageLine  = "PRO GYM KOP \n\nYour gym package is expired , Please renew your packages & pay if you have any pending fees by click on this link mpay.me/8796655176";
+								emailPVOList.add(new EmailPVO(m.getEmail(), subject, m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(),m.getPackageTotalFees(),messageLine));										
+							}
+						}
 					}	
 				}// end toggle check	
 			}// end for				

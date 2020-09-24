@@ -520,7 +520,7 @@ public class MainController {
 	   
 	   
 	   @RequestMapping(value = "/editClientProfile", method = RequestMethod.POST)
-		  public void editClientProfile(HttpSession session,HttpServletRequest request, HttpServletResponse response,@ModelAttribute("editClientProfileFormObject") Client client) throws IOException {
+		  public void editClientProfile(HttpSession session,HttpServletRequest request, HttpServletResponse response,@ModelAttribute("editClientProfileFormObject") Client client,BindingResult result) throws IOException {
 		   User u = (User)session.getAttribute("loggedInUser");  
 		   userService.updateMemberToDatabase(client , u);
 			  String uri = "clientProfile?cliendId="+client.getId()+"&gender="+client.getGender()+"";
