@@ -141,7 +141,7 @@ public class UserDaoImpl implements UserDao {
 		session.beginTransaction();
 		Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), getDdMmYyyyDate(addMemberObject.getBirthDate()), addMemberObject.getRemarks(),"false",null,"0"
 				,addMemberObject.getEmail() , addMemberObject.getAddress() , addMemberObject.getBloodGroup() ,addMemberObject.getReference(), addMemberObject.getPreviousGym(),
-				addMemberObject.getHeight(),addMemberObject.getWeight(),addMemberObject.getOccupation(),"enable");
+				addMemberObject.getHeight(),addMemberObject.getWeight(),addMemberObject.getOccupation(),"enable","NA");
 		session.save(c);
 		if(!refererId.equalsIgnoreCase("none")){
 			Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));
@@ -748,11 +748,11 @@ public class UserDaoImpl implements UserDao {
     	List<Client> list = new ArrayList<Client>();
     	List<ReferenceVO> refList = new ArrayList<ReferenceVO>();
 		session = HibernateUtils.getSessionFactory().openSession();
-		session.beginTransaction();
+		//session.beginTransaction();
 		Criteria crit = session.createCriteria(Client.class);
 		crit.add(Restrictions.eq("discontinue","false"));
 		list = crit.list();
-		session.close();
+		//session.close();
 		for(Client c : list){
 			refList.add(new ReferenceVO(c.getId() , c.getName()));
 		}
@@ -1594,7 +1594,17 @@ public class UserDaoImpl implements UserDao {
 		
 		return new SimpleDateFormat("dd/MM/yyyy").format(c.getTime());
 	}
-	
+
+	@Override
+	public void updatePhotoInfo(Integer cid, String uploadedImagePath) {
+		session =  HibernateUtils.getSessionFactory().openSession();
+		session.beginTransaction();
+		Client client = (Client) session.get(Client.class, cid);
+		client.setPhoto(uploadedImagePath);
+		session.save(client);
+		session.getTransaction().commit();
+		session.close();
+	}
 }
  
 

@@ -64,7 +64,14 @@
                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                   <div class="profile-info-inner">
                      <div class="profile-img" >
-                        <%-- <img src="img/${clientObject.id}.jpg" alt="" /> --%>
+                        <a id="uploadPhotoLink" href="#">
+                           <c:if test="${clientObject.photo == 'NA'}">
+                              <img id="displayPhoto" src="img/upload_photo.jpg">
+                           </c:if>
+                           <c:if test="${clientObject.photo != 'NA'}">
+                              <img id="displayPhoto" src="${clientObject.photo}">
+                           </c:if>
+                        </a>
                      </div>
                      <div class="profile-details-hr">
                         <div class="row">
@@ -220,6 +227,110 @@
                                        });
                                     </script>
                                     <!-- end Refer points show modal -->
+
+                                    <!-- upload photo modal -->
+                                    <div class="modal fade bd-example-modal-sm" id="uploadPhotoModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+                                       <div class="modal-dialog modal-lg">
+                                          <div class="modal-content">
+                                             <!-- Modal Header -->
+                                             <div class="modal-header">
+                                                <h4 class="modal-title">Upload Photo</h4>
+                                             </div>
+                                             <!-- Modal body -->
+                                             <div class="modal-body" align="center">
+                                                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                                                <script src="https://canvasjs.com/assets/script/canvasjs.min.js"> </script>
+                                                <table class="table table-striped" align="center">
+                                                   <thead>
+                                                   <tr align="center">
+                                                      <th>Video</th>
+                                                      <th>Captured Photo</th>
+                                                   </tr>
+                                                   </thead>
+                                                   <tbody>
+                                                   <tr>
+                                                      <td><video id="videoID" width="300" height="300" autoplay style="border: 1px solid black;"></video></td>
+                                                      <td><canvas id="canvas" width="300" height="300" style="border: 1px solid black;"></canvas></td>
+                                                   </tr>
+                                                   </tbody>
+                                                </table>
+                                                <script type="text/javascript">
+                                                   const video = document.getElementById('videoID');
+                                                   const canvas = document.getElementById('canvas');
+                                                   const ctx = canvas.getContext('2d');
+                                                   var str = null;
+                                                   function capture() {
+                                                      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                                   };
+
+                                                   function send() {
+                                                      $('#uploadPhotoModal').modal('hide');
+                                                      var imageData = canvas.toDataURL();
+                                                      var xmlhttp = new XMLHttpRequest();
+                                                      xmlhttp.open("POST", "/ProGym_war_exploded/saveCanvasImage", true);
+                                                      //xmlhttp.open("POST", "/ProGymKop/saveCanvasImage", true);
+                                                      xmlhttp.send(imageData);
+                                                       /*$.ajax({
+                                                           url:'/ProGym_war_exploded/saveCanvasImage',
+                                                           data:{imageBase64: imageData},
+                                                           type: 'post',
+                                                           dataType: 'json',
+                                                           timeout: 10000,
+                                                           async: false,
+                                                           error: function(){
+                                                               console.log("WOOPS");
+                                                           },
+                                                           success: function(res){
+                                                               if(res.ret==0){
+                                                                   console.log("SUCCESS");
+                                                               }else{
+                                                                   console.log("FAIL : " + res.msg);
+                                                               }
+                                                           }
+                                                       });*/
+                                                      window.location.reload();
+                                                   };
+                                                </script>
+                                                <script type="text/javascript">
+                                                   function showVideo() {
+                                                      window.URL = window.URL || window.webkitURL;
+                                                      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+                                                      navigator.getUserMedia({video: true}, function (stream) {
+                                                         video.srcObject = stream;
+                                                         str = stream;
+                                                      }, function (e) {
+                                                      });
+                                                   }
+                                                </script>
+                                             </div>
+                                             <!-- Modal footer -->
+                                             <div class="modal-footer">
+                                                <input type="button" class="btn btn-primary" value="Take photo" onclick="capture()" style="width: 200px; height: 30px;"/>
+                                                <input type="button" class="btn btn-primary" value="Send" onclick="send()" style="width: 200px; height: 30px;"/>
+                                                <button id="btnClose" type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <script>
+                                       $(document).ready(function(){
+                                          $("#uploadPhotoLink").click(function(){
+                                             showVideo();
+                                             //open modal
+                                             $("#uploadPhotoModal").modal();
+
+                                             $("#uploadPhotoModal").on("hidden.bs.modal", function () {
+                                                str.getTracks().forEach(function(track) { track.stop(); })
+                                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                             });
+
+                                          });
+                                       });
+
+
+                                    </script>
+                                    <!-- end upload photo modal -->
+
                                     <!-- Add package modal -->
                                     <div class="modal fade" id="myModal" role="dialog">
                                        <div class="modal-dialog">

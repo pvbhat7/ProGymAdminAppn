@@ -272,4 +272,9 @@ public class UserServiceImpl implements UserService{
 	public void renewPackage(String clientid , User user) {
 		userDao.renewPackage(clientid , user);
 	}
+
+	@Override
+	public void updatePhotoInfo(Integer cid, String uploadedImagePath) {
+		userDao.updatePhotoInfo(cid,uploadedImagePath);
+	}
 }

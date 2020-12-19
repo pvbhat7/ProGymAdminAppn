@@ -29,7 +29,7 @@ public class Client {
 	public Client(String name, String mobile, String gender, String birthDate, String remarks, String discontinue,
 			List<PackageDetails> packageDetails,String referPoints,
 			String email , String address , String bloodGroup , String reference , String previousGym,
-			double height,double weight,String occupation,String profileActiveFlag) {
+			double height,double weight,String occupation,String profileActiveFlag,String photo) {
 		super();
 		this.name = name;
 		this.mobile = mobile;
@@ -48,6 +48,7 @@ public class Client {
 		this.weight = weight;
 		this.occupation = occupation;
 		this.profileActiveFlag = profileActiveFlag;
+		this.photo = photo;
 	}
 
 
@@ -92,6 +93,9 @@ public class Client {
 	
 	@Column
 	private String profileActiveFlag;
+
+	@Column
+	private String photo;
 	
 	public double getHeight() {
 		return height;
@@ -160,6 +164,13 @@ public class Client {
 		this.name = name;
 	}
 
+	public String getPhoto() {
+		return photo+"?"+new Date();
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
 
 	public String getMobile() {
 		return mobile;

@@ -1,29 +1,9 @@
 package com.progym.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import com.progym.model.*;
+import com.progym.service.UserService;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.TaskExecutor;
@@ -33,50 +13,32 @@ import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.progym.model.AddClientPackageForm;
-import com.progym.model.AddMemberObject;
-import com.progym.model.AddPackageObject;
-import com.progym.model.CPackage;
-import com.progym.model.Client;
-import com.progym.model.CollectionDashboardPVO;
-import com.progym.model.CollectionPVO;
-import com.progym.model.FemaleMemberAdditionalDataVO;
-import com.progym.model.FileModel;
-import com.progym.model.FilterCollectionObject;
-import com.progym.model.User;
-import com.progym.model.PackageDetails;
-import com.progym.model.PaymentTransaction;
-import com.progym.model.ReferenceVO;
-import com.progym.service.UserService;
-import com.progym.utils.EmailUtil;
-import com.smattme.MysqlExportService;
-import com.sun.mail.smtp.SMTPTransport;
-
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import sun.misc.BASE64Decoder;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.bind.DatatypeConverter;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class MainController {
 
+	private static final String IMAGE_DIRECTORY = "/D:/imgdata/";
 	@Autowired
 	  UserService userService;
 	
@@ -316,6 +278,8 @@ public class MainController {
 		  mav.addObject("femaleAditionalDataFormObject", fm);
 		  session.setAttribute("selectedClient", client);
 		  getPackagesList(gender);
+		  session.setAttribute("currentSelectedClient",client.getId());
+		  session.setAttribute("currentSelectedClientName",client.getName());
 		  mav.addObject("editClientProfileFormObject", client);
 		  
 	    return mav;
@@ -709,16 +673,102 @@ public class MainController {
 		   String uri = "clientProfile?cliendId="+clientid+"&gender="+gender+"";
 		   response.sendRedirect(uri);
 		}
-	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   
-	   	   
+	@RequestMapping(value = "/saveCanvasImage", method = RequestMethod.POST)
+	public void saveCanvasImage(HttpSession session,HttpServletRequest request, HttpServletResponse response) {
+		try {
+			Integer cid = (Integer)session.getAttribute("currentSelectedClient");
+			String cname = (String)session.getAttribute("currentSelectedClientName");
+
+			StringBuffer buffer = new StringBuffer();
+			Reader reader = request.getReader();
+			int current;
+			while ((current = reader.read()) >= 0) buffer.append((char) current);
+			String data = new String(buffer);
+			data = data.substring(data.indexOf(",") + 1);
+			File oldFile = new File("/D:/imgdata/" + cid+cname + ".jpg");
+			oldFile.delete();
+			String imagePath = IMAGE_DIRECTORY + cid+cname + ".jpg";
+			FileOutputStream output = new FileOutputStream(new File(imagePath));
+			output.write(new BASE64Decoder().decodeBuffer(data));
+			output.flush();
+			output.close();
+
+			// send image to ftp
+			transferImageToFtp(imagePath,cid+cname);
+
+			// update to db
+			String uploadedImagePath = "http://tavrostechinfo.com/"+cid+cname+".jpg";
+			userService.updatePhotoInfo(cid,uploadedImagePath) ;
+			new File(imagePath).delete();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// java(controller)
+	@RequestMapping(value = "/saveCanvasImage1", method = RequestMethod.POST)
+	@ResponseBody public Map<String,Object> saveCanvasImage(
+			@RequestParam(value="imageBase64", defaultValue="")String imageBase64) {
+		Map<String,Object> res = new HashMap<String, Object>();
+
+		File imageFile = new File("/home/data/canvasImage.png");
+		try{
+			byte[] decodedBytes = DatatypeConverter.parseBase64Binary(imageBase64.replaceAll("data:image/.+;base64,", ""));
+			BufferedImage bfi = ImageIO.read(new ByteArrayInputStream(decodedBytes));
+			ImageIO.write(bfi , "png", imageFile);
+			bfi.flush();
+			res.put("ret", 0);
+		}catch(Exception e){
+			res.put("ret", -1);
+			res.put("msg", "Cannot process due to the image processing error.");
+			return res;
+		}
+
+		return res;
+	}
+
+	public void transferImageToFtp(String filePath, String clientId){
+		String server = "151.106.116.44";
+		int port = 21;
+		String user = "u636480992";
+		String pass = "##Ppp7771";
+
+		FTPClient ftpClient = new FTPClient();
+		try {
+
+			ftpClient.connect(server, port);
+			ftpClient.login(user, pass);
+			ftpClient.enterLocalPassiveMode();
+
+			ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+
+			// APPROACH #1: uploads first file using an InputStream
+			File firstLocalFile = new File(filePath);
+
+			String firstRemoteFile = clientId+".jpg";
+			InputStream inputStream = new FileInputStream(firstLocalFile);
+
+			System.out.println("Started uploading file");
+
+			boolean done = ftpClient.storeFile(firstRemoteFile, inputStream);
+			inputStream.close();
+			if (done) {
+				System.out.println("The first file is uploaded successfully.");
+			}
+
+		} catch (IOException ex) {
+			System.out.println("Error: " + ex.getMessage());
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (ftpClient.isConnected()) {
+					ftpClient.logout();
+					ftpClient.disconnect();
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
 	   
 }

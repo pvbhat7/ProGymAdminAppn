@@ -114,6 +114,6 @@ public interface UserService {
 	List<SmsLogs> getSmsLogs();
 
 	void renewPackage(String clientid, User user);
-	
 
+    void updatePhotoInfo(Integer cid, String uploadedImagePath);
 }

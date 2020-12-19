@@ -117,4 +117,5 @@ public interface UserDao {
 
 	void renewPackage(String clientid, User user);
 
+    void updatePhotoInfo(Integer cid, String uploadedImagePath);
 }
