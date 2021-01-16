@@ -102,7 +102,7 @@ public class EmailUtil {
             	"  <table style=\"max-width:450px;margin:30px auto 10px;background-color:#fff;padding:20px;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:20px;-webkit-box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);-moz-box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24); border-top: solid 3px blue;border-bottom: solid 3px blue;border-left: solid 3px blue;border-right: solid 3px blue;\">"+
             	"    <thead>"+
             	"      <tr>"+
-            	"        <th style=\"text-align:left;\"><img style=\"max-width: 100px;\" src=\"https://i.ibb.co/RzLBKYq/pro-gym.jpg\" alt=\"Pro Gym Kolhapur\"></th>"+
+            	"        <th style=\"text-align:left;\"><img style=\"max-width: 100px;\" src=\"https://tavrostechinfo.com/PROGYM/img/pro-gym_email_logo.jpg\" alt=\"Pro Gym Kolhapur\"></th>"+
             	"        <th style=\"text-align:center;font-weight:400;font-size:12px;\">"+new SimpleDateFormat("E, dd MMM yyyy").format(new Date())+"</th>"+
             	"      </tr>"+
             	"    </thead>"+
@@ -136,17 +136,17 @@ public class EmailUtil {
             	"      </tr>"+
             	"      <tr>"+
             	"        <td>"+
-            	"<a href=\"https://www.facebook.com/djpranav77\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/fb_icn.png\" alt=\"fb_icon\"></a>"+
-            	"<a href=\"https://www.instagram.com/progymkop/\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/insta_icn.jpg\" alt=\"insta_icn\"></a>"+
-            	"<a href=\"https://wa.link/1frr6m\"><img style=\"padding:2px 3px 0px 5px; max-width: 30px;\" src=\"https://www.linkpicture.com/q/waff.png\" alt=\"whatsapp_icn\"></a></br>"+
+            	"<a href=\"https://www.facebook.com/djpranav77\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://tavrostechinfo.com/PROGYM/img/fb_icon.png\" alt=\"fb_icon\"></a>"+
+            	"<a href=\"https://www.instagram.com/progymkop/\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://tavrostechinfo.com/PROGYM/img/insta_icon.jpg\" alt=\"insta_icn\"></a>"+
+            	"<a href=\"https://wa.link/1frr6m\"><img style=\"padding:2px 3px 0px 5px; max-width: 30px;\" src=\"https://tavrostechinfo.com/PROGYM/img/whatsapp_icon.png\" alt=\"whatsapp_icn\"></a></br>"+
             	"        </td>"+
             	"      </tr>"+
             	"      <tr>"+
             	"        <td align=\"center\" colspan=\"2\" style=\"border: solid 1px #28FF00; font-size:9px;padding:1px 8px 8px 8px;\">"+
             	"          <b>Software Developed By :<a href=\"https://www.facebook.com/pvbhat7\">Prashant Bhat</a></b>"+
-            	"<a href=\"tel:8796238220\"><img style=\"padding:2px 3px 0px 7px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/call_icn.png\" alt=\"call_icon\"></a>"+
-            	"<a href=\"https://wa.link/socany\"><img style=\"padding:2px 3px 0px 5px; max-width: 30px;\" src=\"https://www.linkpicture.com/q/waff.png\" alt=\"whatsapp_icon\"></a>"+
-            	"<a href=\"mailto:bhatprashant1994@gmail.com?subject=Software Development Enquiry&body=Hi , I need more infor about software development , referred by ProGym\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://www.linkpicture.com/q/eml.png\" alt=\"email_icon\">"+
+            	"<a href=\"tel:8796238220\"><img style=\"padding:2px 3px 0px 7px; max-width: 25px;\" src=\"https://tavrostechinfo.com/PROGYM/img/call_icon.png\" alt=\"call_icon\"></a>"+
+            	"<a href=\"https://wa.link/socany\"><img style=\"padding:2px 3px 0px 5px; max-width: 30px;\" src=\"https://tavrostechinfo.com/PROGYM/img/whatsapp_icon.png\" alt=\"whatsapp_icon\"></a>"+
+            	"<a href=\"mailto:bhatprashant1994@gmail.com?subject=Software Development Enquiry&body=Hi , I need more infor about software development , referred by ProGym\"><img style=\"padding:2px 3px 0px 5px; max-width: 25px;\" src=\"https://tavrostechinfo.com/PROGYM/img/email_icon.png\" alt=\"email_icon\">"+
             	"        </td>"+
             	"      </tr>"+
             	"    </tfooter>"+

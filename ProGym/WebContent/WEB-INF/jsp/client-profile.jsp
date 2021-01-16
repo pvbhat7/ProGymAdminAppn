@@ -31,8 +31,6 @@
       <jsp:include page="header.jsp" />
       <script>
          window.onload = function() {
-         	weight.value = "";
-         	height.value = "";
          	if(document.getElementById('neck') != null)
          	neck.value = "";
          	if(document.getElementById('chest') != null)
@@ -90,7 +88,20 @@
                            </div>
                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
                               <div class="address-hr tb-sm-res-d-n dps-tb-ntn">
-                                 <p><b>Mobile</b><br /> ${clientObject.mobile}</p>
+                                 <c:if test="${clientObject.gender == 'male'}">
+                                    <p><b>Mobile</b><br /> ${clientObject.mobile}</p>
+                                 </c:if>
+                                 <c:if test="${clientObject.gender == 'female'}">
+                                    <c:if test="${sessionScope.maskMobile != null}">
+                                       <p><b>Mobile</b><br /> ${clientObject.mobile}</p>
+                                    </c:if>
+                                    <c:if test="${sessionScope.maskMobile == null}">
+                                       <p><b>Mobile</b><br /> ********** </p>
+                                       <button type="button" id="btnViewMobile" class="btn btn-primary btn-block btn-xs">
+                                          view mobile
+                                       </button>
+                                    </c:if>
+                                 </c:if>
                               </div>
                            </div>
                         </div>
@@ -120,8 +131,10 @@
                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
                            </div>
                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-6">
+                              <button type="button" id="btnDeleteClientProfile" class="btn btn-danger btn-block btn-xs">
+                                 Delete profile
+                              </button>
                               <a href="<c:url value='deleteClientProfile?gender=${clientObject.gender}&clientid=${clientObject.id}'/>">
-                              <img src="img/delete.png" alt="" width="50" height="60"/>
                               </a>
                            </div>
                         </div>
@@ -132,10 +145,9 @@
                   <div class="product-payment-inner-st res-mg-t-30 analysis-progrebar-ctn">
                      <ul id="myTabedu1" class="tab-review-design">
                         <li class="active"><a href="#description">Packages</a></li>
-                        <c:if test="${clientObject.gender == 'female'}">
-                           <li><a href="#view_monthly_data">Monthly Data</a></li>
-                           <li><a href="#add_monthly_data">Add Monthly Data</a></li>
-                        </c:if>
+                        <li><a href="#view_monthly_data">Monthly Data</a></li>
+                        <c:if test="${clientObject.gender == 'male'}"><li><a href="#add_monthly_data_male">Add Monthly Data</a></li></c:if>
+                        <c:if test="${clientObject.gender == 'female'}"><li><a href="#add_monthly_data_female">Add Monthly Data</a></li></c:if>
                         <li><a href="#edit_profile">Edit Profile</a></li>
                      </ul>
                      <div id="myTabContent" class="tab-content custom-product-edit st-prf-pro">
@@ -228,6 +240,85 @@
                                     </script>
                                     <!-- end Refer points show modal -->
 
+                                    <!-- show/hide mobile show modal -->
+                                    <div class="modal fade bd-example-modal-sm" id="mobileModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+                                       <div class="modal-dialog modal-sm">
+                                          <div class="modal-content">
+                                             <!-- Modal Header -->
+                                             <div class="modal-header">
+                                                <h4 class="modal-title">Security check</h4>
+                                             </div>
+                                             <form action="validatePassword" method="post">
+                                             <!-- Modal body -->
+                                             <div class="modal-body" align="center">
+                                                <label for="psw"><span class="glyphicon"></span> Enter Password</label>
+                                                <input type="password" name="password" id="password" required>
+                                                <input type="hidden" id="clientId" name="clientId" value="${clientObject.id}"/>
+                                                <input type="hidden" id="gender" name="gender" value="${clientObject.gender}"/>
+                                             </div>
+                                             <!-- Modal footer -->
+                                             <div class="modal-footer">
+                                                <button type="submit" class="btn btn-success" >Verify</button>
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                             </div>
+                                             </form>
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <script>
+                                       $(document).ready(function(){
+                                          $("#btnViewMobile").click(function(){
+
+                                             //open modal
+                                             $("#mobileModal").modal();
+
+                                             $("#btnsave").click(function () {
+                                             })
+
+                                          });
+                                       });
+                                    </script>
+                                    <!-- end show/hide mobile show modal -->
+
+                                    <!-- hide delete client profile modal -->
+                                    <div class="modal fade bd-example-modal-sm" id="deleteClientProfileModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+                                       <div class="modal-dialog modal-sm">
+                                          <div class="modal-content">
+                                             <!-- Modal Header -->
+                                             <div class="modal-header">
+                                                <h4 class="modal-title">Security check</h4>
+                                             </div>
+                                             <form action="deleteClientProfile" method="post">
+                                                <!-- Modal body -->
+                                                <div class="modal-body" align="center">
+                                                   <label for="psw"><span class="glyphicon"></span> Enter Password</label>
+                                                   <input type="password" name="password" id="password" required>
+                                                   <input type="hidden" id="clientId" name="clientId" value="${clientObject.id}"/>
+                                                   <input type="hidden" id="gender" name="gender" value="${clientObject.gender}"/>
+                                                </div>
+                                                <!-- Modal footer -->
+                                                <div class="modal-footer">
+                                                   <button type="submit" class="btn btn-success" >Delete Profile</button>
+                                                   <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                                </div>
+                                             </form>
+                                          </div>
+                                       </div>
+                                    </div>
+                                    <script>
+                                       $(document).ready(function(){
+                                          $("#btnDeleteClientProfile").click(function(){
+
+                                             //open modal
+                                             $("#deleteClientProfileModal").modal();
+
+                                             $("#btnsave").click(function () {
+                                             })
+
+                                          });
+                                       });
+                                    </script>
+                                    <!-- end delete client profile show modal -->
                                     <!-- upload photo modal -->
                                     <div class="modal fade bd-example-modal-sm" id="uploadPhotoModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
                                        <div class="modal-dialog modal-lg">
@@ -288,7 +379,9 @@
                                                                }
                                                            }
                                                        });*/
-                                                      window.location.reload();
+                                                      setTimeout(function(){
+                                                         window.location.reload(1);
+                                                      }, 4000);
                                                    };
                                                 </script>
                                                 <script type="text/javascript">
@@ -427,8 +520,7 @@
                                                                      <input class="btnedit btn btn-success btn-xs" type="button" value="Pay" />
                                                                   </c:if>
                                                                   <input class="btnEditClientPackage btn-primary btn-xs" type="button" value="Edit" />
-                                                                  <a href="<c:url value='deleteClientAssignedPackage?u_pkgId=${clientPackagesList[status.index].id}&u_gender=${clientObject.gender}&u_clientid=${clientObject.id}'/>">
-                                                                  <input class="btn btn-danger btn-xs" type="button" value="Delete" />
+                                                                  <input class="btnDeleteClientAssignedPackage btn btn-danger btn-xs" type="button" value="Delete"/>
                                                                   </a>
                                                                </td>
                                                                <td>
@@ -563,9 +655,9 @@
                                                                               <label for="psw"><span class="glyphicon"></span> Package StartDate</label>
                                                                               <input id="u_startdate" name="u_startdate" class="form-control" type="date" readonly/>
                                                                               <label for="psw"><span class="glyphicon"></span> Package EndDate</label>
-                                                                              <input id="u_enddate" name="u_enddate" class="form-control" type="date"/>
+                                                                              <input id="u_enddate" name="u_enddate" class="form-control" type="date" required="true"/>
                                                                               <label for="psw"><span class="glyphicon"></span> Fees </label>
-                                                                              <input id="u_fees" name="u_fees" class="form-control" type="number" />
+                                                                              <input id="u_fees" name="u_fees" class="form-control" type="number" required="true"/>
                                                                               <input id="u_pkgId" class="form-control" type="hidden" name="u_pkgId" />
                                                                               <input id="u_clientid" class="form-control" type="hidden" value="<%out.print(((Client)request.getAttribute("clientObject")).getId());%>" name="u_clientid" />
                                                                               <input id="u_gender" class="form-control" type="hidden" name="u_gender" value="<%out.print(((Client)request.getAttribute("clientObject")).getGender());%>"/>
@@ -578,6 +670,35 @@
                                                                      </div>
                                                                   </div>
                                                                </div>
+
+                                                               <div class="modal fade" id="deletePackageModal" role="dialog">
+                                                                  <div class="modal-dialog modal-sm">
+                                                                     <!-- Modal content-->
+                                                                     <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                           <h4 class="modal-title">Security check</h4>
+                                                                        </div>
+                                                                        <form action="deleteClientAssignedPackage" method="post">
+                                                                           <!-- Modal body -->
+                                                                           <div class="modal-body" align="center">
+                                                                              <label for="psw"><span class="glyphicon"></span> Enter Password</label>
+                                                                              <input type="password" name="password" id="password" required>
+                                                                              <input type="hidden" id="clientId" name="clientId" value="${clientObject.id}"/>
+                                                                              <input type="hidden" id="gender" name="gender" value="${clientObject.gender}"/>
+                                                                              <input type="hidden" id="pkg_id" name="pkg_id"/>
+                                                                           </div>
+                                                                           <!-- Modal footer -->
+                                                                           <div class="modal-footer">
+                                                                              <button type="submit" class="btn btn-success" >Delete Package</button>
+                                                                              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                                                           </div>
+                                                                        </form>
+
+                                                                     </div>
+                                                                  </div>
+                                                               </div>
+
+
                                                                <script>
                                                                   $(function () {
                                                                   	
@@ -589,14 +710,13 @@
                                                                           var paidPayment = $(this).parent().prev().text();
                                                                           var total = $(this).parent().prev().prev().text();
                                                                           var remaining = total - paidPayment;
-                                                                  
-                                                                  
+
                                                                           //assign to value for input box inside modal
                                                                           $("#txt_item").val(packageName);
                                                                           $("#txt_Price1").val(paidPayment);
                                                                           $("#feesPaid").val(remaining);
                                                                           $("#packageDetailsId").val(packageId);
-                                                                  
+
                                                                           //open modal
                                                                           $("#payModel").modal();
                                                                   
@@ -626,9 +746,6 @@
                                                                           $("#u_enddate").val(formattedEndDate);
                                                                           /* $("#u_clientid").val(cliendId);
                                                                           $("#u_gender").val(gender); */
-                                                                          
-                                                                          
-                                                                          
                                                                   
                                                                           //open modal
                                                                           $("#editPackageModal").modal();
@@ -641,6 +758,22 @@
                                                                               //$("#myModal").modal("hide")              
                                                                           })
                                                                       })
+
+                                                                     $(".btnDeleteClientAssignedPackage").click(function () {
+                                                                        //get data from table row
+                                                                        var packageId = $(this).parent().prev().prev().prev().prev().prev().prev().prev().text();
+                                                                        console.log(packageId);
+                                                                        //assign to value for input box inside modal
+                                                                        $("#pkg_id").val(packageId);
+
+                                                                        //open modal
+                                                                        $("#deletePackageModal").modal();
+
+                                                                        $("#btnsave").click(function () {
+
+                                                                        })
+                                                                     })
+
                                                                   })
                                                                </script>
                                                             </tr>
@@ -657,7 +790,7 @@
                            </div>
                         </div>
                         <!--PACKAGES TAB 1 END -->
-                        <c:if test="${clientObject.gender == 'female'}">
+
                            <!--MONTHLY DATA TAB 2 START -->
                            <div class="product-tab-list tab-pane fade" id="view_monthly_data">
                               <div class="row">
@@ -677,6 +810,7 @@
                                                                <th>Month</th>
                                                                <th>Weight</th>
                                                                <th>Height</th>
+                                                               <c:if test="${clientObject.gender == 'female'}">
                                                                <th>Neck</th>
                                                                <th>Chest</th>
                                                                <th>Weist</th>
@@ -686,6 +820,7 @@
                                                                <th>Hips</th>
                                                                <th>Calf</th>
                                                                <th>Ankle</th>
+                                                               </c:if>
                                                                <th>Delete</th>
                                                             </tr>
                                                          </thead>
@@ -704,6 +839,7 @@
                                                                   <td>
                                                                      <c:out value="${obj.height}"/>
                                                                   </td>
+                                                                  <c:if test="${clientObject.gender == 'female'}">
                                                                   <td>
                                                                      <c:out value="${obj.neck}"/>
                                                                   </td>
@@ -731,20 +867,12 @@
                                                                   <td>
                                                                      <c:out value="${obj.ankle}"/>
                                                                   </td>
+                                                                  </c:if>
                                                                   <td>
                                                                      <a href="<c:url value='deleteFemaleClientAdditionalDetails?id=${obj.id}&gender=${clientObject.gender}&clientid=${clientObject.id}'/>">
                                                                      <input class="btn btn-danger btn-xs" type="button" value="Delete" />
                                                                      </a>
                                                                   </td>
-                                                                  <%-- <td>
-                                                                     <c:if test="${c_pkg.packageFees != c_pkg.amountPaid}">
-                                                                     <input class="btnedit btn btn-success btn-xs" type="button" value="Pay" />
-                                                                     </c:if>
-                                                                     <input class="btnEditClientPackage btn-primary btn-xs" type="button" value="Edit" />
-                                                                     <a href="<c:url value='deleteClientAssignedPackage?u_pkgId=${clientPackagesList[status.index].id}&u_gender=${clientObject.gender}&u_clientid=${clientObject.id}'/>">
-                                                                     <input class="btn btn-danger btn-xs" type="button" value="Delete" />
-                                                                     </a>
-                                                                     </td>	 --%>							                                                
                                                                </tr>
                                                             </c:forEach>
                                                          </tbody>
@@ -760,12 +888,43 @@
                               </div>
                            </div>
                            <!--MONTHLY DATA TAB 2 END -->
-                           <!--ADD MONTHLY DATA TAB 3 START -->
-                           <div class="product-tab-list tab-pane fade" id="add_monthly_data">
+
+                        <!--ADD MONTHLY DATA TAB 3 START -->
+                           <div class="product-tab-list tab-pane fade" id="add_monthly_data_male">
                               <div class="row">
                                  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <form:form action="submitFemaleAditionalDataForm" class="dropzone dropzone-custom needsclick add-professors" id="addTransaction" modelAttribute="femaleAditionalDataFormObject" method="post">
                                        <div class="review-content-section">
+                                          <div class="row">
+                                             <div class="col-lg-3">
+                                                <div class="form-group">
+                                                   <form:label path="day">Select Day</form:label>
+                                                   <form:select path="day" class="form-control" required="required">
+                                                      <form:option value="NONE" label="--- Select Day ---"/>
+                                                      <form:options items="${daysList}"/>
+                                                   </form:select>
+                                                </div>
+                                             </div>
+                                             <div class="col-lg-3">
+                                                <div class="form-group">
+                                                   <form:label path="month">Select Month</form:label>
+                                                   <form:select path="month" class="form-control" required="required">
+                                                      <form:option value="NONE" label="--- Select Month ---"/>
+                                                      <form:options items="${monthsList}"/>
+                                                   </form:select>
+                                                </div>
+                                             </div>
+                                             <div class="col-lg-3">
+                                                <div class="form-group">
+                                                   <form:label path="year">Select Year</form:label>
+                                                   <form:select path="year" class="form-control" required="required">
+                                                      <form:option value="NONE" label="--- Select Year ---"/>
+                                                      <form:options items="${yearsList}"/>
+                                                   </form:select>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          </div>
                                           <div class="row">
                                              <div class="col-lg-3">
                                                 <div class="form-group">
@@ -778,47 +937,40 @@
                                                    <form:label path="weight">Weight</form:label>
                                                    <form:input path="weight" title="" name="weight" type="number" class="form-control" placeholder="Enter Weight"></form:input>
                                                 </div>
+
                                                 <div class="form-group">
-                                                   <form:label path="height">Height</form:label>
-                                                   <form:input path="height" name="height" type="number" class="form-control" placeholder="Enter Height"></form:input>
+                                                   <form:input path="neck" name="neck" type="hidden" class="form-control" placeholder="Enter Neck" value="${femaleAditionalDataFormObject.neck}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="neck">Neck</form:label>
-                                                   <form:input path="neck" name="neck" type="number" class="form-control" placeholder="Enter Neck"></form:input>
+                                                   <form:input path="chest" name="chest" type="hidden" class="form-control" placeholder="Enter Chest" value="${femaleAditionalDataFormObject.chest}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="chest">Chest</form:label>
-                                                   <form:input path="chest" name="chest" type="number" class="form-control" placeholder="Enter Chest"></form:input>
+                                                   <form:input path="weist" name="weist" type="hidden" class="form-control" placeholder="Enter Weist" value="${femaleAditionalDataFormObject.weist}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="weist">Weist</form:label>
-                                                   <form:input path="weist" name="weist" type="number" class="form-control" placeholder="Enter Weist"></form:input>
-                                                </div>
-                                                <div class="form-group">
-                                                   <form:label path="arm">Arm</form:label>
-                                                   <form:input path="arm" name="arm" type="number" class="form-control" placeholder="Enter Arm"></form:input>
+                                                   <form:input path="arm" name="arm" type="hidden" class="form-control" placeholder="Enter Arm" value="${femaleAditionalDataFormObject.arm}"></form:input>
                                                 </div>
                                              </div>
                                              <div class="col-lg-3">
                                                 <div class="form-group">
-                                                   <form:label path="thigh">Thigh</form:label>
-                                                   <form:input path="thigh" name="thigh" type="number" class="form-control" placeholder="Enter Theigh"></form:input>
+                                                   <form:label path="height">Height</form:label>
+                                                   <form:input path="height" name="height" type="number" class="form-control" placeholder="Enter Height"></form:input>
+                                                </div>
+
+                                                <div class="form-group">
+                                                   <form:input path="thigh" name="thigh" type="hidden" class="form-control" placeholder="Enter Theigh" value="${femaleAditionalDataFormObject.thigh}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="upperHips">Upper Hips</form:label>
-                                                   <form:input path="upperHips" name="upperHips" type="number" class="form-control" placeholder="Enter Upper Hips"></form:input>
+                                                   <form:input path="upperHips" name="upperHips" type="hidden" class="form-control" placeholder="Enter Upper Hips" value="${femaleAditionalDataFormObject.upperHips}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="hips">Hips</form:label>
-                                                   <form:input path="hips" name="hips" type="number" class="form-control" placeholder="Enter Hips"></form:input>
+                                                   <form:input path="hips" name="hips" type="hidden" class="form-control" placeholder="Enter Hips" value="${femaleAditionalDataFormObject.hips}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="Calf">Calf</form:label>
-                                                   <form:input path="Calf" name="Calf" type="number" class="form-control" placeholder="Enter Calf"></form:input>
+                                                   <form:input path="calf" name="calf" type="hidden" class="form-control" placeholder="Enter Calf" value="${femaleAditionalDataFormObject.calf}"></form:input>
                                                 </div>
                                                 <div class="form-group">
-                                                   <form:label path="ankle">Ankle</form:label>
-                                                   <form:input path="ankle" name="ankle" type="number" class="form-control" placeholder="Enter Ankle"></form:input>
+                                                   <form:input path="ankle" name="ankle" type="hidden" class="form-control" placeholder="Enter Ankle" value="${femaleAditionalDataFormObject.ankle}"></form:input>
                                                 </div>
                                              </div>
                                           </div>
@@ -834,9 +986,112 @@
                                     </form:form>
                                  </div>
                               </div>
+
+                        <div class="product-tab-list tab-pane fade" id="add_monthly_data_female">
+                           <div class="row">
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                 <form:form action="submitFemaleAditionalDataForm" class="dropzone dropzone-custom needsclick add-professors" id="addTransaction" modelAttribute="femaleAditionalDataFormObject" method="post">
+                                    <div class="review-content-section">
+                                       <div class="row">
+                                          <div class="col-lg-3">
+                                             <div class="form-group">
+                                                <form:label path="day">Select Day</form:label>
+                                                <form:select path="day" class="form-control" required="required">
+                                                   <form:option value="NONE" label="--- Select Day ---"/>
+                                                   <form:options items="${daysList}"/>
+                                                </form:select>
+                                             </div>
+                                          </div>
+                                          <div class="col-lg-3">
+                                             <div class="form-group">
+                                                <form:label path="month">Select Month</form:label>
+                                                <form:select path="month" class="form-control" required="required">
+                                                   <form:option value="NONE" label="--- Select Month ---"/>
+                                                   <form:options items="${monthsList}"/>
+                                                </form:select>
+                                             </div>
+                                          </div>
+                                          <div class="col-lg-3">
+                                             <div class="form-group">
+                                                <form:label path="year">Select Year</form:label>
+                                                <form:select path="year" class="form-control" required="required">
+                                                   <form:option value="NONE" label="--- Select Year ---"/>
+                                                   <form:options items="${yearsList}"/>
+                                                </form:select>
+                                             </div>
+                                          </div>
+                                       </div>
+                                       <div class="row">
+                                          <div class="col-lg-3">
+                                             <div class="form-group">
+                                                <form:input path="clientId" title="" name="clientId" type="hidden" class="form-control" placeholder="Enter Weight"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:input path="gender" title="" name="gender" type="hidden" class="form-control" placeholder="Enter Weight"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="weight">Weight</form:label>
+                                                <form:input path="weight" title="" name="weight" type="number" class="form-control" placeholder="Enter Weight"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="height">Height</form:label>
+                                                <form:input path="height" name="height" type="number" class="form-control" placeholder="Enter Height"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="neck">Neck</form:label>
+                                                <form:input path="neck" name="neck" type="number" class="form-control" placeholder="Enter Neck"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="chest">Chest</form:label>
+                                                <form:input path="chest" name="chest" type="number" class="form-control" placeholder="Enter Chest"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="weist">Weist</form:label>
+                                                <form:input path="weist" name="weist" type="number" class="form-control" placeholder="Enter Weist"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="arm">Arm</form:label>
+                                                <form:input path="arm" name="arm" type="number" class="form-control" placeholder="Enter Arm"></form:input>
+                                             </div>
+                                          </div>
+                                          <div class="col-lg-3">
+                                             <div class="form-group">
+                                                <form:label path="thigh">Thigh</form:label>
+                                                <form:input path="thigh" name="thigh" type="number" class="form-control" placeholder="Enter Theigh"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="upperHips">Upper Hips</form:label>
+                                                <form:input path="upperHips" name="upperHips" type="number" class="form-control" placeholder="Enter Upper Hips"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="hips">Hips</form:label>
+                                                <form:input path="hips" name="hips" type="number" class="form-control" placeholder="Enter Hips"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="Calf">Calf</form:label>
+                                                <form:input path="calf" name="calf" type="number" class="form-control" placeholder="Enter Calf"></form:input>
+                                             </div>
+                                             <div class="form-group">
+                                                <form:label path="ankle">Ankle</form:label>
+                                                <form:input path="ankle" name="ankle" type="number" class="form-control" placeholder="Enter Ankle"></form:input>
+                                             </div>
+                                          </div>
+                                       </div>
+                                       </br>
+                                       <div class="row">
+                                          <div class="col-lg-12">
+                                             <div class="payment-adress mg-t-15">
+                                                <button type="submit" class="btn btn-primary waves-effect waves-light mg-b-15">Submit</button>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </form:form>
+                              </div>
                            </div>
+                        </div>
+
                            <!--ADD MONTHLY DATA TAB 3 END -->
-                        </c:if>
                         <!--EDIT PROFILE TAB 4 START -->
                         <div class="product-tab-list tab-pane fade" id="edit_profile">
                            <div class="row">
@@ -910,6 +1165,7 @@
                         </div>
                         <!--EDIT PROFILE TAB 4 END -->
                      </div>
+                     </div>
                   </div>
                </div>
             </div>
@@ -918,5 +1174,7 @@
       <jsp:include page="copyright.jsp" />
       </div>
       <jsp:include page="bottom_script.jsp" />
+   </div>
    </body>
+
 </html>

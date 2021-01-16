@@ -154,6 +154,10 @@ response.sendRedirect("login");
                                 <li><a title="Data Table" href="getSmsLogs"><span class="mini-sub-pro">SMS Logs</span></a></li>
                             </ul>
                         </li>
+
+                        <li>
+                            <a class="has-arrow" href="setttingPage" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Settings</span></a>
+                        </li>
                       
                     </ul>
                 </nav>

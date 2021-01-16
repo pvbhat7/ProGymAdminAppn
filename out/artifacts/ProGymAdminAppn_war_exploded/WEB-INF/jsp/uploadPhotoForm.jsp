@@ -24,42 +24,77 @@ response.sendRedirect("login");
         <div class="product-status mg-b-15">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                         <div class="product-status-wrap">
                             
                             </br></br>                            
                             <div class="asset-inner">
-                            <form:form action="fileUploadPage" method = "POST" modelAttribute = "fileUpload"
-										         enctype = "multipart/form-data">
 	                            <table>
-	                                    <tr align="center">
-	                                        <td align="center">
-	                                        
-	                                        <form:select path="reference" class="form-control">
-												<form:option value="NONE" label="--- Select Referer Name ---"/>
-												<form:options items="${referencesList}"/>
-												</form:select>
-											</td>                                                                                                                      
-	                                    </tr>
-	                                    <tr align="center">
-	                                        <td align="center">
-	                                        <!-- // upload photo form -->
-				                            
-										         <input class="btn btn-primary" type = "file" name = "file" />
-										         
-										      
-											</td>                                                                                                                      
-	                                    </tr>
-	                                    <tr>
-	                                        <td class="btn btn-primary" align="center">
- 	                                        <input type = "submit" value = "upload" />
-	                                        
-	                                        </td>                                                                                                                      
-	                                    </tr>
-	                                    
-	                                   
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>owner_1</td>
+                                            <td><img src="${imageObject.owner_1}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="owner_1.jpg">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <td><input class="btn btn-primary" type="submit" value="upload"/></td>
+                                        </form:form>
+                                    </tr>
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>owner_2</td>
+                                            <td><img src="${imageObject.owner_2}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="owner_2.jpg">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <td><input class="btn btn-primary" type="submit" value="upload"/></td>
+                                        </form:form>
+                                    </tr>
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>trainer_1</td>
+                                            <td><img src="${imageObject.trainer_1}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="trainer_1.jpg">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <td><input class="btn btn-primary" type="submit" value="upload"/></td>
+                                        </form:form>
+                                    </tr>
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>trainer_2</td>
+                                            <td><img src="${imageObject.trainer_2}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="trainer_2.jpg">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <td><input class="btn btn-primary" type="submit" value="upload"/></td>
+                                        </form:form>
+                                    </tr>
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>banner_1</td>
+                                            <td><img src="${imageObject.banner_1}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="banner_1.jpg">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <td><input class="btn btn-primary" type="submit" value="upload"/></td>
+                                        </form:form>
+                                    </tr>
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>login_brand_logo</td>
+                                            <td><img src="${imageObject.login_brand_logo}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="login_brand_logo.jpg">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <td><input class="btn btn-primary" type="submit" value="upload"/></td>
+                                        </form:form>
+                                    </tr>
+                                    <tr>
+                                        <form:form action="fileUploadPage" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
+                                            <td>login_screen_banner</td>
+                                            <td><img src="${imageObject.login_screen_banner}" width="100" height="100" alt=""/></td>
+                                            <input type="hidden" name="imgServerPath" id="imgServerPath" value="login_screen_banner.png">
+                                            <td><input class="btn btn-primary" type="file" name="file" accept="image/jpeg"/></td>
+                                            <%--<td><input class="btn btn-primary" type="submit" value="upload"/></td>--%>
+                                        </form:form>
+                                    </tr>
 	                            </table>
-                             </form:form>
+
                             
                                 <!-- table removed from here -->
                             </div>

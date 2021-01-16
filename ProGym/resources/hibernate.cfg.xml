@@ -9,8 +9,21 @@
         <!-- Database connection settings -->
         <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
         <property name="connection.url">jdbc:mysql://localhost:3306/prashant</property>
-        <property name="connection.username">root</property>
-        <property name="connection.password">sysuser</property>
+        <property name="connection.username">prashant</property>
+        <property name="connection.password">pooja.418</property>
+
+        <!-- hibernate.cfg.xml -->
+        <!--<property name="c3p0.testConnectionOnCheckout">true</property>-->
+
+        <!-- Needed in Hibernate 3, not in Hibernate 5 -->
+        <!--<property name="connection.provider_class">
+            org.hibernate.connection.C3P0ConnectionProvider</property>-->
+
+        <!--<property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://151.106.116.1:3306/u636480992_progymkop</property>
+        <property name="connection.username">u636480992_progymkop</property>
+        <property name="connection.password">##Ppp7771</property>-->
+
 
         <!-- JDBC connection pool (use the built-in) -->
         <property name="connection.pool_size">1</property>
@@ -41,6 +54,7 @@
         <mapping class="com.progym.model.EmailDataObject"/>
         <mapping class="com.progym.model.BatchLogs"/>
         <mapping class="com.progym.model.SmsLogs"/>
+        <mapping class="com.progym.model.BrandImages"/>
             
 
     </session-factory>

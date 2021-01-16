@@ -35,10 +35,9 @@
 <div class="limiter">
 	<div class="container-login100">
 		<div class="wrap-login100">
-
 			<form:form class="login100-form validate-form" id="loginForm" modelAttribute="user" action="loginProcess" method="post">
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<div align="center"><img src="img/home_logo.jpg" width="300" height="300"></div>
+				<div align="center"><img src="${imageObject.login_brand_logo}" width="300" height="300"></div>
 				</br></br>
 
 				<span class="login100-form-title p-b-34">
@@ -70,7 +69,7 @@
 				</div>
 			</form:form>
 
-			<div class="login100-more" style="background-image: url('img/pranav_mother.png');"></div>
+			<div class="login100-more" style="background-image: url('http://tavrostechinfo.com/PROGYM/brand/login_screen_banner.png');"></div>
 		</div>
 	</div>
 </div>

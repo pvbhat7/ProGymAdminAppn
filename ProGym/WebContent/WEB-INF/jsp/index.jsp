@@ -45,10 +45,10 @@
         <div class="row">
             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                 <div class="product-sales-chart">
-                    <img src="img/owner_m.jpg">
+                    <img src="${imageObject.owner_1}">
                 </div>
                 <div class="product-sales-chart">
-                    <img src="img/owner_new.jpg">
+                    <img src="${imageObject.owner_2}">
                 </div>
             </div>
 
@@ -73,7 +73,7 @@
                     </ul>
                 </div> --%>
                 <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
-                    <img src="img/banner1.jpg">
+                    <img src="${imageObject.banner_1}">
                 </div>
                 <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
                     <h3 class="box-title">Total Members</h3>
@@ -191,7 +191,7 @@
                 </div>
                 <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
                     <div class="product-sales-chart">
-                        <img src="img/abcd.jpg">
+                        <img src="${imageObject.trainer_1}">
                     </div>
                 </div>
 
@@ -242,7 +242,7 @@
                 </div>
                 <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
                     <div class="product-sales-chart">
-                        <img src="img/ladies_trainer_new.jpg">
+                        <img src="${imageObject.trainer_2}">
                     </div>
                 </div>
             </div>

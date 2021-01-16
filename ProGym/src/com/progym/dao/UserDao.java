@@ -2,23 +2,7 @@ package com.progym.dao;
 
 import java.util.List;
 
-import com.progym.model.AddClientPackageForm;
-import com.progym.model.AddMemberObject;
-import com.progym.model.AddPackageObject;
-import com.progym.model.CPackage;
-import com.progym.model.Client;
-import com.progym.model.CollectionDashboardPVO;
-import com.progym.model.CollectionPVO;
-import com.progym.model.FemaleMemberAdditionalDataVO;
-import com.progym.model.FilterCollectionObject;
-import com.progym.model.MemberStatPVO;
-import com.progym.model.Notifications;
-import com.progym.model.User;
-import com.progym.model.PackageDetails;
-import com.progym.model.PaymentDataPVO;
-import com.progym.model.PaymentTransaction;
-import com.progym.model.ReferenceVO;
-import com.progym.model.SmsLogs;
+import com.progym.model.*;
 
 public interface UserDao {
 	
@@ -118,4 +102,10 @@ public interface UserDao {
 	void renewPackage(String clientid, User user);
 
     void updatePhotoInfo(Integer cid, String uploadedImagePath);
+
+    void updateSmsDeliveryStatus(String id);
+
+	List<SmsLogs> getSmsByFilter(String gender);
+
+	BrandImages getImageObjectByBrand(String brandName);
 }

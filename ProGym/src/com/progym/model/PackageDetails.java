@@ -198,28 +198,5 @@ public class PackageDetails {
 
 
 
-	@Override
-	public String toString() {
-		return "PackageDetails [id=" + id + ", client=" + client + ", packageName=" + packageName + ", packageFees="
-				+ packageFees + ", packageStartDate=" + packageStartDate + ", packageEndDate=" + packageEndDate
-				+ ", packagePaymentDate=" + packagePaymentDate + ", cPackageId=" + cPackageId + ", clientPackageStatus="
-				+ clientPackageStatus + ", amountPaid=" + amountPaid + ", discontinue=" + discontinue
-				+ ", paymentTransactions=" + paymentTransactions + "]";
-	}
-
-
-
-	
-	
-	
-	
-
-	
-	
-	
-    
-	
-    
-
     
 }

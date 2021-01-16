@@ -6,6 +6,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 @Entity
 @Table(name = "FEMALE_MEMBER_ADDITIONAL_DATA")
@@ -20,6 +24,12 @@ public class FemaleMemberAdditionalDataVO {
 	
 	@Column
 	private String month;
+
+	@Column
+	private String day;
+
+	@Column
+	private String year;
 	
 	@Column
 	private double weight;
@@ -62,8 +72,27 @@ public class FemaleMemberAdditionalDataVO {
 	
 	@Column
 	private String gender;
-	
-	
+
+	public FemaleMemberAdditionalDataVO() {
+		this.date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+		this.month = Calendar.getInstance().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());;
+		this.weight = 0.00;
+		this.height = 0.00;
+		this.neck = 0.00;
+		this.chest = 0.00;
+		this.weist = 0.00;
+		this.arm = 0.00;
+		this.thigh = 0.00;
+		this.upperHips = 0.00;
+		this.hips = 0.00;
+		this.calf = 0.00;
+		this.ankle = 0.00;
+		this.clientId = 0;
+		this.discontinue = "";
+		this.gender = "";
+		this.day = "";
+		this.year = "";
+	}
 
 	public String getGender() {
 		return gender;
@@ -200,11 +229,20 @@ public class FemaleMemberAdditionalDataVO {
 	public void setMonth(String month) {
 		this.month = month;
 	}
-	
-	
-	
-	
-	
-	
 
+	public String getDay() {
+		return day;
+	}
+
+	public void setDay(String day) {
+		this.day = day;
+	}
+
+	public String getYear() {
+		return year;
+	}
+
+	public void setYear(String year) {
+		this.year = year;
+	}
 }

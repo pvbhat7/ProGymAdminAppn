@@ -2,27 +2,11 @@ package com.progym.service;
 
 import java.util.List;
 
+import com.progym.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.progym.dao.UserDao;
-import com.progym.model.AddClientPackageForm;
-import com.progym.model.AddMemberObject;
-import com.progym.model.AddPackageObject;
-import com.progym.model.CPackage;
-import com.progym.model.Client;
-import com.progym.model.CollectionDashboardPVO;
-import com.progym.model.CollectionPVO;
-import com.progym.model.FemaleMemberAdditionalDataVO;
-import com.progym.model.FilterCollectionObject;
-import com.progym.model.MemberStatPVO;
-import com.progym.model.Notifications;
-import com.progym.model.User;
-import com.progym.model.PackageDetails;
-import com.progym.model.PaymentDataPVO;
-import com.progym.model.PaymentTransaction;
-import com.progym.model.ReferenceVO;
-import com.progym.model.SmsLogs;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -276,5 +260,20 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public void updatePhotoInfo(Integer cid, String uploadedImagePath) {
 		userDao.updatePhotoInfo(cid,uploadedImagePath);
+	}
+
+	@Override
+	public void updateSmsDeliveryStatus(String id) {
+		userDao.updateSmsDeliveryStatus(id);
+	}
+
+	@Override
+	public List<SmsLogs> getSmsByFilter(String gender) {
+		return userDao.getSmsByFilter(gender);
+	}
+
+	@Override
+	public BrandImages getImageObjectByBrand(String brandName) {
+		return userDao.getImageObjectByBrand(brandName);
 	}
 }

@@ -165,7 +165,7 @@ public class Client {
 	}
 
 	public String getPhoto() {
-		return photo+"?"+new Date();
+		return photo.equals("NA") ? "NA" : photo+"?"+new Date();
 	}
 
 	public void setPhoto(String photo) {

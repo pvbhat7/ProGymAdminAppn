@@ -43,13 +43,14 @@ response.sendRedirect("login");
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="product-status-wrap">
                         <a href="allMembers?gender=all&zone=none&enableDisable=enable"><button type="button" class="btn btn-primary" id="myBtn">All</button></a>&nbsp;&nbsp;
-                        <a href="allMembers?gender=all&zone=none&enableDisable=disable"><button style="text-align:center;background-color:#FF0000" type="button" class="btn btn-danger" id="myBtn">Disabled Members</button></a>&nbsp;&nbsp;
+                        <a href="allMembers?gender=male&zone=none&enableDisable=disable"><button style="text-align:center;background-color:#FF0000" type="button" class="btn btn-danger" id="myBtn">Disabled Male</button></a>&nbsp;&nbsp;
+                        <a href="allMembers?gender=female&zone=none&enableDisable=disable"><button style="text-align:center;background-color:#FF0000" type="button" class="btn btn-danger" id="myBtn">Disabled Female</button></a>&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                             
                             
                             <a href="allMembers?gender=male&zone=none&enableDisable=enable"><button type="button" class="btn btn-primary" id="myBtn">Male</button></a>
@@ -83,7 +84,7 @@ response.sendRedirect("login");
                                         <th style="text-align:center;"><h4>Name</h4></th>  
 										<th style="text-align:center;"><h4>Payment Status</h4></th>
 										<th style="text-align:center;"><h4>Days Remaining</h4></th>
-                                        <th style="text-align:center;"><h4>Refer Points</h4></th> 
+                                        <th style="text-align:center;"><h4>Refer Points</h4></th>
                                         <th style="text-align:center;"><h4>Reminder</h4></th>
                                         <th style="text-align:center;"><h4>Enable/Disable</h4></th>
                                         <!-- <th>Payment Status</th> -->                                                                                                      
@@ -100,7 +101,7 @@ response.sendRedirect("login");
 	                                        <td style="text-align:center;"><h4><c:out value="${client.paymentStatus}"/></h4></td>
 	                                        <td style="text-align:center;"><h3><c:out value="${client.daysRemaining}"/></h3></td>
 	                                        <td style="text-align:center;background-color:white"><h3><c:out value="${client.referPoints}"/></h3></td>
-	                                        <td style="text-align:center;background-color:white">
+                                            <td style="text-align:center;background-color:white">
 	                                        <a href="sendReminderToSingleClient?clientname=${client.name}&clientid=${client.id}&daysLeft=${client.daysRemaining}&packageName=${client.packageName}&packageDuration=${client.packageDuration}&pendingFees=${client.pendingFees}&feesPaid=${client.feesPaid}&packageTotalFees=${client.packageTotalFees}"><button style="text-align:center;background-color:black" type="button" class="btn btn-danger" id="myBtn">Send Reminder</button></a>
 	                                        </td>
 	                                        <c:if test="${client.profileActiveFlag == 'enable'}">

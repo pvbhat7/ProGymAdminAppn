@@ -29,6 +29,7 @@ public class LoginController {
   public ModelAndView showLogin(HttpServletRequest request, HttpServletResponse response) {
 	userService.register();
     ModelAndView mav = new ModelAndView("loginform");
+	  mav.addObject("imageObject",userService.getImageObjectByBrand("progym"));
     mav.addObject("user", new User());
     return mav;
   }
@@ -46,6 +47,7 @@ public class LoginController {
 		  userService.triggerEnableDisableProfileBatch();
 		  ModelAndView mav = new ModelAndView("index");
 		    CollectionDashboardPVO c = userService.getDashboardCollection();
+		  mav.addObject("imageObject",userService.getImageObjectByBrand("progym"));
 		    mav.addObject("male",c.getMale());
 		    mav.addObject("female",c.getFemale());
 		    mav.addObject("steam",c.getSteam());
