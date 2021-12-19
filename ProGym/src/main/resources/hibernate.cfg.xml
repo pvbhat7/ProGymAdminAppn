@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/prashant</property>
+        <property name="connection.username">prashant</property>
+        <property name="connection.password">pooja.418</property>
+
+        <!-- hibernate.cfg.xml -->
+        <!--<property name="c3p0.testConnectionOnCheckout">true</property>-->
+
+        <!-- Needed in Hibernate 3, not in Hibernate 5 -->
+        <!--<property name="connection.provider_class">
+            org.hibernate.connection.C3P0ConnectionProvider</property>-->
+
+        <!--<property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://151.106.116.1:3306/u636480992_progymkop</property>
+        <property name="connection.username">u636480992_progymkop</property>
+        <property name="connection.password">##Ppp7771</property>-->
+
+
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <mapping class="com.progym.common.model.Client"/>
+        <mapping class="com.progym.common.model.PackageDetails"/>
+        <mapping class="com.progym.common.model.CPackage"/>
+        <mapping class="com.progym.common.model.PaymentTransaction"/>
+        <mapping class="com.progym.common.model.User"/>
+        <mapping class="com.progym.common.model.Notifications"/>
+        <mapping class="com.progym.common.model.FemaleMemberAdditionalDataVO"/>
+        <mapping class="com.progym.common.model.EmailDataObject"/>
+        <mapping class="com.progym.common.model.BatchLogs"/>
+        <mapping class="com.progym.common.model.SmsLogs"/>
+        <mapping class="com.progym.common.model.BrandImages"/>
+        <mapping class="com.progym.common.model.DietTimeSlots"/>
+        <mapping class="com.progym.common.model.MuscleWorkout"/>
+        <mapping class="com.progym.common.model.ModuleObject"/>
+    </session-factory>
+
+</hibernate-configuration>

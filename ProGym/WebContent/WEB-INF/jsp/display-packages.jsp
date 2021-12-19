@@ -2,8 +2,10 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List"%>
 <%
-if(session.getAttribute("loggedInUser") == null)
-response.sendRedirect("login");
+    if(session == null)
+        response.sendRedirect("login");
+    else if(session.getAttribute("loggedInUser") == null)
+        response.sendRedirect("login");
 %>
 <!doctype html>
 <html class="no-js" lang="en">
@@ -51,7 +53,7 @@ response.sendRedirect("login");
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="footer-copy-right">
-                            <p>Copyright Â© 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>
+                            <p>Copyright © 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>
                         </div>
                     </div>
                 </div>

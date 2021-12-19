@@ -1,8 +1,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
     <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
     <%
-if(session.getAttribute("loggedInUser") == null)
-response.sendRedirect("login");
+        if(session == null)
+            response.sendRedirect("login");
+        else if(session.getAttribute("loggedInUser") == null)
+            response.sendRedirect("login");
 %>
 <!doctype html>
 <html class="no-js" lang="en">
@@ -11,10 +13,23 @@ response.sendRedirect("login");
 <jsp:include page="header.jsp" />  
 <script>
 window.onload = function() {
-	height.value = "";
-	weight.value = "";
-	
-	
+    var filter = '${gen}';
+    var dobb = '${dobb}';
+        if(filter == 'male'){
+            document.getElementById('gender').value = 'male';
+        }
+        else if(filter == 'female'){
+            document.getElementById('gender').value = 'female'
+        }
+
+        if(dobb != '' && dobb != null){
+            var arr =  dobb.split('/');
+            var newdate = arr[2]+'-'+arr[1]+'-'+arr[0];
+            document.getElementById('birthDate').value = newdate;
+        }
+
+
+
 	};
 </script>  
 </head>
@@ -60,16 +75,16 @@ window.onload = function() {
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="height">Height (In cm)</form:label>
-                                                                    <form:input id="height" path="height" name="height"  type="number" class="form-control" placeholder="Enter Height" />
+                                                                    <form:input id="height" path="height" name="height" type="number" class="form-control" placeholder="Enter Height" />
                                                                     
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="weight">Weight (In kg)</form:label>
-                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" />                                                                    
+                                                                    <form:input id="weight" path="weight" name="weight" type="number" class="form-control" placeholder="Enter Weight" />
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="address">Occupation</form:label>
-                                                                    <form:input id="occupation" path="occupation" name="occupation" type="text" class="form-control" placeholder="Occupation"/>
+                                                                    <form:input id="occupation" path="occupation" name="occupation" value="none" type="text" class="form-control" placeholder="Occupation"/>
                                                                 </div>                                                                                                                                
                                                             </div>
                                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -81,7 +96,7 @@ window.onload = function() {
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="email">Email</form:label>
-                                                                    <form:input  id="email" path="email" name="email" type="email" value="test@test.com" class="form-control" placeholder="Email Id" />
+                                                                    <form:input  id="email" path="email" name="email" type="email" class="form-control" placeholder="Email Id" />
                                                                 </div>
                                                                 <div class="form-group">
                                                                 <form:label path="address">Address</form:label>
@@ -118,6 +133,12 @@ window.onload = function() {
                                                             </div>
                                                         </div>
                                                     </form:form>
+                                                    <form action="fetchUserDetailsFromServer" id="fetchUserDetailsFromServer" method="post">
+                                                        <label path="mobile">Mobile</label>
+                                                        <input id="enteredMobile" path="enteredMobile" name="enteredMobile" type="number" placeholder="Enter Mobile" required="true"/>
+                                                        <button id="basicInfo1" type="submit" >Fetch user details</button>
+                                                    </form>
+
                                                 </div>
                                             </div>
                                         </div>

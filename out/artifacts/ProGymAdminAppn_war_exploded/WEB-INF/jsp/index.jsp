@@ -1,9 +1,11 @@
-<%@page import="com.progym.model.User" %>
+<%@page import="com.progym.common.model.User" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List" %>
 <%
-    if (session.getAttribute("loggedInUser") == null)
+    if(session == null)
+        response.sendRedirect("login");
+    else if(session.getAttribute("loggedInUser") == null)
         response.sendRedirect("login");
 %>
 <!doctype html>
@@ -27,6 +29,11 @@
 <jsp:include page="topPage.jsp"/>
 
 <%
+    if(session == null)
+        response.sendRedirect("login");
+    else if(session.getAttribute("loggedInUser") == null)
+        response.sendRedirect("login");
+
     User u = (User) session.getAttribute("loggedInUser");
     if (u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")) {
 %>
@@ -142,6 +149,43 @@
                         </a>
                     </c:if>
                 </div>
+                    <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                        <%--<a href="syncClientData">
+                            <button type="submit" class="btn btn-danger btn-md">Sync client data</button>
+                        </a>--%>
+                            <a href="assignWorkouts">
+                                <button type="submit" class="btn btn-primary btn-sm">Assign Workouts</button>
+                            </a>
+                        <a href="assignDiets">
+                            <button type="submit" class="btn btn-primary btn-sm">Assign Diets</button>
+                        </a>
+                    </div>
+                    <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
+                        <a href="blood_group_data?bg=A_plus">
+                            <button type="submit" class="btn btn-info btn-sm">A+</button>
+                        </a>
+                        <a href="blood_group_data?bg=A_minus">
+                            <button type="submit" class="btn btn-info btn-sm">A-</button>
+                        </a>
+                        <a href="blood_group_data?bg=B_plus">
+                            <button type="submit" class="btn btn-info btn-sm">B+</button>
+                        </a>
+                        <a href="blood_group_data?bg=B_minus">
+                            <button type="submit" class="btn btn-info btn-sm">B-</button>
+                        </a>
+                        <a href="blood_group_data?bg=AB_plus">
+                            <button type="submit" class="btn btn-info btn-sm">AB+</button>
+                        </a>
+                        <a href="blood_group_data?bg=AB_minus">
+                            <button type="submit" class="btn btn-info btn-sm">AB-</button>
+                        </a>
+                        <a href="blood_group_data?bg=O_plus">
+                            <button type="submit" class="btn btn-info btn-sm">O+</button>
+                        </a>
+                        <a href="blood_group_data?bg=O_minus">
+                            <button type="submit" class="btn btn-info btn-sm">O-</button>
+                        </a>
+                    </div>
 
             </div>
             <!-- GYM STAT END -->
@@ -282,7 +326,7 @@
                                required="required">
                     </div>
                     <div class="modal-body" align="center">
-                        <button type="submit" class="btn btn-success btn-lg">Send Email</button>
+                        <button type="submit" class="btn btn-success btn-lg">Send Email + Notification</button>
                     </div>
                 </form>
             </div>
@@ -319,7 +363,7 @@
                         </select>
                     </div>
                     <div class="modal-body" align="center">
-                        <button type="submit" class="btn btn-success btn-lg">Send Sms</button>
+                        <button type="submit" class="btn btn-success btn-lg">Send Sms + Notification</button>
                     </div>
                 </form>
             </div>

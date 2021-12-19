@@ -2,7 +2,9 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List" %>
 <%
-    if (session.getAttribute("loggedInUser") == null)
+    if(session == null)
+        response.sendRedirect("login");
+    else if(session.getAttribute("loggedInUser") == null)
         response.sendRedirect("login");
 %>
 <!doctype html>

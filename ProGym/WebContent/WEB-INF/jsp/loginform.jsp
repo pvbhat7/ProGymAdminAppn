@@ -69,7 +69,7 @@
 				</div>
 			</form:form>
 
-			<div class="login100-more" style="background-image: url('http://tavrostechinfo.com/PROGYM/brand/login_screen_banner.png');"></div>
+			<%--<div class="login100-more" style="background-image: url('http://tavrostechinfo.com/PROGYM/brand/login_screen_banner.png');"></div>--%>
 		</div>
 	</div>
 </div>

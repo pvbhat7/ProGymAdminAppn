@@ -1,8 +1,17 @@
-<%@page import="com.progym.model.User"%>
+<%@page import="com.progym.common.model.User"%>
+<%@ page import="com.progym.common.service.UserService" %>
+<%@ page import="com.progym.common.service.UserServiceImpl" %>
+<%@ page import="com.progym.common.constants.ProjectConstants" %>
+<%@ page import="com.sun.org.apache.xpath.internal.operations.Bool" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ page import="org.springframework.web.context.WebApplicationContext" %>
+<%@ page import="com.progym.common.dao.UserDao" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
  <%
-if(session.getAttribute("loggedInUser") == null)
-response.sendRedirect("login");
+if(session == null)
+    response.sendRedirect("login");
+else if(session.getAttribute("loggedInUser") == null)
+    response.sendRedirect("login");
 %>
 <div class="left-sidebar-pro">
         <nav id="sidebar" class="">
@@ -33,6 +42,37 @@ response.sendRedirect("login");
                                 <li><a title="Add Courses" href="addPackage"><span class="mini-sub-pro">Add Package</span></a></li>                                
                             </ul>
                         </li>
+
+                        <%
+
+                            WebApplicationContext ctx = RequestContextUtils.findWebApplicationContext(request);
+                            UserDao userDao = ((UserDao)ctx.getBean("userDao"));
+                            if(userDao.isModuleEnabled(ProjectConstants.WORKOUT_FLAG)){
+
+                        %>
+                        <li>
+                            <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Workout</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="All Courses" href="addMainWorkout"><span class="mini-sub-pro">Add Main Workout</span></a></li>
+                                <li><a title="Add Sub Workout" href="addSubWorkout"><span class="mini-sub-pro">Add Sub Workout</span></a></li>
+                                <li><a title="View Workouts" href="viewWorkouts?mid="><span class="mini-sub-pro">View Workouts</span></a></li>
+                                <li><a title="Workouts Templates" href="#"><span class="mini-sub-pro">Workouts Templates</span></a></li>
+                            </ul>
+                        </li>
+                        <% } %>
+
+                        <%
+                            if(userDao.isModuleEnabled(ProjectConstants.DIET_FLAG)){
+
+                        %>
+
+                        <li>
+                            <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Diet</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="Diet Templates" href="dietTemplates"><span class="mini-sub-pro">Diet Templates</span></a></li>
+                            </ul>
+                        </li>
+                        <% } %>
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-library icon-wrap"></span> <span class="mini-click-non">Payments</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
@@ -44,18 +84,33 @@ response.sendRedirect("login");
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-	                            <%
-								User u = (User)session.getAttribute("loggedInUser");
-								if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+	                            <%  User u = null;
+                                    if(session == null)
+                                        response.sendRedirect("login");
+                                    else if(session != null)
+								        u = (User)session.getAttribute("loggedInUser");
+								    else if(u == null)
+								    response.sendRedirect("login");
+								if(u!= null && u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
 								%>
                                 <li><a title="Data Table" href="allReports"><span class="mini-sub-pro">View Collection</span></a></li>
                                 <li><a title="Data Table" href="sendPendingInvoices"><span class="mini-sub-pro">Invoice Receipts</span></a></li>
-                                <%} %>
+                                <%}
+                                %>
                                 <li><a title="Data Table" href="notifications"><span class="mini-sub-pro">Notifications</span></a></li>
                                 <li><a title="Data Table" href="fileUploadPage"><span class="mini-sub-pro">Upload Photo</span></a></li>
                                 <%--<li><a title="Data Table" href="steamView"><span class="mini-sub-pro">Steam</span></a></li>--%>
                                 <li><a title="Data Table" href="getSmsLogs"><span class="mini-sub-pro">SMS Logs</span></a></li>
                                 
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Online Shopping</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="Data Table" href="merchandise"><span class="mini-sub-pro">Merchandise</span></a></li>
+                                <li><a title="Data Table" href="supplements"><span class="mini-sub-pro">Supplements</span></a></li>
+                                <li><a title="Data Table" href="orders?filter=all"><span class="mini-sub-pro">All Orders</span></a></li>
                             </ul>
                         </li>
                         
@@ -112,8 +167,15 @@ response.sendRedirect("login");
                                                     </div>
                                                 </li>
                                                 <%
-												User u1 = (User)session.getAttribute("loggedInUser");
-												if(u1.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
+                                                    User u1 = null;
+                                                    if(session == null)
+                                                        response.sendRedirect("login");
+                                                    else if(session != null)
+                                                        u = (User)session.getAttribute("loggedInUser");
+                                                    else if(u == null)
+                                                        response.sendRedirect("login");
+
+												if(u1 != null && u1.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
 												%>
                                                 <li class="nav-item"><a href="allReports" class="nav-link">Collections</a>
                                                 </li>

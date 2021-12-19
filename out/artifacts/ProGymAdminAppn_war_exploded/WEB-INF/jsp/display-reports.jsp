@@ -1,10 +1,12 @@
-<%@page import="com.progym.model.User"%>
+<%@page import="com.progym.common.model.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List"%>
 <%
-if(session.getAttribute("loggedInUser") == null)
-response.sendRedirect("login");
+    if(session == null)
+        response.sendRedirect("login");
+    else if(session.getAttribute("loggedInUser") == null)
+        response.sendRedirect("login");
 %>
 <html class="no-js" lang="en">
 
@@ -130,6 +132,21 @@ response.sendRedirect("login");
                             </ul>
                         </li>
                         <li>
+                            <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Workout</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="All Courses" href="addMainWorkout"><span class="mini-sub-pro">Add Main Workout</span></a></li>
+                                <li><a title="Add Sub Workout" href="addSubWorkout"><span class="mini-sub-pro">Add Sub Workout</span></a></li>
+                                <li><a title="View Workouts" href="addPackage"><span class="mini-sub-pro">View Workouts</span></a></li>
+                                <li><a title="Workouts Templates" href="#"><span class="mini-sub-pro">Workouts Templates</span></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Diet</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="Diet Templates" href="dietTemplates"><span class="mini-sub-pro">Diet Templates</span></a></li>
+                            </ul>
+                        </li>
+                        <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-library icon-wrap"></span> <span class="mini-click-non">Payments</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="All Library" href="paidPayments?gender=all"><span class="mini-sub-pro">Paid</span></a></li>
@@ -142,6 +159,10 @@ response.sendRedirect("login");
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Reports</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
 	                            <%
+                                    if(session == null)
+                                        response.sendRedirect("login");
+                                    else if(session.getAttribute("loggedInUser") == null)
+                                        response.sendRedirect("login");
 								User u = (User)session.getAttribute("loggedInUser");
 								if(u.getAuthorizedToApprovePayment().equalsIgnoreCase("YES")){
 								%>
@@ -152,6 +173,15 @@ response.sendRedirect("login");
                                 <li><a title="Data Table" href="sendPendingInvoices"><span class="mini-sub-pro">Invoice Receipts</span></a></li>
                                 <li><a title="Data Table" href="steamView"><span class="mini-sub-pro">Steam</span></a></li>
                                 <li><a title="Data Table" href="getSmsLogs"><span class="mini-sub-pro">SMS Logs</span></a></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Online Shopping</span></a>
+                            <ul class="submenu-angle" aria-expanded="false">
+                                <li><a title="Data Table" href="merchandise"><span class="mini-sub-pro">Merchandise</span></a></li>
+                                <li><a title="Data Table" href="supplements"><span class="mini-sub-pro">Supplements</span></a></li>
+                                <li><a title="Data Table" href="orders?filter=all"><span class="mini-sub-pro">All Orders</span></a></li>
                             </ul>
                         </li>
 
@@ -212,6 +242,14 @@ response.sendRedirect("login");
                                                     </div>
                                                 </li>
                                                 <li class="nav-item"><a href="allReports" class="nav-link">Reports</a>
+                                                </li>
+                                                <li>
+                                                    <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-data-table icon-wrap"></span> <span class="mini-click-non">Online Shopping</span></a>
+                                                    <ul class="submenu-angle" aria-expanded="false">
+                                                        <li><a title="Data Table" href="merchandise"><span class="mini-sub-pro">Merchandise</span></a></li>
+                                                        <li><a title="Data Table" href="supplements"><span class="mini-sub-pro">Supplements</span></a></li>
+                                                        <li><a title="Data Table" href="orders?filter=all"><span class="mini-sub-pro">All Orders</span></a></li>
+                                                    </ul>
                                                 </li>
                                             </ul>
                                         </div>
