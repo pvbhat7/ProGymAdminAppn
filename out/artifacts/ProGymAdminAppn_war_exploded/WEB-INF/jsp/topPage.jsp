@@ -1,4 +1,11 @@
 <%@page import="com.progym.common.model.User"%>
+<%@ page import="com.progym.common.service.UserService" %>
+<%@ page import="com.progym.common.service.UserServiceImpl" %>
+<%@ page import="com.progym.common.constants.ProjectConstants" %>
+<%@ page import="com.sun.org.apache.xpath.internal.operations.Bool" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ page import="org.springframework.web.context.WebApplicationContext" %>
+<%@ page import="com.progym.common.dao.UserDao" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
  <%
 if(session == null)
@@ -35,6 +42,19 @@ else if(session.getAttribute("loggedInUser") == null)
                                 <li><a title="Add Courses" href="addPackage"><span class="mini-sub-pro">Add Package</span></a></li>                                
                             </ul>
                         </li>
+
+                        <%
+
+                            WebApplicationContext ctx = RequestContextUtils.findWebApplicationContext(request);
+                            UserDao userDao = ((UserDao)ctx.getBean("userDao"));
+
+                        %>
+
+                        <%
+                            if(userDao.isModuleEnabled(ProjectConstants.WORKOUT_FLAG)){
+
+                        %>
+
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Workout</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
@@ -44,6 +64,14 @@ else if(session.getAttribute("loggedInUser") == null)
                                 <li><a title="Workouts Templates" href="#"><span class="mini-sub-pro">Workouts Templates</span></a></li>
                             </ul>
                         </li>
+                        <%
+                            }
+                            %>
+
+                        <%
+                            if(userDao.isModuleEnabled(ProjectConstants.DIET_FLAG)){
+
+                        %>
 
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Diet</span></a>
@@ -51,6 +79,7 @@ else if(session.getAttribute("loggedInUser") == null)
                                 <li><a title="Diet Templates" href="dietTemplates"><span class="mini-sub-pro">Diet Templates</span></a></li>
                             </ul>
                         </li>
+                        <% } %>
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-library icon-wrap"></span> <span class="mini-click-non">Payments</span></a>
                             <ul class="submenu-angle" aria-expanded="false">

@@ -50,7 +50,7 @@ public class WorkoutController {
 
 
     @RequestMapping(value = "/viewWorkouts", method = RequestMethod.GET)
-    public ModelAndView viewWorkouts(HttpServletRequest request, HttpServletResponse response, @RequestParam String mid) {
+    public ModelAndView viewWorkouts(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String mid) {
 
         FileModel file = new FileModel();
         ModelAndView mav = new ModelAndView("viewWorkouts", "fileUpload", file);
@@ -172,7 +172,7 @@ public class WorkoutController {
     }
 
     @RequestMapping(value = "/addMainWorkout", method = RequestMethod.GET)
-    public ModelAndView addMainWorkoutForm(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView addMainWorkoutForm(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("addMainWorkoutForm");
         return mav;
     }
@@ -185,7 +185,7 @@ public class WorkoutController {
     }
 
     @RequestMapping(value = "/addSubWorkout", method = RequestMethod.GET)
-    public ModelAndView addSubWorkoutForm(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView addSubWorkoutForm(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("addSubTypeWorkoutForm");
         mav.addObject("workoutMainTypeList", getWorkoutMainTypeList());
         return mav;

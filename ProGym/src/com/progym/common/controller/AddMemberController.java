@@ -30,7 +30,7 @@ public class AddMemberController {
     UserService userService;
 
     @RequestMapping(value = "/fetchUserDetailsFromServer", method = RequestMethod.POST)
-    public void fetchUserDetailsFromServer(HttpServletRequest request, HttpServletResponse response, @RequestParam String enteredMobile) throws IOException {
+    public void fetchUserDetailsFromServer(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String enteredMobile) throws IOException {
         obj = new AddMemberObject();
         obj.setMobile(enteredMobile);
         userService.fetchUserDetailsFromServer(obj);
@@ -40,7 +40,7 @@ public class AddMemberController {
     }
 
     @RequestMapping(value = "/addMember", method = RequestMethod.GET)
-    public ModelAndView addMemberFormDisplay(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView addMemberFormDisplay(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         if (clearData)
             obj = new AddMemberObject();
         ModelAndView mav = new ModelAndView("add-member");

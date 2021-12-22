@@ -42,21 +42,21 @@ public class AddPackageController {
     }
 
     @RequestMapping(value = "/malePackage", method = RequestMethod.GET)
-    public ModelAndView showMalePackage(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView showMalePackage(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("display-packages");
         mav.addObject("pkgList", userService.getPackagesByFilter("male"));
         return mav;
     }
 
     @RequestMapping(value = "/femalePackage", method = RequestMethod.GET)
-    public ModelAndView showFemalePackage(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView showFemalePackage(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("display-packages");
         mav.addObject("pkgList", userService.getPackagesByFilter("female"));
         return mav;
     }
 
     @RequestMapping(value = "/addPackage", method = RequestMethod.GET)
-    public ModelAndView addPackageFormDisplay(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView addPackageFormDisplay(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("add-package");
         mav.addObject("addPackageObject", new AddPackageObject());
         return mav;

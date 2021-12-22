@@ -23,7 +23,6 @@ public class DietDaoImpl implements DietDao{
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    Session session = null;
 
     public Client getClientById(int clientId) {
         // build whole client object
@@ -36,15 +35,18 @@ public class DietDaoImpl implements DietDao{
 
     @Override
     public DietTimeSlots getDietTimeSlotObjectById(int i) {
+        Session session = null;
         session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         DietTimeSlots object = (DietTimeSlots) session.createCriteria(DietTimeSlots.class).add(Restrictions.eq("id", i)).uniqueResult();
+        session.close();
         return object;
     }
 
     @Override
     public void addDietPlanTemplateObject(String dietPlanname, String clientId, String time_1, String activity_1, String time_2, String activity_2, String time_3, String activity_3, String time_4, String activity_4, String time_5, String activity_5, String time_6, String activity_6, String time_7, String activity_7, String time_8, String activity_8, String time_9, String activity_9, String time_10, String activity_10, String time_11, String activity_11, String time_12, String activity_12, String time_13, String activity_13, String time_14, String activity_14, String time_15, String activity_15, String time_16, String activity_16, String time_17, String activity_17) {
-
+        Session session = null;
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         Client client = getClientById(Integer.parseInt(clientId));
         DietPlanTemplate object = new DietPlanTemplate(dietPlanname, client, DateApi.getDdMmYyyyDate(""), "false",
                 time_1, activity_1,
@@ -70,8 +72,7 @@ public class DietDaoImpl implements DietDao{
         String dietId = ServerCom.sendSingleObjectToServer(ServerApi.CREATE_DIET_TEMPLATE_API, object);
         client.setAdp(dietId);
         ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_CLIENT_API, client);
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+
         session.saveOrUpdate(client);
         session.getTransaction().commit();
         session.close();
@@ -294,8 +295,10 @@ public class DietDaoImpl implements DietDao{
 
     @Override
     public void createAutoDietPlansForClients() {
+        Session session = null;
         // check if diet plan present or not for today's date
         session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         List<Client> clientList = new ArrayList<Client>(new LinkedHashSet((session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("profileActiveFlag", "enable")).list())));
         for (Client c : clientList) {
             String adp = c.getAdp();
@@ -337,16 +340,18 @@ public class DietDaoImpl implements DietDao{
             }
         }// end for
 
-        session.beginTransaction();
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
     public void resetActivePlan(String clientId) {
-        Client c = getClientById(Integer.parseInt(clientId));
-        c.setAdp(null);
+        Session session = null;
         session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
+        Client c = getClientById(Integer.parseInt(clientId));
+        c.setAdp(null);
+
         session.saveOrUpdate(c);
         session.getTransaction().commit();
         session.close();
@@ -355,6 +360,7 @@ public class DietDaoImpl implements DietDao{
 
     @Override
     public void activateDietPlanTemplateForClient(String clientId, String templateId) {
+        Session session = null;
         Client c = getClientById(Integer.parseInt(clientId));
         c.setAdp(templateId);
         session = HibernateUtils.getSessionFactory().openSession();

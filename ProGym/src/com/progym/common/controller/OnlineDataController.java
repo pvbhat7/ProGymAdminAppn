@@ -46,7 +46,7 @@ public class OnlineDataController {
     @RequestMapping(value = "/merchandise", method = RequestMethod.GET)
     public ModelAndView viewMerchandise() {
         FileModel file = new FileModel();
-        ModelAndView mav = new ModelAndView("viewOnlineProducts", "fileUpload", file);
+        ModelAndView mav = new ModelAndView("viewOnlineProductsMerchandise", "fileUpload", file);
         mav.addObject("listOfProducts", userService.viewMerchandise());
         mav.addObject("objTypename", "Merchandise");
         return mav;
@@ -57,14 +57,14 @@ public class OnlineDataController {
     public void updateProductToServer(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                       @RequestParam String category, @RequestParam String productId,
                                       @RequestParam String productPhoto, @RequestParam String productName,
-                                      @RequestParam String oldPrice, @RequestParam String newPrice) throws IOException {
+                                      @RequestParam String oldPrice, @RequestParam String newPrice,@RequestParam String productPhotoDesc) throws IOException {
         String uri = "";
         if (category.equalsIgnoreCase("Supplements")) {
-            userService.updateProductToServer("Supplements", productId, productName, oldPrice, newPrice, productPhoto, "false");
+            userService.updateProductToServer("Supplements", productId, productName, oldPrice, newPrice, productPhoto,productPhotoDesc, "false");
             uri = "supplements";
         } else if (category.equalsIgnoreCase("Merchandise")) {
             uri = "merchandise";
-            userService.updateProductToServer("merchandise", productId, productName, oldPrice, newPrice, productPhoto, "false");
+            userService.updateProductToServer("merchandise", productId, productName, oldPrice, newPrice, productPhoto,productPhotoDesc, "false");
         }
 
         response.sendRedirect(uri);
@@ -96,6 +96,31 @@ public class OnlineDataController {
 
             //userService.updateTSubworkoutType(subWorkoutId,serverimagePath);
             userService.updateProductPhotoToServer(category, productId, newProductImagePath);
+            response.sendRedirect(uri);
+        }
+    }
+
+    @RequestMapping(value = "/uploadProductPhotoDescToServer", method = RequestMethod.POST)
+    public void uploadProductPhotoDescToServer(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                                           @RequestParam String productPhotoDesc, @RequestParam String productId, @RequestParam String category,
+                                           @Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
+        String uri = "supplements";
+
+        if (result.hasErrors() || file.getFile().isEmpty()) {
+            response.sendRedirect(uri);
+        } else {
+            MultipartFile multipartFile = file.getFile();
+            String uploadPath = session.getServletContext().getRealPath("/img/");
+
+            //Now do something with file...
+            String imagePath = IMAGE_DIRECTORY + file.getFile().getOriginalFilename();
+            FileCopyUtils.copy(file.getFile().getBytes(), new File(imagePath));
+
+            transferImageToFtp(imagePath, file.getFile().getOriginalFilename(), "supplements");
+            String newProductImagePath = "https://tavrostechinfo.com/PROGYM/supplements/" + file.getFile().getOriginalFilename();
+
+            //userService.updateTSubworkoutType(subWorkoutId,serverimagePath);
+            userService.updateProductPhotoDescToServer(category, productId, newProductImagePath);
             response.sendRedirect(uri);
         }
     }

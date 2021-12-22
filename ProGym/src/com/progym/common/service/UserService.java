@@ -74,7 +74,7 @@ public interface UserService {
 
 	void sendFeesReminder(String clientid);
 
-	public List<String> getTodaysBirthdays();
+	public List<Client> getTodaysBirthdays();
 
 	void sendBdayWish(String name);
 
@@ -123,8 +123,6 @@ public interface UserService {
 
 	void reconcileContacts();
 
-    void syncWorkoutData(String cliendId);
-
     void reconcileWorkoutData();
 
     List<BloodGroupDetails> getBloodGroupDetails(String bg);
@@ -141,9 +139,11 @@ public interface UserService {
 
 	List<Supplements> viewSupplements();
 
-	void updateProductToServer(String supplements, String productId, String productName, String oldPrice, String newPrice, String productPhoto, String aFalse);
+	void updateProductToServer(String supplements, String productId, String productName,String productPhotoDesc, String oldPrice, String newPrice, String productPhoto, String aFalse);
 
     void updateProductPhotoToServer(String category, String productId, String productPhoto);
+
+	void updateProductPhotoDescToServer(String category, String productId, String productPhoto);
 
     void updateBrandImageToDB(String mobile, String imgCol, String newDbImageName);
 

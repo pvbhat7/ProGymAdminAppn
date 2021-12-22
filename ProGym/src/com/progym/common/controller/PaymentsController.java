@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @Controller
 public class PaymentsController {
@@ -18,7 +19,7 @@ public class PaymentsController {
     UserService userService;
 
     @RequestMapping(value = "/paidPayments", method = RequestMethod.GET)
-    public ModelAndView showPaidPayments(HttpServletRequest request, HttpServletResponse response, @RequestParam String gender) {
+    public ModelAndView showPaidPayments(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String gender) {
         ModelAndView mav = new ModelAndView("display-payments");
         mav.addObject("paymentDataPVOList", userService.getPaymentData("fully-paid", gender));
         mav.addObject("type", "paid");
@@ -26,7 +27,7 @@ public class PaymentsController {
     }
 
     @RequestMapping(value = "/pendingPayments", method = RequestMethod.GET)
-    public ModelAndView showPendingPayments(HttpServletRequest request, HttpServletResponse response, @RequestParam String gender) {
+    public ModelAndView showPendingPayments(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String gender) {
         ModelAndView mav = new ModelAndView("display-payments");
         mav.addObject("paymentDataPVOList", userService.getPaymentData("partial-paid", gender));
         mav.addObject("type", "notpaid");

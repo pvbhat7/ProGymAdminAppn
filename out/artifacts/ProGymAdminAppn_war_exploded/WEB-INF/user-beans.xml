@@ -4,6 +4,8 @@
     <context:annotation-config />
     <bean id="userService" class="com.progym.common.service.UserServiceImpl"/>
     <bean id="userDao" class="com.progym.common.dao.UserDaoImpl"/>
+    <bean id="dietService" class="com.progym.diet.DietServiceImpl"/>
+    <bean id="dietDao" class="com.progym.diet.DietDaoImpl"/>
     <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="datasource" />
     </bean>

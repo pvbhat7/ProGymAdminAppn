@@ -1,10 +1,10 @@
 package com.progym.common.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.progym.api.DateApi;
 import com.progym.api.Identity;
+import com.progym.api.ProjectContext;
 import com.progym.api.ServerApi;
 import com.progym.common.constants.ProjectConstants;
 import com.progym.common.fcm.PushNotificationRequest;
@@ -14,8 +14,6 @@ import com.progym.common.utils.*;
 import com.progym.tavros.ServerCom;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.*;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -26,6 +24,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,7 +37,7 @@ public class UserDaoImpl implements UserDao {
 
     String jsonString = "";
 
-    public static TaskExecutor getTaskExecutor(){
+    public static TaskExecutor getTaskExecutor() {
         ThreadPoolTaskExecutor t = new ThreadPoolTaskExecutor();
         t.setCorePoolSize(1);
         t.setMaxPoolSize(5);
@@ -63,34 +65,24 @@ public class UserDaoImpl implements UserDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    Session session = null;
-
     public void register() {
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         System.out.println("registering...");
-        Criteria crit = session.createCriteria(User.class);
-        Collection<User> collection = new LinkedHashSet(crit.list());
-        if (collection.size() == 0) {
-			/*User u1 = new User("djpranav77", "pooja.418", "Pranav Patil","YES");
-			  User u2 = new User("swati", "sairaj0909","Swati HadPad", "NO");
-			  session.save(u1);
-			  session.save(u2);
-			  session.getTransaction().commit();*/
-        }
-
     }
 
     public User validateUser(User user) {
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
-        return (User) session.createCriteria(User.class).add(Restrictions.eq("password", user.getPassword())).add(Restrictions.eq("username", user.getUsername())).uniqueResult();
-
+        User u = null;
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        u = (User) session.createCriteria(User.class)
+                .add(Restrictions.eq("password", user.getPassword()))
+                .add(Restrictions.eq("username", user.getUsername()))
+                .uniqueResult();
+        session.close();
+        return u;
     }
 
     @Override
     public void updateMemberToDatabase(Client c, User u) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         Client c1 = getClientById(c.getId());
         c1.setAddress(c.getAddress());
@@ -103,17 +95,17 @@ public class UserDaoImpl implements UserDao {
         c1.setDiscontinue("false");
         c1.setWeight(c.getWeight());
         c1.setHeight(c.getHeight());
-        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_CLIENT_API, c1);
         session.saveOrUpdate(c1);
-
-        logActivity(session, c, u, ACTIVITY_TYPE_UPDATE_MEMBER_PROFILE, null);
-
         session.getTransaction().commit();
+        if (ProjectContext.isOnlineMode())
+            ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_CLIENT_API, c1);
+        logActivity(session, c, u, ACTIVITY_TYPE_UPDATE_MEMBER_PROFILE, null);
+        session.close();
     }
 
 
     public List<MemberStatPVO> getMembersBy(String filter, String zone, String enableDisable) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("profileActiveFlag", enableDisable));
         Collection<Client> collection = new LinkedHashSet(crit.list());
@@ -145,8 +137,6 @@ public class UserDaoImpl implements UserDao {
             m.setMobile(c.getMobile());
 
             // get recent package record and set days remaining
-            if (session == null || !session.isOpen())
-                session = HibernateUtils.getSessionFactory().openSession();
             Criteria c1 = session.createCriteria(PackageDetails.class);
             c1.add(Restrictions.eq("client.id", c.getId()));
             c1.add(Restrictions.eq("discontinue", "false"));
@@ -190,8 +180,6 @@ public class UserDaoImpl implements UserDao {
 
             membersStatPVOs.add(m);
         }
-        //session.beginTransaction();
-        //session.getTransaction().commit();
         session.close();
 
         // Filtering display object based on selected color by end user
@@ -259,19 +247,19 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void addPackageToDatabase(AddPackageObject addPackageObject, User user) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         CPackage pkg = new CPackage(addPackageObject.getFees(), addPackageObject.getPackageName(), addPackageObject.getDays(), addPackageObject.getGender(), "false");
         session.save(pkg);
-        logActivity(session, null, user, ACTIVITY_TYPE_ADD_NEW_PACKAGE, null);
         session.beginTransaction();
         session.getTransaction().commit();
+        logActivity(session, null, user, ACTIVITY_TYPE_ADD_NEW_PACKAGE, null);
+        session.close();
     }
 
     @Override
     public List<CPackage> getPackagesByFilter(String filter) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<CPackage> pkg = new ArrayList<CPackage>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         Criteria crit = session.createCriteria(CPackage.class);
         if (!filter.equals("all"))
             crit.add(Restrictions.eq("gender", filter));
@@ -282,10 +270,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void addPackageForClientToDatabase(AddClientPackageForm o, User user) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
 
         // get current list & add to existing list - pkgdetails
         //
-        session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         PackageDetails pd1 = new PackageDetails();
         pd1.setClientPackageStatus("not paid");
@@ -305,8 +293,9 @@ public class UserDaoImpl implements UserDao {
         Client c1 = getClientById(o.getClientId());
         pd1.setClient(c1);
         session.save(pd1);
-        logActivity(session, c1, user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT, String.valueOf(pd1.getPackageFees()));
         session.getTransaction().commit();
+        logActivity(session, c1, user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT, String.valueOf(pd1.getPackageFees()));
+        session.close();
     }
 
     @Override
@@ -321,31 +310,20 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public CPackage getPackageById(int id) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         CPackage p = null;
-        session = getSession();
-        if (!session.getTransaction().isActive())
-            session.beginTransaction();
         Criteria crit = session.createCriteria(CPackage.class);
         crit.add(Restrictions.eq("id", id));
         crit.add(Restrictions.eq("discontinue", "false"));
         p = (CPackage) crit.uniqueResult();
+        session.close();
         return p;
-    }
-
-    public Session getSession() {
-        SessionFactory factory = HibernateUtils.getSessionFactory();
-        if (factory.getCurrentSession() != null) {
-            return factory.getCurrentSession();
-
-        } else {
-            return factory.openSession();
-        }
     }
 
     @Override
     public void createTransaction(PaymentTransaction paymentTransaction, Boolean isAuthorized, User user) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         EmailDataObject eObj = new EmailDataObject();
-        session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         String isAuth = "NO";
         if (isAuthorized)
@@ -423,9 +401,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<PackageDetails> getClientPackagesByClient(Client client) {
-        List<PackageDetails> pkgList = new ArrayList<PackageDetails>();
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
+
+        List<PackageDetails> pkgList = new ArrayList<PackageDetails>();
         Collection<PackageDetails> p = new LinkedHashSet(session.createCriteria(PackageDetails.class)
                 .add(Restrictions.eq("client.id", client.getId()))
                 .add(Restrictions.eq("discontinue", "false"))
@@ -444,13 +423,14 @@ public class UserDaoImpl implements UserDao {
 
         List<PackageDetails> aList = new ArrayList<PackageDetails>(p);
         session.getTransaction().commit();
+        session.close();
         return aList;
 
     }
 
     @Override
     public List<PaymentDataPVO> getPaymentData(String type, String gender) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<PaymentDataPVO> list = new ArrayList<PaymentDataPVO>();
         Collection<PackageDetails> collection = null;
         if (type.equals("fully-paid")) {
@@ -482,13 +462,14 @@ public class UserDaoImpl implements UserDao {
                     list.add(new PaymentDataPVO(p.getClient().getName(), p.getPackageName(), p.getPackageFees(), p.getPackageStartDate(), p.getPackageEndDate(), p.getPackagePaymentDate(), p.getClient().getGender(), p.getClientPackageStatus(), p.getClient().getId()));
             }
         }
+        session.close();
         return list;
     }
 
 
     @Override
     public List<CollectionPVO> getCollectionBy(FilterCollectionObject filter) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<CollectionPVO> collectionPVOList = new ArrayList<CollectionPVO>();
         Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.ne("clientPackageStatus", "not paid")).add(Restrictions.eq("discontinue", "false")).list());
         if (filter.getFilter().equals("GMY")) {
@@ -530,13 +511,13 @@ public class UserDaoImpl implements UserDao {
                 }
             }
         }
-
+        session.close();
         return collectionPVOList;
     }
 
     @Override
     public CollectionDashboardPVO getDashboardCollection() {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         Collection<PackageDetails> packagePaymentCollection = new LinkedHashSet(session.createCriteria(PackageDetails.class).add(Restrictions.eq("discontinue", "false")).list());
         String currentMonthName;
         String lastMonthName;
@@ -628,8 +609,7 @@ public class UserDaoImpl implements UserDao {
         currentMonthTotalCollection = currentMonthMaleCollection + currentMonthFemaleCollection + currentMonthSteamCollection;
         lastMonthTotalCollection = lastMonthMaleCollection + lastMonthFemaleCollection + lastMonthSteamCollection;
 
-
-        return new CollectionDashboardPVO(male, female, total, steam,
+        CollectionDashboardPVO obj = new CollectionDashboardPVO(male, female, total, steam,
                 new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("gender", "male")).list()).size(),
                 new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("gender", "female")).list()).size(),
                 new LinkedHashSet(session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).list()).size(),
@@ -638,14 +618,17 @@ public class UserDaoImpl implements UserDao {
                 currentMonthMaleCollection, currentMonthFemaleCollection, currentMonthSteamCollection, currentMonthTotalCollection,
                 lastMonthMaleCollection, lastMonthFemaleCollection, lastMonthSteamCollection, lastMonthTotalCollection,
                 currentMonthName, lastMonthName, getTodaysBirthdays(), enableMembersCount, disableMembersCount);
+        session.close();
+
+        return obj;
 
     }
 
     @Override
     public void approveTransaction(String txnId) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        PaymentTransaction txn = (PaymentTransaction) session.get(PaymentTransaction.class, Integer.parseInt(txnId));
+        PaymentTransaction txn = (PaymentTransaction) session.createCriteria(PaymentTransaction.class).add(Restrictions.eq("id", Integer.parseInt(txnId))).uniqueResult();
         txn.setIsApproved("YES");
         session.save(txn);
         session.getTransaction().commit();
@@ -654,9 +637,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void updateClientAssignedPackage(String u_pkgId, String u_startdate, String u_enddate, String u_fees, User user) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
+        PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", Integer.parseInt(u_pkgId))).uniqueResult();
         if (pd.getAmountPaid() < Double.valueOf(u_fees) && pd.getAmountPaid() > 0)
             pd.setClientPackageStatus("partial-paid");
         else if (pd.getAmountPaid() < Double.valueOf(u_fees) && pd.getAmountPaid() == 0)
@@ -677,9 +660,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteClientAssignedPackage(String u_pkgId, User user) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        PackageDetails pd = (PackageDetails) session.get(PackageDetails.class, Integer.parseInt(u_pkgId));
+
+        PackageDetails pd = (PackageDetails) session.createCriteria(PackageDetails.class).add(Restrictions.eq("id", Integer.parseInt(u_pkgId))).uniqueResult();
         pd.setDiscontinue("true");
         session.save(pd);
         logActivity(session, pd.getClient(), user, ACTIVITY_TYPE_DELETE_CLIENT_EXISTING_PACKAGE, null);
@@ -714,17 +698,18 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<ReferenceVO> getReferenceList() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        //
         List<Client> list = new ArrayList<Client>();
         List<ReferenceVO> refList = new ArrayList<ReferenceVO>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        //session.beginTransaction();
         Criteria crit = session.createCriteria(Client.class);
         crit.add(Restrictions.eq("discontinue", "false"));
         list = crit.list();
-        //session.close();
         for (Client c : list) {
             refList.add(new ReferenceVO(c.getId(), c.getName()));
         }
+        session.close();
+
         return refList;
     }
 
@@ -739,9 +724,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<Notifications> getNotifications(User user) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<Notifications> notiList = new ArrayList<Notifications>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+
         Criteria crit = session.createCriteria(Notifications.class);
         if (user.getAuthorizedToApprovePayment().equals("NO"))
             crit.add(Restrictions.eq("trainer", "Swati Hadpad"));
@@ -755,9 +740,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void discardNotification(String notiId) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        Notifications noti = (Notifications) session.get(Notifications.class, Integer.parseInt(notiId));
+        Notifications noti = (Notifications) session.createCriteria(Notifications.class).add(Restrictions.eq("id", Integer.parseInt(notiId))).uniqueResult();
         noti.setDiscontinue("true");
         session.save(noti);
         session.getTransaction().commit();
@@ -766,8 +751,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void submitFemaleAditionalDataForm(FemaleMemberAdditionalDataVO obj, User u) {
-
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         String isAuth = "NO";
         if (u.getAuthorizedToApprovePayment().equalsIgnoreCase("true"))
@@ -786,22 +770,21 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<FemaleMemberAdditionalDataVO> getFemaleAditionalDataListByClientId(int clientId) {
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         Collection<FemaleMemberAdditionalDataVO> list = new LinkedHashSet(session.createCriteria(FemaleMemberAdditionalDataVO.class)
                 .add(Restrictions.eq("clientId", clientId))
                 .add(Restrictions.eq("discontinue", "false"))
                 .addOrder(Order.desc("id"))
                 .list());
-        session.getTransaction().commit();
+        session.close();
         return new ArrayList<FemaleMemberAdditionalDataVO>(list);
     }
 
     @Override
     public void deleteClientProfile(String clientid, User user) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+        Client client =getClientById(Integer.parseInt(clientid));
         //client.setDiscontinue("true");
         for (PackageDetails pd : client.getPackageDetails()) {
             pd.setDiscontinue("true");
@@ -818,9 +801,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deletePackage(String pkgid, User user) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        CPackage pd = (CPackage) session.get(CPackage.class, Integer.parseInt(pkgid));
+        CPackage pd = (CPackage) session.createCriteria(CPackage.class).add(Restrictions.eq("id", Integer.parseInt(pkgid))).uniqueResult();
         pd.setDiscontinue("true");
         session.save(pd);
         //logActivity(session ,null , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);
@@ -830,9 +813,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteFemaleClientAdditionalDetails(String id, User u) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        FemaleMemberAdditionalDataVO vo = (FemaleMemberAdditionalDataVO) session.get(FemaleMemberAdditionalDataVO.class, Integer.parseInt(id));
+
+        FemaleMemberAdditionalDataVO vo = (FemaleMemberAdditionalDataVO) session.createCriteria(FemaleMemberAdditionalDataVO.class).add(Restrictions.eq("id", Integer.parseInt(id))).uniqueResult();
         vo.setDiscontinue("true");
         session.save(vo);
         //logActivity(session ,null , user , ACTIVITY_TYPE_DELETE_CLIENT_PROFILE , null);
@@ -842,10 +826,11 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<MemberStatPVO> getMembersBySearchCriteria(String searchCriteria) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         String zone = "none";
         String filter = "all";
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+
+
         Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.like("name", searchCriteria, MatchMode.ANYWHERE));
         Collection<Client> collection = new LinkedHashSet(crit.list());
         List<Client> cList = new ArrayList<Client>();
@@ -870,8 +855,6 @@ public class UserDaoImpl implements UserDao {
             c1.add(Restrictions.eq("discontinue", "false"));
             c1.addOrder(Order.desc("id"));
             c1.setMaxResults(1);
-            if (!session.isOpen())
-                HibernateUtils.getSessionFactory().openSession();
             PackageDetails pd = ((PackageDetails) c1.uniqueResult());
             if (pd != null) {
                 m.setPaymentStatus(pd.getClientPackageStatus());
@@ -907,9 +890,6 @@ public class UserDaoImpl implements UserDao {
 
             membersStatPVOs.add(m);
         }
-        //session.beginTransaction();
-        //session.getTransaction().commit();
-        session.close();
         List<MemberStatPVO> membersStatPVOByZones = null;
 
         if (zone.equalsIgnoreCase("none")) {
@@ -921,19 +901,20 @@ public class UserDaoImpl implements UserDao {
         } else if (zone.equalsIgnoreCase("yellow")) {
             membersStatPVOByZones = getMembersByZones(membersStatPVOs, YELLOW);
         }
+        session.close();
+
         return membersStatPVOByZones;
     }
 
     @Override
     public List<Notifications> getMobileNotifications() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+
         List<Notifications> notiList = new ArrayList<Notifications>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         Criteria crit = session.createCriteria(Notifications.class);
         crit.add(Restrictions.eq("discontinue", "false"));
         crit.addOrder(Order.desc("id"));
         notiList = crit.list();
-        session.close();
         List<Notifications> mobileNotification = new ArrayList<Notifications>();
         for (Notifications n : notiList) {
             if (n.getActivity().equalsIgnoreCase(ACTIVITY_TYPE_NEW_PAYMENT) ||
@@ -941,13 +922,15 @@ public class UserDaoImpl implements UserDao {
                 mobileNotification.add(n);
             }
         }
+        session.close();
+
         return mobileNotification;
     }
 
     @Override
     public void sendPendingInvoices() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
-        session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         Criteria crit = session.createCriteria(EmailDataObject.class);
         crit.add(Restrictions.eq("isReceiptSent", "FALSE"));
@@ -966,13 +949,15 @@ public class UserDaoImpl implements UserDao {
             session.saveOrUpdate(obj);
         }
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
     public void sendInvoice(String txnId, String email) {
-        List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
+        List<EmailDataObject> pendingInvoiceList = new ArrayList<EmailDataObject>();
+
         EmailDataObject eObj = (EmailDataObject) session
                 .createCriteria(EmailDataObject.class)
                 .add(Restrictions.eq("paymentTransactionId", Integer.parseInt(txnId)))
@@ -1042,11 +1027,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public String getReferralName(String cliendId) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         String space = "\\n";
         String referrals = "\'";
         List<Client> pkgList = new ArrayList<Client>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         Collection<Client> clients = new LinkedHashSet(session.createCriteria(Client.class)
                 .add(Restrictions.eq("reference", cliendId))
                 .list());
@@ -1054,15 +1038,15 @@ public class UserDaoImpl implements UserDao {
             referrals = referrals + c.getName() + space;
         }
         referrals = referrals + "\'";
-        session.getTransaction().commit();
+        session.close();
         return referrals;
     }
 
     @Override
     public void redeemReferPoints(String clientid) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+        Client client = getClientById(Integer.parseInt(clientid));
         client.setReferPoints("0");
         session.save(client);
         session.getTransaction().commit();
@@ -1071,9 +1055,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void updateProfileActiveFlag(String clientid, String selectflag) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        Client client = (Client) session.get(Client.class, Integer.parseInt(clientid));
+        Client client = getClientById(Integer.parseInt(clientid));
         client.setProfileActiveFlag(selectflag);
         session.save(client);
         session.getTransaction().commit();
@@ -1082,7 +1066,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void triggerEnableDisableProfileBatch() {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         Criteria crit = session.createCriteria(Client.class).add(Restrictions.eq("discontinue", "false"));
         Collection<Client> collection = new LinkedHashSet(crit.list());
@@ -1099,8 +1083,6 @@ public class UserDaoImpl implements UserDao {
             c1.addOrder(Order.desc("id"));
             c1.setMaxResults(1);
 
-            if (!session.isOpen())
-                HibernateUtils.getSessionFactory().openSession();
             PackageDetails pd = ((PackageDetails) c1.uniqueResult());
 
             if (pd != null) {
@@ -1125,8 +1107,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void sendFeesReminder(String clientid) {
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+        Session session = HibernateUtils.getSessionFactory().openSession();
 
         // get recent package record and set days remaining
         Criteria c1 = session.createCriteria(PackageDetails.class);
@@ -1135,8 +1116,7 @@ public class UserDaoImpl implements UserDao {
         c1.addOrder(Order.desc("id"));
         c1.setMaxResults(1);
 
-        if (!session.isOpen())
-            HibernateUtils.getSessionFactory().openSession();
+
         PackageDetails pd = ((PackageDetails) c1.uniqueResult());
 
         if (pd != null) {
@@ -1150,9 +1130,12 @@ public class UserDaoImpl implements UserDao {
         } else {
             // no days
         }
+
+        session.close();
     }
 
-    public List<String> getTodaysBirthdays() {
+    public List<Client> getTodaysBirthdays() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         String todaysDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
         java.time.LocalDate today = java.time.LocalDate.now();
         int systemMonth = today.getMonthValue();
@@ -1162,7 +1145,7 @@ public class UserDaoImpl implements UserDao {
                 .add(Restrictions.eq("discontinue", "false"))
                 .list());
         List<Client> list = new ArrayList<>();
-        List<String> listNames = new ArrayList<>();
+        List<Client> listNames = new ArrayList<>();
         list.addAll(clients);
         for (Client c : list) {
             Date bday;
@@ -1171,34 +1154,21 @@ public class UserDaoImpl implements UserDao {
                 int month_ = bday.getMonth() + 1;
                 int date = bday.getDate();
                 if (date == systemDate && month_ == systemMonth)
-                    listNames.add(c.getName());
+                    listNames.add(c);
             } catch (ParseException e) {
             }
         }
+        session.close();
         return listNames;
     }
 
     @Override
-    public void sendBdayWish(String name) {
-        Session session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
-        Client c = (Client) session.createCriteria(Client.class).add(Restrictions.eq("name", name)).uniqueResult();
-        getTaskExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                BdayEmailTemplate.sendEmail2(c.getEmail(), name);
-            }
-        });
-        session.getTransaction().commit();
-    }
-
-    @Override
     public void createNewEmail(String emailSubject, String filter, String image) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+
         List<String> clientMobileList = new ArrayList<>();
         List<PushNotificationRequest> pushRequest = new ArrayList<>();
         List<String> emailsList = new ArrayList<>();
-        Session session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         Criteria crit = session.createCriteria(Client.class);
         if (filter.equals("sendToEnable"))
             crit.add(Restrictions.eq("profileActiveFlag", "enable"));
@@ -1236,15 +1206,16 @@ public class UserDaoImpl implements UserDao {
 
         // sent push notifications to fcm
         ServerCom.sentBatchFcmNotification(finalRequestList);
+        session.close();
     }
 
     @Override
     public void createNewSms(String smsContent, String filter) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         List<String> clientMobileList = new ArrayList<>();
         List<PushNotificationRequest> pushRequest = new ArrayList<>();
         System.out.println("method called: createNewSms");
-        Session session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         Criteria crit = session.createCriteria(Client.class);
         if (filter.equals("sendToEnable")) {
             crit.add(Restrictions.eq("profileActiveFlag", "enable"));
@@ -1351,16 +1322,15 @@ public class UserDaoImpl implements UserDao {
         ServerCom.sentBatchFcmNotification(finalRequestList);
 
         session.getTransaction().commit();
+        session.close();
     }
 
     public Boolean checkIsBatchCompleted(String batchName, String date) {
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         BatchLogs batch = (BatchLogs) session.createCriteria(BatchLogs.class).add(Restrictions.eq("batchName", batchName)).add(Restrictions.eq("date", date)).uniqueResult();
+        session.close();
         return batch != null ? true : false;
     }
-
-
 
 
     @Override
@@ -1388,16 +1358,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void triggerFeesPaymentReminderBatch() {
+        if (isModuleEnabled(ProjectConstants.EMAIL_INVOICE_FLAG)) {
+            System.out.println("Batch Started : triggerFeesPaymentReminderBatch");
+            List<EmailPVO> emailPVOList = new ArrayList<>();
+            String todaysDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+            String batchName = "FEES_REMINDER_BATCH";
+            if (!checkIsBatchCompleted(batchName, todaysDate)) {
+                List<MemberStatPVO> memberStatPVOs = getMembersBy("all", "none", "enable");
+                for (MemberStatPVO m : memberStatPVOs) {
+                    String packagePaymentStatus = m.getPackagePaymentStatus();
 
-        System.out.println("Batch Started : triggerFeesPaymentReminderBatch");
-        List<EmailPVO> emailPVOList = new ArrayList<>();
-        String todaysDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
-        String batchName = "FEES_REMINDER_BATCH";
-        if (!checkIsBatchCompleted(batchName, todaysDate)) {
-            List<MemberStatPVO> memberStatPVOs = getMembersBy("all", "none", "enable");
-            for (MemberStatPVO m : memberStatPVOs) {
-                String packagePaymentStatus = m.getPackagePaymentStatus();
-                if (isModuleEnabled(ProjectConstants.SMS_FLAG)) {
                     String email = m.getEmail();
                     if (email.contains("@")) ;
                     {
@@ -1417,58 +1387,79 @@ public class UserDaoImpl implements UserDao {
                             }
                         }
                     }
-                }// end toggle check
-            }// end for
 
-        }// end if
+                }// end for
 
-        // send emails
-        System.out.println("email pvo size" + emailPVOList.size());
-        sendEmails(emailPVOList);
-        System.out.println("Batch finished : triggerFeesPaymentReminderBatch");
+            }// end if
 
+            // send emails
+            System.out.println("email pvo size" + emailPVOList.size());
+            sendEmails(emailPVOList);
+            System.out.println("Batch finished : triggerFeesPaymentReminderBatch");
+
+        }
     }
 
     public void sendEmails(List<EmailPVO> emailPVOList) {
-        for (EmailPVO m : emailPVOList) {
-            System.out.println("sending email to :" + m.getEmail());
-            getTaskExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    System.out.println("sending payment reminder email :" + m.getEmail());
-                    FeesReminderEmail.sendEmail(m.getEmail(), m.getSubject(), m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(), m.getPackageTotalFees(), m.getMessageLine());
+        if(isConnected()){
+            if(emailPVOList.size() > 0){
+                for (EmailPVO m : emailPVOList) {
+                    System.out.println("sending email to :" + m.getEmail());
+                    getTaskExecutor().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("sending payment reminder email :" + m.getEmail());
+                            FeesReminderEmail.sendEmail(m.getEmail(), m.getSubject(), m.getName(), m.getPackageName(), m.getPackageDuration(), m.getDaysRemaining(), m.getFeesPaid(), m.getPendingFees(), m.getPackageTotalFees(), m.getMessageLine());
+                        }
+                    });
                 }
-            });
+                updateBatchCompletedStatus("FEES_REMINDER_BATCH", new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+            }
+        }
+    }
+
+    public static boolean isConnected() {
+        try {
+            final URL url = new URL("http://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            return false;
         }
     }
 
 
     private void updateBatchCompletedStatus(String batchName, String todaysDate) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         BatchLogs batchObject = new BatchLogs(batchName, todaysDate, "completed");
         session.save(batchObject);
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
     public List<SmsLogs> getSmsLogs() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<SmsLogs> smsList = new ArrayList<SmsLogs>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
         Criteria crit = session.createCriteria(SmsLogs.class);
         crit.setMaxResults(50);
         crit.addOrder(Order.desc("id"));
         smsList = crit.list();
         session.getTransaction().commit();
+        session.close();
         return smsList;
     }
 
     @Override
     public void renewPackage(String clientid, User user) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         // get current list & add to existing list - pkgdetails
         //
-        session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
 
         Criteria c1 = session.createCriteria(PackageDetails.class);
@@ -1497,7 +1488,7 @@ public class UserDaoImpl implements UserDao {
             logActivity(session, client, user, ACTIVITY_TYPE_ASSIGN_PACKAGE_TO_CLIENT, String.valueOf(pd1.getPackageFees()));
         }
         session.getTransaction().commit();
-        //session.close();
+        session.close();
     }
 
     public String addDaysToDate(String oldDate, int daysToAdd) {
@@ -1534,13 +1525,13 @@ public class UserDaoImpl implements UserDao {
         String newDate = sdf.format(c.getTime());
 
         return newDate;
-    }    
+    }
 
     @Override
     public void updatePhotoInfo(Integer cid, String uploadedImagePath) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        Client client = (Client) session.get(Client.class, cid);
+        Client client = getClientById(cid);
         client.setPhoto(uploadedImagePath);
         session.save(client);
         ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_CLIENT_API, client);
@@ -1549,22 +1540,19 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<SmsLogs> getSmsByFilter(String gender) {
-        new ArrayList();
-        this.session = HibernateUtils.getSessionFactory().openSession();
-        this.session.beginTransaction();
-        Criteria crit = this.session.createCriteria(SmsLogs.class);
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        Criteria crit = session.createCriteria(SmsLogs.class);
         crit.add(Restrictions.eq("timestamp", DateApi.getDdMmYyyyDate("")));
         crit.add(Restrictions.eq("delivered", "0"));
         crit.add(Restrictions.eq("gender", gender));
         List<SmsLogs> smsList = crit.list();
-        this.session.getTransaction().commit();
-        this.session.close();
+        session.close();
         return smsList;
     }
 
     public void updateSmsDeliveryStatus(String id) {
-        this.session = HibernateUtils.getSessionFactory().openSession();
-        Transaction tx = this.session.beginTransaction();
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         boolean success = true;
 
         try {
@@ -1577,30 +1565,31 @@ public class UserDaoImpl implements UserDao {
                 ++c;
             }
 
-            List<SmsLogs> list = this.session.createCriteria(SmsLogs.class).add(Restrictions.in("id", arrNew)).list();
+            List<SmsLogs> list = session.createCriteria(SmsLogs.class).add(Restrictions.in("id", arrNew)).list();
 
             for (int i = 0; i < list.size(); ++i) {
                 SmsLogs sms = (SmsLogs) list.get(i);
                 sms.setDelivered("1");
-                this.session.save(sms);
+                session.save(sms);
             }
         } catch (Exception var13) {
             System.out.println(var13.toString());
             success = false;
         } finally {
             if (success) {
-                tx.commit();
+                session.getTransaction().commit();
             }
 
         }
+        session.close();
 
     }
 
     @Override
     public BrandImages getImageObjectByBrand(String brandName) {
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         BrandImages object = (BrandImages) session.createCriteria(BrandImages.class).add(Restrictions.eq("brandName", brandName)).uniqueResult();
+        session.close();
         return object;
     }
 
@@ -1608,23 +1597,15 @@ public class UserDaoImpl implements UserDao {
     public void addWorkoutObjectToDatabase(String clientId, String workoutDate, String mtid) {
         WorkoutScheduleObject object = new WorkoutScheduleObject(Integer.parseInt(clientId), DateApi.getDdMmYyyyDate(workoutDate), "false", mtid);
         ServerCom.sendSingleObjectToServer(ServerApi.CREATE_WORKOUT_SCHEDULE_OBJECT_API, object);
-        /*session = HibernateUtils.getSessionFactory().openSession();
-        Client client = getClientById(Integer.parseInt(clientId));
-        T_workoutMainType tWorkoutMainType = (T_workoutMainType) (session.createCriteria(T_workoutMainType.class).add(Restrictions.eq("id", Integer.parseInt(mainWorkoutType)))).uniqueResult();
-        WorkoutScheduleObject object = new WorkoutScheduleObject(client, DateApi.getDdMmYyyyDate(workoutDate), "false", tWorkoutMainType);
-        session.save(object);
-        object.setCid(Integer.parseInt(clientId));
-        object.setMtid(tWorkoutMainType.getName());
-        ServerCom.sendSingleObjectToServer(ServerApi.CREATE_WORKOUT_SCHEDULE_OBJECT_API, object);
-        session.beginTransaction();
-        session.getTransaction().commit();*/
+
     }
 
     @Override
     public void deleteSubType(String subTypeId) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
-        WorkoutSubType object = (WorkoutSubType) session.get(WorkoutSubType.class, Integer.parseInt(subTypeId));
+
+        WorkoutSubType object = (WorkoutSubType) session.createCriteria(WorkoutSubType.class).add(Restrictions.eq("id", Integer.parseInt(subTypeId))).uniqueResult();
         object.setDiscontinue("true");
         session.save(object);
         session.getTransaction().commit();
@@ -1634,14 +1615,14 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void addMainWorkoutToDatabase(String workoutName) {
         T_workoutMainType object = new T_workoutMainType(workoutName, "false");
-        ServerCom.sendSingleObjectToServer(ServerApi.CREATE_T_MAIN_WORKOUT_TYPE_API,object);
+        ServerCom.sendSingleObjectToServer(ServerApi.CREATE_T_MAIN_WORKOUT_TYPE_API, object);
     }
 
     @Override
     public void deleteMainWorkoutType(Integer id) {
         T_workoutMainType obj = getTMainWorkoutTypeById(String.valueOf(id));
         obj.setDiscontinue("true");
-        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_T_MAIN_WORKOUT_TYPE_API,obj);
+        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_T_MAIN_WORKOUT_TYPE_API, obj);
     }
 
     @Override
@@ -1649,33 +1630,26 @@ public class UserDaoImpl implements UserDao {
 
         T_workoutSubType object = getT_workoutSubTypeById(String.valueOf(id));
         object.setDiscontinue("true");
-        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_T_MAIN_WORKOUT_TYPE_API,object);
+        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_T_MAIN_WORKOUT_TYPE_API, object);
     }
 
     @Override
     public void addSubWorkoutToDatabase(String mainWorkoutId, String subWorkoutName, Integer sets, Integer reps) {
-        T_workoutMainType mainType = (T_workoutMainType) (session.createCriteria(T_workoutMainType.class).add(Restrictions.eq("id", Integer.parseInt(mainWorkoutId)))).uniqueResult();
+        T_workoutMainType mainType = (T_workoutMainType) getTMainWorkoutTypeById(mainWorkoutId);
         T_workoutSubType object = new T_workoutSubType(subWorkoutName, mainType, "false", sets, reps);
         object.setMtid(Integer.parseInt(mainWorkoutId));
-        ServerCom.sendSingleObjectToServer(ServerApi.CREATE_T_SUB_WORKOUT_TYPE_API,object);
-    }
-
-    public List<WorkoutScheduleObject> getWorkoutScheduleObjectList() {
-        session = HibernateUtils.getSessionFactory().openSession();
-        return new ArrayList<WorkoutScheduleObject>(new LinkedHashSet((session.createCriteria(WorkoutScheduleObject.class).add(Restrictions.eq("discontinue", "false")).list())));
-    }
-
-    public List<WorkoutSubType> getWorkoutSubTypeObjectsList() {
-        session = HibernateUtils.getSessionFactory().openSession();
-        return new ArrayList<WorkoutSubType>(new LinkedHashSet((session.createCriteria(WorkoutSubType.class).add(Restrictions.eq("discontinue", "false")).list())));
+        ServerCom.sendSingleObjectToServer(ServerApi.CREATE_T_SUB_WORKOUT_TYPE_API, object);
     }
 
     public List<Client> getAllClients() {
-        session = HibernateUtils.getSessionFactory().openSession();
-        return new ArrayList<Client>(new LinkedHashSet((session.createCriteria(Client.class).list())));
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        ArrayList<Client> list = new ArrayList<Client>(new LinkedHashSet((session.createCriteria(Client.class).list())));
+        session.close();
+        return list;
     }
 
     public List<String> getMissedClientRecords() throws Exception {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<String> jsonStringsList = new ArrayList<>();
         String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_CLIENT_EXTERNAL_CODES_API);
         if (!response.isEmpty()) {
@@ -1685,7 +1659,6 @@ public class UserDaoImpl implements UserDao {
                 arr.add(Integer.parseInt(s));
             }
             System.out.println("Records found in server :" + arr.size());
-            session = HibernateUtils.getSessionFactory().openSession();
             List<Client> list = new ArrayList<Client>(new LinkedHashSet((session.createCriteria(Client.class).add(Restrictions.not(Restrictions.in("id", arr))).list())));
             System.out.println("Missing Records found :" + list.size());
             for (Client c : list) {
@@ -1697,12 +1670,13 @@ public class UserDaoImpl implements UserDao {
                 jsonStringsList.add(new ObjectMapper().writeValueAsString(c));
             }
         }
+        session.close();
         return jsonStringsList;
     }
 
 
-
     public List<String> getMissedWorkoutScheduleObjectRecords() throws Exception {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<String> jsonStringsList = new ArrayList<>();
         String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_WORKOUT_SCHEDULE_OBJECT_EXTERNAL_CODES_API);
         if (!response.isEmpty()) {
@@ -1712,7 +1686,7 @@ public class UserDaoImpl implements UserDao {
                 arr.add(Integer.parseInt(s));
             }
             System.out.println("Workout schedule object records found in server :" + arr.size());
-            session = HibernateUtils.getSessionFactory().openSession();
+
             List<WorkoutScheduleObject> list = new ArrayList<WorkoutScheduleObject>(new LinkedHashSet((session.createCriteria(WorkoutScheduleObject.class).add(Restrictions.not(Restrictions.in("id", arr))).list())));
             System.out.println("Workout schedule object missing Records found :" + list.size());
             for (WorkoutScheduleObject c : list) {
@@ -1726,10 +1700,12 @@ public class UserDaoImpl implements UserDao {
                 jsonStringsList.add(new ObjectMapper().writeValueAsString(c));
             }*/
         }
+        session.close();
         return jsonStringsList;
     }
 
     public List<String> getMissedWorkoutSubTypeObjectRecords() throws Exception {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<String> jsonStringsList = new ArrayList<>();
         String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_WORKOUT_SUB_TYPE_EXTERNAL_CODES_API);
         if (!response.isEmpty()) {
@@ -1739,7 +1715,7 @@ public class UserDaoImpl implements UserDao {
                 arr.add(Integer.parseInt(s));
             }
             System.out.println("Workout sub type object Records found in server :" + arr.size());
-            session = HibernateUtils.getSessionFactory().openSession();
+
             List<WorkoutSubType> list = new ArrayList<WorkoutSubType>(new LinkedHashSet((session.createCriteria(WorkoutSubType.class).add(Restrictions.not(Restrictions.in("id", arr))).list())));
             System.out.println("Workout sub type object Missing Records found :" + list.size());
             for (WorkoutSubType c : list) {
@@ -1754,52 +1730,10 @@ public class UserDaoImpl implements UserDao {
                 jsonStringsList.add(new ObjectMapper().writeValueAsString(c));
             }*/
         }
+        session.close();
         return jsonStringsList;
     }
 
-    
-
-    private List<String> getAllMainWorkoutTypeListAsJsonString() throws JsonProcessingException {
-        List<String> jsonStringsList = new ArrayList<>();
-        for (T_workoutMainType d : getWorkoutMainTypeList()) {
-            jsonStringsList.add(new ObjectMapper().writeValueAsString(d));
-        }
-        System.out.println("json main workout type template size : " + jsonStringsList.size());
-        return jsonStringsList;
-    }
-
-    private List<String> getAllSubWorkoutTypeListAsJsonString() throws JsonProcessingException {
-        List<String> jsonStringsList = new ArrayList<>();
-        for (T_workoutSubType d : getWorkoutSubTypeList()) {
-            d.setMtid(d.getMainType().getId());
-            jsonStringsList.add(new ObjectMapper().writeValueAsString(d));
-        }
-        System.out.println("json sub workout type template size : " + jsonStringsList.size());
-        return jsonStringsList;
-    }
-
-    private List<String> getAllWorkoutScheduleObjectListAsJsonString() throws JsonProcessingException {
-        List<String> jsonStringsList = new ArrayList<>();
-        for (WorkoutScheduleObject d : getWorkoutScheduleObjectList()) {
-            d.setCid(d.getCid());
-            d.setMtid(d.getMainWorkoutType().getName());
-            jsonStringsList.add(new ObjectMapper().writeValueAsString(d));
-        }
-        System.out.println("json workout schedule object template size : " + jsonStringsList.size());
-        return jsonStringsList;
-    }
-
-    private List<String> getAllWorkoutSubTypeObjectListAsJsonString() throws JsonProcessingException {
-        List<String> jsonStringsList = new ArrayList<>();
-        for (WorkoutSubType d : getWorkoutSubTypeObjectsList()) {
-            d.setWsoid(d.getWorkoutScheduleObject().getId());
-            d.setTwsid(d.getSubType().getName());
-            d.setImage(d.getSubType().getGifImageName());
-            jsonStringsList.add(new ObjectMapper().writeValueAsString(d));
-        }
-        System.out.println("json workout sub type object template size : " + jsonStringsList.size());
-        return jsonStringsList;
-    }
 
     @Override
     public void syncClientData() throws Exception {
@@ -1851,40 +1785,9 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-
-
-    @Override
-    public void syncWorkoutData(String cliendId) {
-        Collection<WorkoutScheduleObject> WorkoutObjectscollection;
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
-        // get workout object
-        WorkoutObjectscollection = new LinkedHashSet((session.createCriteria(WorkoutScheduleObject.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("client.id", Integer.parseInt(cliendId)))).list());
-        for (WorkoutScheduleObject o : WorkoutObjectscollection) {
-            // get sub workout list
-            //Collection<WorkoutSubType> WorkoutSubTypecollection = new LinkedHashSet((session.createCriteria(WorkoutSubType.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("workoutScheduleObject.id", o.getId()))).list());
-            String response = ServerCom.sendGetRequestToServer(ServerApi.GET_SUB_WORKOUT_PLANS_BY_EXT_CODE + o.getId());
-            if (!response.isEmpty()) {
-                try {
-                    Gson gson = new Gson();
-                    WorkoutSubType array[] = gson.fromJson(response, WorkoutSubType[].class);
-                    for (int i = 0; i < array.length; i++) {
-                        WorkoutSubType w_online = array[i];
-                        //updateSubWorkoutFromServerToOfflineDb(w_online.getExternalCode(), w_online.getClientPerformance());
-                    }
-                    //session.saveOrUpdate(dbObject);
-
-                } catch (Exception e) {
-                    System.out.println(e);
-                }
-            }
-        }
-
-
-    }
-
     @Override
     public List<BloodGroupDetails> getBloodGroupDetails(String bg) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         if (bg.equalsIgnoreCase("A_plus"))
             bg = "A+";
         if (bg.equalsIgnoreCase("A_minus"))
@@ -1908,19 +1811,21 @@ public class UserDaoImpl implements UserDao {
         for (Client c : coll) {
             bgList.add(new BloodGroupDetails(c.getName(), c.getBloodGroup(), c.getMobile(), c.getEmail(), c.getAddress()));
         }
+        session.close();
         return bgList;
 
     }
 
     @Override
     public void setDefaultWorkoutPlan(String clientId, String workoutPlan) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         Client object = getClientById(Integer.parseInt(clientId));
         object.setAwp(workoutPlan);
         session.saveOrUpdate(object);
         ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_CLIENT_API, object);
-        session.beginTransaction();
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
@@ -1943,6 +1848,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     private List<T_workoutSubType> getSubWorkoutListForMuscles(T_workoutMainType mainWorkoutObject, WorkoutScheduleObject scheduleObject) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         List<T_workoutSubType> finalList = new ArrayList<>();
         MuscleWorkout obj = (MuscleWorkout) ((session.createCriteria(MuscleWorkout.class)
                 .add(Restrictions.eq("day", DateApi.getDayName()))
@@ -1964,20 +1870,22 @@ public class UserDaoImpl implements UserDao {
                     finalList.add(w);
             }
         }
+        session.close();
         return finalList;
     }
 
 
-
     @Override
     public void updateTSubworkoutType(String subWorkoutId, String serverimagePath) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         T_workoutSubType obj = (T_workoutSubType) session.createCriteria(T_workoutSubType.class).add(Restrictions.eq("id", Integer.parseInt(subWorkoutId))).uniqueResult();
         obj.setGifFilePath(serverimagePath);
         session.saveOrUpdate(obj);
         //ServerCom.sendSingleObjectToServer(UPDATE_T_SUB_WORKOUT_TYPE_API,obj);
-        session.beginTransaction();
+
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
@@ -1986,7 +1894,7 @@ public class UserDaoImpl implements UserDao {
         obj.setName(name);
         obj.setSets(sets);
         obj.setReps(reps);
-        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_T_SUB_WORKOUT_TYPE_API,obj);
+        ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_T_SUB_WORKOUT_TYPE_API, obj);
     }
 
     @Override
@@ -2023,9 +1931,10 @@ public class UserDaoImpl implements UserDao {
 
 
     @Override
-    public void updateProductToServer(String type, String productId, String productName, String oldPrice, String newPrice, String productPhoto, String discontinue) {
+    public void updateProductToServer(String type, String productId, String productName, String oldPrice,
+                                      String newPrice, String productPhoto,String productPhotoDesc, String discontinue) {
         if (type.equalsIgnoreCase("Supplements")) {
-            Supplements obj = new Supplements(productId, productName, oldPrice, newPrice, productPhoto, discontinue);
+            Supplements obj = new Supplements(productId, productName, oldPrice, newPrice, productPhoto,productPhotoDesc, discontinue);
             ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_SUPPLEMENTS, obj);
         }
         if (type.equalsIgnoreCase("merchandise")) {
@@ -2034,21 +1943,12 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    @Override
-    public void updateProductPhotoToServer(String type, String productId, String productPhoto) {
-        if (type.equalsIgnoreCase("Supplements")) {
-            Supplements obj = new Supplements(productId, productPhoto);
-            ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_PHOTO_SUPPLEMENTS, obj);
-        }
-        if (type.equalsIgnoreCase("merchandise")) {
-            Merchandise obj = new Merchandise(productId, productPhoto);
-            ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_PHOTO_MERCHANDISE, obj);
-        }
-    }
+
 
     @Override
     public void updateBrandImageToDB(String mobile, String imgCol, String newDbImageName) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         BrandImages obj = (BrandImages) session.createCriteria(BrandImages.class).add(Restrictions.eq("id", 1)).uniqueResult();
         if (imgCol.equalsIgnoreCase("appBanner_1")) {
             if (!newDbImageName.isEmpty())
@@ -2123,8 +2023,8 @@ public class UserDaoImpl implements UserDao {
 
         session.saveOrUpdate(obj);
         ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_BRAND_IMAGES_API, obj);
-        session.beginTransaction();
         session.getTransaction().commit();
+        session.close();
     }
 
 
@@ -2164,7 +2064,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     private void updateClientDataFromServerToOfflineDb(ClientSyncModal modal) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         Client c = (Client) (session.createCriteria(Client.class).add(Restrictions.eq("id", Integer.parseInt(modal.getExternalCode())))).uniqueResult();
         if (c != null) {
@@ -2176,17 +2076,19 @@ public class UserDaoImpl implements UserDao {
             c.setPhoto(modal.getPhoto());
             session.saveOrUpdate(c);
             session.getTransaction().commit();
+            session.close();
         }
 
     }
 
     private void updateSubWorkoutFromServerToOfflineDb(String externalCode, String clientPerformance) {
-        session = HibernateUtils.getSessionFactory().openSession();
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
         WorkoutSubType w_offline = (WorkoutSubType) (session.createCriteria(WorkoutSubType.class).add(Restrictions.eq("id", Integer.parseInt(externalCode)))).uniqueResult();
         w_offline.setClientPerformance(clientPerformance);
         session.saveOrUpdate(w_offline);
         session.getTransaction().commit();
+        session.close();
     }
 
     @Override
@@ -2204,6 +2106,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void addMemberToDatabase(AddMemberObject addMemberObject, User user, String userType) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         String photo = "";
         String serverId = "";
         String desktopId = "";
@@ -2230,14 +2134,13 @@ public class UserDaoImpl implements UserDao {
 
         }
         String refererId = addMemberObject.getReference();
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+
         Client c = new Client(addMemberObject.getName(), addMemberObject.getMobile(), addMemberObject.getGender(), DateApi.getDdMmYyyyDate(addMemberObject.getBirthDate()), addMemberObject.getRemarks(), "false", null, "0"
                 , addMemberObject.getEmail(), addMemberObject.getAddress(), addMemberObject.getBloodGroup(), addMemberObject.getReference(), addMemberObject.getPreviousGym(),
                 addMemberObject.getHeight(), addMemberObject.getWeight(), addMemberObject.getOccupation(), "enable", photo, "admin");
         session.save(c);
         if (!refererId.equalsIgnoreCase("none")) {
-            Client c1 = (Client) session.get(Client.class, Integer.parseInt(refererId));
+            Client c1 =getClientById(Integer.parseInt(refererId));
             if (c1.getReferPoints() != null) {
                 int referPoints = Integer.parseInt(c1.getReferPoints());
                 referPoints++;
@@ -2253,6 +2156,7 @@ public class UserDaoImpl implements UserDao {
         } else
             ServerCom.sendSingleObjectToServer(ServerApi.CREATE_CLIENT_API, c);
         session.getTransaction().commit();
+        session.close();
 
     }
 
@@ -2304,19 +2208,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<WorkoutScheduleObject> getWorkoutListByClientId(String cliendId) {
-        /*List<WorkoutScheduleObject> list = new ArrayList<WorkoutScheduleObject>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        //session.beginTransaction();
-        Criteria crit = session.createCriteria(WorkoutScheduleObject.class);
-        crit.add(Restrictions.eq("discontinue", "false"));
-        crit.add(Restrictions.eq("client.id", Integer.parseInt(cliendId)));
-        crit.addOrder(Order.desc("id"));
-        list = crit.list();
-        Collection<WorkoutScheduleObject> workoutScheduleObjects = new LinkedHashSet(list);
-        //session.close();
-        return new ArrayList<WorkoutScheduleObject>(workoutScheduleObjects);*/
+
         List<WorkoutScheduleObject> list = new ArrayList<>();
-        String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_WORKOUT_SCHEDULE_OBJECT_BY_CLIENT_ID+cliendId);
+        String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_WORKOUT_SCHEDULE_OBJECT_BY_CLIENT_ID + cliendId);
         if (!response.isEmpty()) {
             try {
                 Gson gson = new Gson();
@@ -2326,8 +2220,8 @@ public class UserDaoImpl implements UserDao {
                 System.out.println(e);
             }
         }
-        if(!list.isEmpty()){
-            for(WorkoutScheduleObject obj : list){
+        if (!list.isEmpty()) {
+            for (WorkoutScheduleObject obj : list) {
 
                 obj.setMainWorkoutType(getTMainWorkoutTypeById(obj.getMtid()));
 
@@ -2363,11 +2257,9 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<WorkoutSubType> getSubWorkoutListByParentObject(int wsoid) {
-        /*List<WorkoutSubType> list = new ArrayList<WorkoutSubType>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        return new ArrayList<WorkoutSubType>(new LinkedHashSet(session.createCriteria(WorkoutSubType.class).add(Restrictions.eq("discontinue", "false")).add(Restrictions.eq("workoutScheduleObject.id", id)).list()));*/
+
         List<WorkoutSubType> list = new ArrayList<>();
-        String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_WORKOUT_SUB_TYPE_BY_WOS_ID+wsoid);
+        String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_WORKOUT_SUB_TYPE_BY_WOS_ID + wsoid);
         if (!response.isEmpty()) {
             try {
                 Gson gson = new Gson();
@@ -2384,7 +2276,7 @@ public class UserDaoImpl implements UserDao {
     public List<T_workoutSubType> getSubWorkoutStaticListByMainType(int mainTypeId) {
 
         List<T_workoutSubType> list = new ArrayList<>();
-        String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_T_SUB_WORKOUT_TYPE_BY_MAIN_TYPE_ID+mainTypeId);
+        String response = ServerCom.sendGetRequestToServer(ServerApi.GET_ALL_T_SUB_WORKOUT_TYPE_BY_MAIN_TYPE_ID + mainTypeId);
         if (!response.isEmpty()) {
             try {
                 Gson gson = new Gson();
@@ -2395,14 +2287,7 @@ public class UserDaoImpl implements UserDao {
             }
         }
         return list;
-        /*List<T_workoutSubType> list = new ArrayList<T_workoutSubType>();
-        session = HibernateUtils.getSessionFactory().openSession();
-        //session.beginTransaction();
-        Criteria crit = session.createCriteria(T_workoutSubType.class);
-        crit.add(Restrictions.eq("mainType.id", mainTypeId));
-        crit.add(Restrictions.eq("discontinue", "false"));
-        list = crit.list();
-        return new ArrayList<T_workoutSubType>(new LinkedHashSet(list));*/
+
     }
 
     @Override
@@ -2420,18 +2305,19 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateModuleState(String key , String newValue) {
-        String mac = Identity.getMacAddress();
-        String api = ServerApi.UPDATE_MODULE_EMAIL_BY_MAC + mac +"&";
-        session = HibernateUtils.getSessionFactory().openSession();
+    public void updateModuleState(String key, String newValue) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         session.beginTransaction();
+        String mac = Identity.getMacAddress();
+        String api = ServerApi.UPDATE_MODULE_EMAIL_BY_MAC + mac + "&";
+
         ModuleObject object = (ModuleObject) session.createCriteria(ModuleObject.class).add(Restrictions.eq("mac", mac)).uniqueResult();
-        if(key.equalsIgnoreCase(ProjectConstants.EMAIL_INVOICE_FLAG)) {
-            api = api + "key=email&value="+newValue;
+        if (key.equalsIgnoreCase(ProjectConstants.EMAIL_INVOICE_FLAG)) {
+            api = api + "key=email&value=" + newValue;
             object.setEmail(newValue);
         }
-        if(key.equalsIgnoreCase(ProjectConstants.SMS_FLAG)) {
-            api = api + "key=sms&value="+newValue;
+        if (key.equalsIgnoreCase(ProjectConstants.SMS_FLAG)) {
+            api = api + "key=sms&value=" + newValue;
             object.setSms(newValue);
         }
         session.saveOrUpdate(object);
@@ -2439,23 +2325,24 @@ public class UserDaoImpl implements UserDao {
         // update to server
         ServerCom.sendGetRequestToServer(api);
         session.getTransaction().commit();
+        session.close();
 
     }
 
     public Boolean isModuleEnabled(String key) {
         ModuleObject object = getModuleObject();
-        if(object == null){
+        if (object == null) {
             updateModuleDataFromServer();
             object = getModuleObject();
         }
 
-        return object != null ?object.isEnabled(key) : false;
+        return object != null ? object.isEnabled(key) : false;
     }
 
-    public ModuleObject getModuleObject(){
+    public ModuleObject getModuleObject() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
         ModuleObject object = null;
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+
         String mac = Identity.getMacAddress();
         object = (ModuleObject) session.createCriteria(ModuleObject.class).add(Restrictions.eq("mac", mac)).uniqueResult();
         session.close();
@@ -2463,7 +2350,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateModuleDataFromServer(){
+    public void updateModuleDataFromServer() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         System.out.println("isModuleEnabled called");
         String mac = Identity.getMacAddress();
         ModuleObject obj = null;
@@ -2474,44 +2363,120 @@ public class UserDaoImpl implements UserDao {
             obj = gson.fromJson(resp, ModuleObject.class);
         }
 
-        session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
-        ModuleObject object = (ModuleObject) session.createCriteria(ModuleObject.class).add(Restrictions.eq("mac", mac)).uniqueResult();
-        if(object == null)
-            object = new ModuleObject();
-        object.setMac(mac);
-        object.setEmail(obj.getEmail());
-        object.setSms(obj.getSms());
-        object.setDiet(obj.getDiet());
-        object.setWorkout(obj.getWorkout());
-        object.setMonthlyData(obj.getMonthlyData());
+        if (obj != null) {
 
-        session.saveOrUpdate(object);
+            ModuleObject object = (ModuleObject) session.createCriteria(ModuleObject.class).add(Restrictions.eq("mac", mac)).uniqueResult();
+            if (object == null)
+                object = new ModuleObject();
+            object.setMac(mac);
+            object.setEmail(obj.getEmail());
+            object.setSms(obj.getSms());
+            object.setDiet(obj.getDiet());
+            object.setWorkout(obj.getWorkout());
+            object.setMonthlyData(obj.getMonthlyData());
+
+            session.saveOrUpdate(object);
+
+        }
         session.getTransaction().commit();
         session.close();
     }
 
     @Override
     public isMobileExists initiateActivateProductOperation(String mac, String secret_key) {
-        isMobileExists obj = null;
-        String resp = ServerCom.sendGetRequestToServer(ServerApi.ACTIVATE_PRODUCT_API + "mac="+mac+"&secret_key="+secret_key);
-        if (!resp.isEmpty()) {
-            Gson gson = new Gson();
-            obj = gson.fromJson(resp, isMobileExists.class);
+        isMobileExists obj = new isMobileExists();
+        obj.setResult("-1");
+        try {
+            String resp = ServerCom.sendGetRequestToServer(ServerApi.ACTIVATE_PRODUCT_API + "mac=" + mac + "&secret_key=" + secret_key);
+            if (!resp.isEmpty()) {
+                Gson gson = new Gson();
+                obj = gson.fromJson(resp, isMobileExists.class);
+            }
+        } catch (Exception e) {
         }
+
         return obj;
     }
 
     @Override
     public boolean getMacActivationStatus() {
         List<LicenseModal> list = new ArrayList<>();
-        String resp = ServerCom.sendGetRequestToServer(ServerApi.CHECK_MAC_ACTIVATION_STATUS_API+Identity.getMacAddress());
-        if (!resp.isEmpty()) {
-            Gson gson = new Gson();
-            LicenseModal array[] = gson.fromJson(resp, LicenseModal[].class);
-            list = Arrays.asList(array);
+        String resp = ServerCom.sendGetRequestToServer(ServerApi.CHECK_MAC_ACTIVATION_STATUS_API + Identity.getMacAddress());
+        try {
+            if (!resp.isEmpty()) {
+                Gson gson = new Gson();
+                LicenseModal array[] = gson.fromJson(resp, LicenseModal[].class);
+                list = Arrays.asList(array);
+            }
+        } catch (Exception e) {
+
         }
+
         return list.size() > 0 ? true : false;
+    }
+
+    @Override
+    public void sendBdayWish(String id) {
+        Client client = getClientById(Integer.parseInt(id));
+
+        if(isModuleEnabled(ProjectConstants.EMAIL_INVOICE_FLAG)){
+            getTaskExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    BdayEmailTemplate.sendEmail2(client.getEmail(), client.getName());
+                }
+            });
+        }
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
+        session.save(new SmsLogs(client.getName(), client.getMobile(), "Wishing you happy birthday , "+client.getName()+"\nfrom - Pro Gym , Kolhapur", DateApi.getDdMmYyyyDate(""), "0", "bday", client.getGender()));
+        session.getTransaction().commit();
+        session.close();
+
+
+        PushNotificationRequest noti = new PushNotificationRequest();
+        noti.setTitle("Happy Birthday " + client.getName());
+        noti.setMessage("");
+        noti.setImage("https://tavrostechinfo.com/PROGYM/img/birthday_3.jpg");
+        noti.setNotificationType(ProjectConstants.COLLAPSED);
+        noti.setTargetClass(ProjectConstants.MAIN);
+        noti.setMobile(client.getMobile());
+        noti.setClientName(client.getName());
+
+        List<String> tok = new ArrayList<>();
+        List<FcmTokenModal> tokens = ServerCom.getAllTokensByMobile(noti.getMobile());
+        if (tokens != null && tokens.size() > 0) {
+            for (FcmTokenModal t : tokens) {
+                tok.add(t.getToken());
+            }
+            noti.setTokensList(tok);
+
+            ServerCom.sendSameMessageToAllTokens(noti);
+
+
+        }
+    }
+
+    @Override
+    public void updateProductPhotoToServer(String type, String productId, String productPhoto) {
+        if (type.equalsIgnoreCase("Supplements")) {
+            Supplements obj = new Supplements(productId, productPhoto);
+            ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_PHOTO_SUPPLEMENTS, obj);
+        }
+        if (type.equalsIgnoreCase("merchandise")) {
+            Merchandise obj = new Merchandise(productId, productPhoto);
+            ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_PHOTO_MERCHANDISE, obj);
+        }
+    }
+
+    @Override
+    public void updateProductPhotoDescToServer(String type, String productId, String productPhotoDesc) {
+        if (type.equalsIgnoreCase("Supplements")) {
+            Supplements obj = new Supplements();
+            obj.setId(productId);
+            obj.setProductPhotoDesc(productPhotoDesc);
+            ServerCom.sendSingleObjectToServer(ServerApi.UPDATE_PHOTO_DESC_SUPPLEMENTS, obj);
+        }
     }
 }
  

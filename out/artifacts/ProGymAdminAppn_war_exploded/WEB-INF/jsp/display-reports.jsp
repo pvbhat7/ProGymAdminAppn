@@ -2,6 +2,10 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List"%>
+<%@ page import="com.progym.common.constants.ProjectConstants" %>
+<%@ page import="org.springframework.web.context.WebApplicationContext" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ page import="com.progym.common.dao.UserDao" %>
 <%
     if(session == null)
         response.sendRedirect("login");
@@ -131,6 +135,13 @@
                                 <li><a title="Add Courses" href="addPackage"><span class="mini-sub-pro">Add Package</span></a></li>                                
                             </ul>
                         </li>
+                        <%
+
+                            WebApplicationContext ctx = RequestContextUtils.findWebApplicationContext(request);
+                            UserDao userDao = ((UserDao)ctx.getBean("userDao"));
+                            if(userDao.isModuleEnabled(ProjectConstants.WORKOUT_FLAG)){
+
+                        %>
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Workout</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
@@ -140,12 +151,19 @@
                                 <li><a title="Workouts Templates" href="#"><span class="mini-sub-pro">Workouts Templates</span></a></li>
                             </ul>
                         </li>
+                        <% } %>
+
+                        <%
+                            if(userDao.isModuleEnabled(ProjectConstants.DIET_FLAG)){
+
+                        %>
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Diet</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="Diet Templates" href="dietTemplates"><span class="mini-sub-pro">Diet Templates</span></a></li>
                             </ul>
                         </li>
+                        <% } %>
                         <li>
                             <a class="has-arrow" href="#" aria-expanded="false"><span class="educate-icon educate-library icon-wrap"></span> <span class="mini-click-non">Payments</span></a>
                             <ul class="submenu-angle" aria-expanded="false">

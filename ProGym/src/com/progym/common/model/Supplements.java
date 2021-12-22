@@ -7,14 +7,16 @@ public class Supplements {
     private String oldPrice;
     private String newPrice;
     private String productPhoto;
+    private String productPhotoDesc;
     private String discontinue;
 
-    public Supplements(String id, String productName, String oldPrice, String newPrice, String productPhoto, String discontinue) {
+    public Supplements(String id, String productName, String oldPrice, String newPrice, String productPhoto, String productPhotoDesc,String discontinue) {
         this.id = id;
         this.productName = productName;
         this.oldPrice = oldPrice;
         this.newPrice = newPrice;
         this.productPhoto = productPhoto;
+        this.productPhotoDesc = productPhotoDesc;
         this.discontinue = discontinue;
     }
 
@@ -22,6 +24,7 @@ public class Supplements {
         this.id = id;
         this.productPhoto = productPhoto;
     }
+
 
     public Supplements() {
 
@@ -73,5 +76,13 @@ public class Supplements {
 
     public void setDiscontinue(String discontinue) {
         this.discontinue = discontinue;
+    }
+
+    public String getProductPhotoDesc() {
+        return productPhotoDesc;
+    }
+
+    public void setProductPhotoDesc(String productPhotoDesc) {
+        this.productPhotoDesc = productPhotoDesc;
     }
 }

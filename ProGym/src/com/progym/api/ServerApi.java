@@ -6,7 +6,7 @@ public class ServerApi {
     public static final String TEST_SERVER = "http://tavrostechinfo.com/PROGYM/test_api/api/";
     public static final String LOCALHOST_SERVER = "http://localhost/progym_online/api/";
 
-    public static String SERVER = TEST_SERVER;
+    public static String SERVER = TAVROS_SERVER;
 
     public static final String GET_TOKEN_BY_MOBILE_LIST = SERVER + "fcmToken/getByMobileList.php?mobile=";
 
@@ -68,6 +68,8 @@ public class ServerApi {
     public static final String UPDATE_SUPPLEMENTS = SERVER + "supplements/update.php";
     public static final String UPDATE_MERCHANDISE = SERVER + "merchandise/update.php";
     public static final String UPDATE_PHOTO_SUPPLEMENTS = SERVER + "supplements/updatePhoto.php";
+    public static final String UPDATE_PHOTO_DESC_SUPPLEMENTS = SERVER + "supplements/updatePhotoDesc.php";
+
     public static final String UPDATE_PHOTO_MERCHANDISE = SERVER + "merchandise/updatePhoto.php";
 
     public static final String UPDATE_BRAND_IMAGES_API = SERVER + "brand_images/update.php";
@@ -82,8 +84,8 @@ public class ServerApi {
     public static final String UPDATE_MODULE_EMAIL_BY_MAC = SERVER + "module/update.php?mac=";
     public static final String UPDATE_MODULE_SMS_BY_MAC = SERVER + "module/update.php?mac=";
 
-    public static final String ACTIVATE_PRODUCT_API = SERVER + "license_api/activate_mac.php?";
-    public static final String CHECK_MAC_ACTIVATION_STATUS_API = SERVER + "license_api/getMacStatus.php?mac=";
+    public static final String ACTIVATE_PRODUCT_API = TEST_SERVER + "license_api/activate_mac.php?";
+    public static final String CHECK_MAC_ACTIVATION_STATUS_API = TEST_SERVER + "license_api/getMacStatus.php?mac=";
 
 
     /*public static final String CREATE_WORKOUT_SUB_TYPE_SET_API = SERVER+"workoutSubTypeSet/create.php";

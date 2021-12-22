@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Controller
@@ -22,8 +23,8 @@ public class ModuleHandlerController {
 
     @RequestMapping(value = "/updateModuleState", method = RequestMethod.GET)
     @ResponseBody
-    public void updateModuleState(HttpServletRequest request, HttpServletResponse response,
-                                          @RequestParam String key,@RequestParam String value) throws IOException {
+    public void updateModuleState(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                                  @RequestParam String key, @RequestParam String value) throws IOException {
         userService.updateModuleState(key , value);
         response.sendRedirect("index");
     }

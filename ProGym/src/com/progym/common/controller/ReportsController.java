@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class ReportsController {
 
 
     @RequestMapping(value = "/allReports", method = RequestMethod.GET)
-    public ModelAndView showAllReports(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView showAllReports(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("display-reports");
         return fillCollectionDashboardData(mav);
     }
@@ -50,7 +51,7 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/viewCollectionByGMY", method = RequestMethod.GET)
-    public ModelAndView viewCollectionByGMY(HttpServletRequest request, HttpServletResponse response,
+    public ModelAndView viewCollectionByGMY(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                             @RequestParam String gender, @RequestParam String month, @RequestParam String year) throws IOException {
         ModelAndView mav = new ModelAndView("display-reports");
         List<CollectionPVO> list = userService.getCollectionBy(new FilterCollectionObject("GMY", gender, month, year, null));
@@ -65,7 +66,7 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/viewCollectionByGD", method = RequestMethod.GET)
-    public ModelAndView viewCollectionByGD(HttpServletRequest request, HttpServletResponse response,
+    public ModelAndView viewCollectionByGD(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                            @RequestParam String gender, @RequestParam String date) throws IOException {
         ModelAndView mav = new ModelAndView("display-reports");
         List<CollectionPVO> list = userService.getCollectionBy(new FilterCollectionObject("GD", gender, null, null, date));
@@ -80,7 +81,7 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/viewCollectionByG", method = RequestMethod.GET)
-    public ModelAndView viewCollectionByG(HttpServletRequest request, HttpServletResponse response,
+    public ModelAndView viewCollectionByG(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                           @RequestParam String gender) throws IOException {
         ModelAndView mav = new ModelAndView("display-reports");
         List<CollectionPVO> list = userService.getCollectionBy(new FilterCollectionObject("G", gender, null, null, null));
@@ -95,7 +96,7 @@ public class ReportsController {
     }
 
     @RequestMapping(value = "/sendPendingInvoices", method = RequestMethod.GET)
-    public ModelAndView sendPendingInvoices(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView sendPendingInvoices(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("index");
         mav.addObject("emailInvoiceFlag", userService.isModuleEnabled(ProjectConstants.EMAIL_INVOICE_FLAG));
         userService.sendPendingInvoices();

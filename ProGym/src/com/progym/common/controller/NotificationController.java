@@ -48,7 +48,7 @@ public class NotificationController {
     }
 
     @RequestMapping(value = "/mobilenotifications", method = RequestMethod.GET)
-    public ModelAndView mobilenotifications(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView mobilenotifications(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("notifications");
         mav.addObject("notificationsList", userService.getMobileNotifications());
         return mav;

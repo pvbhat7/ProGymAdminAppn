@@ -272,7 +272,7 @@ public class ClientProfileController {
 
     @RequestMapping(value = "/approveTransaction", method = RequestMethod.GET)
     @ResponseBody
-    public void approveTransaction(HttpServletRequest request, HttpServletResponse response, @RequestParam String txnId, @RequestParam String cID, @RequestParam String gender) throws IOException {
+    public void approveTransaction(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String txnId, @RequestParam String cID, @RequestParam String gender) throws IOException {
         userService.approveTransaction(txnId);
         String uri = "clientProfile?cliendId=" + cID + "&gender=" + gender + "";
         response.sendRedirect(uri);
@@ -332,14 +332,14 @@ public class ClientProfileController {
 
     @RequestMapping(value = "/sendInvoice", method = RequestMethod.GET)
     @ResponseBody
-    public void sendInvoice(HttpServletRequest request, HttpServletResponse response, @RequestParam String txnId, @RequestParam String cID, @RequestParam String email, @RequestParam String gender) throws IOException {
+    public void sendInvoice(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String txnId, @RequestParam String cID, @RequestParam String email, @RequestParam String gender) throws IOException {
         userService.sendInvoice(txnId, email);
         String uri = "clientProfile?cliendId=" + cID + "&gender=" + gender + "";
         response.sendRedirect(uri);
     }
 
     @RequestMapping(value = "/redeemReferPoints", method = RequestMethod.GET)
-    public void redeemReferPoints(HttpServletRequest request, HttpServletResponse response, @RequestParam String clientid, @RequestParam String gender) throws IOException {
+    public void redeemReferPoints(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String clientid, @RequestParam String gender) throws IOException {
         System.out.println(clientid + " " + gender);
         userService.redeemReferPoints(clientid);
         String uri = "clientProfile?cliendId=" + clientid + "&gender=" + gender + "";

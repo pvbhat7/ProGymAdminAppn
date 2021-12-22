@@ -23,7 +23,7 @@
     </script>
 </head>
 
-<body>
+<body style="background-image: url('https://tavrostechinfo.com/bgor.png');">
 
 <!-- Start Left menu area -->
 <jsp:include page="topPage.jsp"/>
@@ -102,10 +102,10 @@
                                 <tr>
                                     <td>
                                         <h4 style="margin:0px font-size:15px;padding:0px 70px 5px 30px;" align="center">
-                                            <li><span><c:out value="${bday_list}"/></span></li>
+                                            <li><span><c:out value="${bday_list.name}"/></span></li>
                                         </h4>
                                     </td>
-                                    <td><a href="sendBdayWish?name=<c:out value="${bday_list}"/>">
+                                    <td><a href="sendBdayWish?name=<c:out value="${bday_list.id}"/>">
                                         <input style="text-align:center;background-color:#3A8179"
                                                class="btn btn-success btn-xs" type="button" value="Click to wish"/>
                                     </a></td>
@@ -150,17 +150,6 @@
                         </a>
                     </c:if>
                 </div>
-                    <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
-                        <%--<a href="syncClientData">
-                            <button type="submit" class="btn btn-danger btn-md">Sync client data</button>
-                        </a>--%>
-                            <a href="assignWorkouts">
-                                <button type="submit" class="btn btn-primary btn-sm">Assign Workouts</button>
-                            </a>
-                        <a href="assignDiets">
-                            <button type="submit" class="btn btn-primary btn-sm">Assign Diets</button>
-                        </a>
-                    </div>
                     <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
                         <a href="blood_group_data?bg=A_plus">
                             <button type="submit" class="btn btn-info btn-sm">A+</button>

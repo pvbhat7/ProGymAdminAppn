@@ -73,7 +73,7 @@ public class MainController {
     }
 
     @RequestMapping(value = "/backupDatabase", method = RequestMethod.GET)
-    public ModelAndView backupDatabase(HttpServletRequest request, HttpServletResponse response) throws ClassNotFoundException, IOException, SQLException {
+    public ModelAndView backupDatabase(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws ClassNotFoundException, IOException, SQLException {
         ModelAndView mav = new ModelAndView("index");
 
         try {
@@ -96,7 +96,7 @@ public class MainController {
     }
 
     @RequestMapping(value = "/steamView", method = RequestMethod.GET)
-    public ModelAndView steamView(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView steamView(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("steamView");
         try {
             Class.forName("com.mysql.jdbc.Driver");

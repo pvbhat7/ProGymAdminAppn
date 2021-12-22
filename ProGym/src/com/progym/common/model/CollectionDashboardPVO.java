@@ -71,7 +71,7 @@ public class CollectionDashboardPVO {
 	private String currentMonth;
 	private String lastMonth;
 	
-	private List<String> birthdayNameList;
+	private List<Client> birthdayNameList;
 	
 	
 	public String getCurrentMonth() {
@@ -135,7 +135,7 @@ public class CollectionDashboardPVO {
 			int femaleFullPaid, int femalePartialPaid, int femaleNotPaid,
 			Double currentMonthMaleCollection,Double currentMonthFemaleCollection,Double currentMonthSteamCollection,Double currentMonthTotalCollection,
 			Double lastMonthMaleCollection,Double lastMonthFemaleCollection,Double lastMonthSteamCollection,Double lastMonthTotalCollection,
-			String currentMonthName , String lastMonthName,List<String> birthdayNameList,Long enableMembersCount ,Long disableMembersCount) {
+			String currentMonthName , String lastMonthName,List<Client> birthdayNameList,Long enableMembersCount ,Long disableMembersCount) {
 		super();
 		this.male = male;
 		this.female = female;
@@ -229,10 +229,10 @@ public class CollectionDashboardPVO {
 				+ ", femalePartialPaid=" + femalePartialPaid + ", femaleNotPaid=" + femaleNotPaid + ", currentMonth="
 				+ currentMonth + ", lastMonth=" + lastMonth + "]";
 	}
-	public List<String> getBirthdayNameList() {
+	public List<Client> getBirthdayNameList() {
 		return birthdayNameList;
 	}
-	public void setBirthdayNameList(List<String> birthdayNameList) {
+	public void setBirthdayNameList(List<Client> birthdayNameList) {
 
 	}
 	public Long getEnableMembers() {

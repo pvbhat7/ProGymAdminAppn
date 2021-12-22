@@ -197,7 +197,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public List<String> getTodaysBirthdays() {
+	public List<Client> getTodaysBirthdays() {
 		return userDao.getTodaysBirthdays();
 	}
 
@@ -327,10 +327,6 @@ public class UserServiceImpl implements UserService{
 		userDao.reconcileContacts();
 	}
 
-	@Override
-	public void syncWorkoutData(String cliendId) {
-		userDao.syncWorkoutData(cliendId);
-	}
 
 	@Override
 	public void reconcileWorkoutData() {
@@ -373,13 +369,18 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void updateProductToServer(String supplements, String productId, String productName, String oldPrice, String newPrice, String productPhoto, String aFalse) {
-		userDao.updateProductToServer(supplements, productId, productName, oldPrice, newPrice, productPhoto, aFalse) ;
+	public void updateProductToServer(String supplements, String productId, String productName, String oldPrice, String newPrice, String productPhoto,String productPhotoDesc, String aFalse) {
+		userDao.updateProductToServer(supplements, productId, productName, oldPrice, newPrice, productPhoto,productPhotoDesc, aFalse) ;
 	}
 
 	@Override
 	public void updateProductPhotoToServer(String category, String productId, String productPhoto) {
 		userDao.updateProductPhotoToServer(category , productId , productPhoto);
+	}
+
+	@Override
+	public void updateProductPhotoDescToServer(String category, String productId, String productPhoto) {
+		userDao.updateProductPhotoDescToServer(category , productId , productPhoto);
 	}
 
 	@Override

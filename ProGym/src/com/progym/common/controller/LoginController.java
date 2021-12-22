@@ -2,6 +2,7 @@ package com.progym.common.controller;
 
 import com.progym.api.Identity;
 import com.progym.common.constants.ProjectConstants;
+import com.progym.common.fcm.FCM;
 import com.progym.common.model.CollectionDashboardPVO;
 import com.progym.common.model.User;
 import com.progym.common.model.isMobileExists;
@@ -18,6 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -30,15 +34,31 @@ public class LoginController {
     UserService userService;
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ModelAndView showLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        validateLicenseDetails(response);
-
-        userService.register();
-        userService.updateModuleDataFromServer();
+    public ModelAndView showLogin(HttpSession session,HttpServletRequest request, HttpServletResponse response) throws IOException {
+        FCM.initialize();
         ModelAndView mav = new ModelAndView("loginform");
-        mav.addObject("imageObject", userService.getImageObjectByBrand("progym"));
-        mav.addObject("user", new User());
+
+        if(isConnected()){
+            if(!userService.getMacActivationStatus())
+                mav = new ModelAndView("handleLicenceValidation");
+            else{
+                userService.register();
+                userService.updateModuleDataFromServer();
+                mav = new ModelAndView("loginform");
+                mav.addObject("user", new User());
+                mav.addObject("imageObject", userService.getImageObjectByBrand("progym"));
+                return mav;
+            }
+        }
+        else{
+            userService.register();
+            userService.updateModuleDataFromServer();
+            mav = new ModelAndView("loginform");
+            mav.addObject("user", new User());
+            mav.addObject("imageObject", userService.getImageObjectByBrand("progym"));
+            return mav;
+        }
+
         return mav;
     }
 
@@ -120,12 +140,6 @@ public class LoginController {
         }
     }
 
-    private void validateLicenseDetails(HttpServletResponse response) throws IOException {
-        //Identity.getMacAddress();
-        if(!userService.getMacActivationStatus())
-        response.sendRedirect("handleLicenceValidation");
-    }
-
     @RequestMapping(value = "/handleLicenceValidation", method = RequestMethod.GET)
     public ModelAndView handleLicenceValidation(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("handleLicenceValidation");
@@ -173,6 +187,20 @@ public class LoginController {
         mav.addObject("positive",positive);
         mav.addObject("negative",negative);
         return mav;
+    }
+
+    public static boolean isConnected() {
+        try {
+            final URL url = new URL("http://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
 

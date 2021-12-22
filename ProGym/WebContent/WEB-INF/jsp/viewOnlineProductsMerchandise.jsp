@@ -33,7 +33,6 @@
                         <table>
                             <tr>
                                 <th>Image</th>
-                                <th>Desc</th>
                                 <th>Name</th>
                                 <th>Old Price</th>
                                 <th>New Price</th>
@@ -44,7 +43,6 @@
                             <c:forEach items="${listOfProducts}" var="object" varStatus="status">
                                 <tr>
                                     <td><img data-src="${object.productPhoto}" src="${object.productPhoto}" width="100" height="100" alt="${object.productPhoto}"/></td>
-                                    <td><img data-src="${object.productPhotoDesc}" src="${object.productPhotoDesc}" width="100" height="100" alt="${object.productPhotoDesc}"/></td>
                                     <form:form action="updateProductToServer" method="POST">
                                     <td>
                                             <input type="hidden" name="category" id="category" value="${objTypename}">
@@ -66,15 +64,7 @@
                                         <input class="btn btn-primary btn-sm" type="submit" value="upload"/>
                                         </form:form>
                                     </td>
-                                    <td>
-                                        <form:form action="uploadProductPhotoDescToServer" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
-                                            <input type="hidden" name="productPhotoDesc" id="productPhotoDesc" value="${object.productPhotoDesc}">
-                                            <input type="hidden" name="category" id="category" value="${objTypename}">
-                                            <input type="hidden" name="productId" id="productId" value="${object.id}">
-                                            <input class="btn btn-primary btn-xs" type="file" name="file" accept="image/jpeg"/>
-                                            <input class="btn btn-primary btn-sm" type="submit" value="upload"/>
-                                        </form:form>
-                                    </td>
+
                                    <%-- <td>
                                         <a href="<c:url value='deleteProduct?productId=${object.id}&category=${objTypename}'/>">
                                             <input class="btn btn-danger btn-xs" type="button" value="Delete" />
