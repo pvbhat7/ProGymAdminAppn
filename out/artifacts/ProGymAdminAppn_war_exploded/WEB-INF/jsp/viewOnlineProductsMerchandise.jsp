@@ -42,7 +42,7 @@
                             </tr>
                             <c:forEach items="${listOfProducts}" var="object" varStatus="status">
                                 <tr>
-                                    <td><img data-src="${object.productPhoto}" src="${object.productPhoto}" width="100" height="100" alt="${object.productPhoto}"/></td>
+                                    <td><a href="${object.productPhoto}" target="_blank"><img data-src="${object.productPhoto}" src="${object.productPhoto}" width="100" height="100" alt="${object.productPhoto}"/></a></td>
                                     <form:form action="updateProductToServer" method="POST">
                                     <td>
                                             <input type="hidden" name="category" id="category" value="${objTypename}">

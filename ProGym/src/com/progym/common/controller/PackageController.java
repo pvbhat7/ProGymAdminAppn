@@ -5,9 +5,7 @@ import com.progym.common.model.User;
 import com.progym.common.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Controller
-public class AddPackageController {
+public class PackageController {
 
     @Autowired
     UserService userService;
@@ -69,6 +67,20 @@ public class AddPackageController {
         response.sendRedirect("allMembers?gender=all&zone=none&enableDisable=enable");
     }
 
+    @RequestMapping(value = "/deletePackage", method = RequestMethod.GET)
+    @ResponseBody
+    public void deletePackage(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                              @RequestParam String pkgid, @RequestParam String gender) throws IOException {
+        User user = (User) session.getAttribute("loggedInUser");
+        userService.deletePackage(pkgid, user);
+        String uri = "";
+        if(gender.equalsIgnoreCase("male"))
+            uri = "malePackage";
+        else
+            uri = "femalePackage";
+
+        response.sendRedirect(uri);
+    }
 
 
 

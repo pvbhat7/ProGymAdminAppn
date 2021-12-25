@@ -43,13 +43,14 @@
                             </tr>
                             <c:forEach items="${listOfProducts}" var="object" varStatus="status">
                                 <tr>
-                                    <td><img data-src="${object.productPhoto}" src="${object.productPhoto}" width="100" height="100" alt="${object.productPhoto}"/></td>
-                                    <td><img data-src="${object.productPhotoDesc}" src="${object.productPhotoDesc}" width="100" height="100" alt="${object.productPhotoDesc}"/></td>
+                                    <td><a href="${object.productPhoto}" target="_blank"><img data-src="${object.productPhoto}" src="${object.productPhoto}" width="100" height="100" alt="${object.productPhoto}"/></a></td>
+                                    <td><a href="${object.productPhotoDesc}" target="_blank"><img data-src="${object.productPhotoDesc}" src="${object.productPhotoDesc}" width="100" height="100" alt="${object.productPhotoDesc}"/></a></td>
                                     <form:form action="updateProductToServer" method="POST">
                                     <td>
                                             <input type="hidden" name="category" id="category" value="${objTypename}">
+                                            <input type="hidden" name="productPhoto" id="productPhoto" value="${object.productPhoto}">
+                                            <input type="hidden" name="productPhotoDesc" id="productPhotoDesc" value="${object.productPhotoDesc}">
                                             <input type="hidden" name="productId" id="productId" value="${object.id}">
-                                             <input type="hidden" name="productPhoto" id="productPhoto" value="${object.productPhoto}">
                                             <input type="text" name="productName" id="productName" value="${object.productName}">
                                     </td>
 
@@ -59,7 +60,6 @@
                                     </form:form>
                                     <td>
                                         <form:form action="uploadProductPhotoToServer" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
-                                        <input type="hidden" name="productPhoto" id="productPhoto" value="${object.productPhoto}">
                                             <input type="hidden" name="category" id="category" value="${objTypename}">
                                         <input type="hidden" name="productId" id="productId" value="${object.id}">
                                         <input class="btn btn-primary btn-xs" type="file" name="file" accept="image/jpeg"/>
@@ -68,7 +68,6 @@
                                     </td>
                                     <td>
                                         <form:form action="uploadProductPhotoDescToServer" method="POST" modelAttribute="fileUpload" enctype="multipart/form-data">
-                                            <input type="hidden" name="productPhotoDesc" id="productPhotoDesc" value="${object.productPhotoDesc}">
                                             <input type="hidden" name="category" id="category" value="${objTypename}">
                                             <input type="hidden" name="productId" id="productId" value="${object.id}">
                                             <input class="btn btn-primary btn-xs" type="file" name="file" accept="image/jpeg"/>

@@ -1,9 +1,8 @@
-package com.progym.common.controller;
+package com.progym.workout;
 
 import com.progym.common.model.FileModel;
 import com.progym.common.model.T_workoutMainType;
 import com.progym.common.model.T_workoutSubType;
-import com.progym.common.service.UserService;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -36,18 +32,7 @@ public class WorkoutController {
 
 
     @Autowired
-    UserService userService;
-
-    @ModelAttribute("workoutMainTypeList")
-    public List<T_workoutMainType> getWorkoutMainTypeList() {
-        return userService.getWorkoutMainTypeList();
-    }
-
-    @ModelAttribute("workoutSubTypeList")
-    public List<T_workoutSubType> getWorkoutSubTypeList() {
-        return userService.getWorkoutSubTypeList();
-    }
-
+    WorkoutService workoutService;
 
     @RequestMapping(value = "/viewWorkouts", method = RequestMethod.GET)
     public ModelAndView viewWorkouts(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String mid) {
@@ -55,11 +40,11 @@ public class WorkoutController {
         FileModel file = new FileModel();
         ModelAndView mav = new ModelAndView("viewWorkouts", "fileUpload", file);
         if (!mid.isEmpty()) {
-            mav.addObject("sList", getWorkoutSubTypeList().stream().filter(e -> e.getMtid() == Integer.parseInt(mid)).collect(Collectors.toList()));
-            mav.addObject("mList", getWorkoutMainTypeList().stream().filter(e -> e.getId() == Integer.parseInt(mid)).collect(Collectors.toList()));
+            mav.addObject("sList", workoutService.getWorkoutSubTypeList().stream().filter(e -> e.getMtid() == Integer.parseInt(mid)).collect(Collectors.toList()));
+            mav.addObject("mList", workoutService.getWorkoutMainTypeList().stream().filter(e -> e.getId() == Integer.parseInt(mid)).collect(Collectors.toList()));
         } else {
-            mav.addObject("sList", getWorkoutSubTypeList());
-            mav.addObject("mList", getWorkoutMainTypeList().stream().filter(e ->
+            mav.addObject("sList", workoutService.getWorkoutSubTypeList());
+            mav.addObject("mList", workoutService.getWorkoutMainTypeList().stream().filter(e ->
                             (
                                     !e.getName().equalsIgnoreCase("Single Muscle - 1") &&
                                             !e.getName().equalsIgnoreCase("Single Muscle - 2") &&
@@ -100,7 +85,7 @@ public class WorkoutController {
                 imgServerPath = imgServerPath.concat(".gif");
             transferImageToFtp(imagePath, imgServerPath, "subWorkoutGif");
             String serverimagePath = "https://tavrostechinfo.com/PROGYM/subWorkoutGifs/" + imgServerPath;
-            userService.updateTSubworkoutType(subWorkoutId, serverimagePath);
+            workoutService.updateTSubworkoutType(subWorkoutId, serverimagePath);
 
             response.sendRedirect("viewWorkouts?mid=" + mid);
         }
@@ -111,7 +96,7 @@ public class WorkoutController {
     public void updateTSubWorkoutName(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                       @RequestParam String name, @RequestParam String subWorkoutId,
                                       @RequestParam String mid, @RequestParam Integer sets, @RequestParam Integer reps) throws IOException {
-        userService.updateTSubWorkoutName(subWorkoutId, name, sets, reps);
+        workoutService.updateTSubWorkoutName(subWorkoutId, name, sets, reps);
         response.sendRedirect("viewWorkouts?mid=" + mid);
     }
 
@@ -171,6 +156,25 @@ public class WorkoutController {
         }
     }
 
+    @RequestMapping(value = "/submitWorkoutSubTypeData", method = RequestMethod.POST)
+    @ResponseBody
+    public void submitWorkoutSubTypeData(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                                         @RequestParam String clientId, @RequestParam String gender, @RequestParam String workoutObjectId, @RequestParam String workoutSubType,
+                                         @RequestParam String sets, @RequestParam String maxReps) throws IOException {
+        workoutService.submitWorkoutSubTypeData(workoutObjectId, workoutSubType, sets, maxReps);
+        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
+        response.sendRedirect(uri);
+    }
+
+    @RequestMapping(value = "/deleteSubType", method = RequestMethod.GET)
+    @ResponseBody
+    public void deleteSubType(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                              @RequestParam String clientId, @RequestParam String gender, @RequestParam String subTypeId) throws IOException {
+        workoutService.deleteSubType(subTypeId);
+        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
+        response.sendRedirect(uri);
+    }
+
     @RequestMapping(value = "/addMainWorkout", method = RequestMethod.GET)
     public ModelAndView addMainWorkoutForm(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("addMainWorkoutForm");
@@ -180,14 +184,14 @@ public class WorkoutController {
 
     @RequestMapping(value = "/addMainWorkout", method = RequestMethod.POST)
     public void addMainWorkoutToDatabase(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String workoutName) throws IOException {
-        userService.addMainWorkoutToDatabase(workoutName);
+        workoutService.addMainWorkoutToDatabase(workoutName);
         response.sendRedirect("viewWorkouts?mid=");
     }
 
     @RequestMapping(value = "/addSubWorkout", method = RequestMethod.GET)
     public ModelAndView addSubWorkoutForm(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mav = new ModelAndView("addSubTypeWorkoutForm");
-        mav.addObject("workoutMainTypeList", getWorkoutMainTypeList());
+        mav.addObject("workoutMainTypeList", workoutService.getWorkoutMainTypeList());
         return mav;
     }
 
@@ -196,21 +200,41 @@ public class WorkoutController {
                                         HttpServletResponse response,
                                         @RequestParam String mainWorkoutId, @RequestParam String subWorkoutName,
                                         @RequestParam Integer sets, @RequestParam Integer reps) throws IOException {
-        userService.addSubWorkoutToDatabase(mainWorkoutId, subWorkoutName, sets, reps);
+        workoutService.addSubWorkoutToDatabase(mainWorkoutId, subWorkoutName, sets, reps);
         response.sendRedirect("viewWorkouts?mid=");
     }
 
     @RequestMapping(value = "/deleteMainWorkoutType", method = RequestMethod.GET)
     public void deleteMainWorkoutType(HttpSession session, HttpServletRequest request, HttpServletResponse response, @RequestParam String mainTypeId) throws IOException {
-        userService.deleteMainWorkoutType(Integer.parseInt(mainTypeId));
+        workoutService.deleteMainWorkoutType(Integer.parseInt(mainTypeId));
         response.sendRedirect("viewWorkouts?mid=");
     }
 
     @RequestMapping(value = "/deleteSubWorkoutType", method = RequestMethod.GET)
     public void deleteSubWorkoutType(HttpSession session, HttpServletRequest request,
                                      HttpServletResponse response, @RequestParam String subTypeId, @RequestParam String mid) throws IOException {
-        userService.deleteSubWorkoutType(Integer.parseInt(subTypeId));
+        workoutService.deleteSubWorkoutType(Integer.parseInt(subTypeId));
         response.sendRedirect("viewWorkouts?mid=" + mid);
     }
+
+    @RequestMapping(value = "/submitWorkoutMainData", method = RequestMethod.POST)
+    @ResponseBody
+    public void submitWorkoutMainData(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                                      @RequestParam String clientId, @RequestParam String gender, @RequestParam String workoutDate, @RequestParam String mainWorkoutType) throws IOException {
+        workoutService.addWorkoutObjectToDatabase(clientId, workoutDate, mainWorkoutType);
+        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
+        response.sendRedirect(uri);
+    }
+
+    @RequestMapping(value = "/submitDefaultWorkoutMainData", method = RequestMethod.POST)
+    @ResponseBody
+    public void submitDefaultWorkoutMainData(HttpSession session, HttpServletRequest request, HttpServletResponse response,
+                                             @RequestParam String clientId, @RequestParam String gender, @RequestParam String workoutPlan) throws IOException {
+        workoutService.setDefaultWorkoutPlan(clientId, workoutPlan);
+        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
+        response.sendRedirect(uri);
+    }
+
+
 
 }

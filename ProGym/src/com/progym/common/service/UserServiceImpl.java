@@ -257,107 +257,6 @@ public class UserServiceImpl implements UserService{
 		return userDao.getImageObjectByBrand(brandName);
 	}
 
-
-
-	@Override
-	public List<T_workoutMainType> getWorkoutMainTypeList() {
-		return userDao.getWorkoutMainTypeList();
-	}
-
-	@Override
-	public void addWorkoutObjectToDatabase(String clientId, String workoutDate, String mainWorkoutType) {
-		userDao.addWorkoutObjectToDatabase(clientId,workoutDate,mainWorkoutType);
-	}
-
-	@Override
-	public List<WorkoutScheduleObject> getWorkoutListByClientId(String cliendId) {
-		List<WorkoutScheduleObject> mainWorkoutList = userDao.getWorkoutListByClientId(cliendId);
-		for(WorkoutScheduleObject o : mainWorkoutList){
-			o.setDate(o.getDate());
-			o.setWorkoutSubTypeList(userDao.getSubWorkoutListByParentObject(o.getId()));
-			o.setSubTypesStaticList(userDao.getSubWorkoutStaticListByMainType(Integer.parseInt(o.getMtid())));
-		}
-		return mainWorkoutList;
-	}
-
-	@Override
-	public void submitWorkoutSubTypeData(String workoutObjectId, String workoutSubType, String sequence, String maxReps) {
-		userDao.submitWorkoutSubTypeData(workoutObjectId,workoutSubType,sequence,maxReps);
-	}
-
-	@Override
-	public void deleteSubType(String subTypeId) {
-		userDao.deleteSubType(subTypeId);
-	}
-
-	@Override
-	public void addMainWorkoutToDatabase(String workoutName) {
-		userDao.addMainWorkoutToDatabase(workoutName);
-	}
-
-	@Override
-	public void addSubWorkoutToDatabase(String mainWorkoutId, String subWorkoutName,Integer sets, Integer reps) {
-		userDao.addSubWorkoutToDatabase(mainWorkoutId,subWorkoutName,sets,reps);
-	}
-
-	@Override
-	public void deleteMainWorkoutType(Integer id) {
-		userDao.deleteMainWorkoutType(id);
-	}
-
-	@Override
-	public void deleteSubWorkoutType(Integer id) {
-		userDao.deleteSubWorkoutType(id);
-	}
-
-	@Override
-	public List<T_workoutSubType> getWorkoutSubTypeList() {
-		return userDao.getWorkoutSubTypeList();
-	}
-
-	@Override
-	public void syncClientData() throws Exception{
-		userDao.syncClientData();
-	}
-
-
-
-	@Override
-	public void reconcileContacts() {
-		userDao.reconcileContacts();
-	}
-
-
-	@Override
-	public void reconcileWorkoutData() {
-		userDao.reconcileWorkoutData();
-	}
-
-	@Override
-	public List<BloodGroupDetails> getBloodGroupDetails(String bg) {
-		return userDao.getBloodGroupDetails(bg);
-	}
-
-	@Override
-	public void setDefaultWorkoutPlan(String clientId, String workoutPlan) {
-		userDao.setDefaultWorkoutPlan(clientId , workoutPlan);
-	}
-
-	@Override
-	public List<T_workoutMainType> getActiveWorkoutPlansList() {
-		return userDao.getActiveWorkoutPlansList();
-	}
-
-	@Override
-	public void updateTSubworkoutType(String subWorkoutId, String serverimagePath) {
-		userDao.updateTSubworkoutType(subWorkoutId , serverimagePath);
-	}
-
-	@Override
-	public void updateTSubWorkoutName(String subWorkoutId, String name, Integer sets, Integer reps) {
-		userDao.updateTSubWorkoutName(subWorkoutId , name , sets , reps);
-	}
-
 	@Override
 	public List<Merchandise> viewMerchandise() {
 		return userDao.viewMerchandise();
@@ -431,5 +330,20 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public boolean getMacActivationStatus() {
 		return userDao.getMacActivationStatus();
+	}
+
+	@Override
+	public void syncClientData() throws Exception{
+		userDao.syncClientData();
+	}
+
+	@Override
+	public void reconcileContacts() {
+		userDao.reconcileContacts();
+	}
+
+	@Override
+	public List<BloodGroupDetails> getBloodGroupDetails(String bg) {
+		return userDao.getBloodGroupDetails(bg);
 	}
 }

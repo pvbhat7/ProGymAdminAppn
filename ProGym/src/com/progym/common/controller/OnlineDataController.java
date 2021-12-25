@@ -56,8 +56,8 @@ public class OnlineDataController {
     @ResponseBody
     public void updateProductToServer(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                       @RequestParam String category, @RequestParam String productId,
-                                      @RequestParam String productPhoto, @RequestParam String productName,
-                                      @RequestParam String oldPrice, @RequestParam String newPrice,@RequestParam String productPhotoDesc) throws IOException {
+                                      @RequestParam String productPhoto,@RequestParam String productPhotoDesc, @RequestParam String productName,
+                                      @RequestParam String oldPrice, @RequestParam String newPrice) throws IOException {
         String uri = "";
         if (category.equalsIgnoreCase("Supplements")) {
             userService.updateProductToServer("Supplements", productId, productName, oldPrice, newPrice, productPhoto,productPhotoDesc, "false");
@@ -72,13 +72,16 @@ public class OnlineDataController {
 
     @RequestMapping(value = "/uploadProductPhotoToServer", method = RequestMethod.POST)
     public void uploadProductPhotoToServer(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                                           @RequestParam String productPhoto, @RequestParam String productId, @RequestParam String category,
+                                           @RequestParam String productId, @RequestParam String category,
                                            @Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
         String uri = "";
+        String newProductImagePath = "https://tavrostechinfo.com/PROGYM/";
         if (category.equalsIgnoreCase("Supplements")) {
             uri = "supplements";
+            newProductImagePath = newProductImagePath + "supplements/";
         } else if (category.equalsIgnoreCase("Merchandise")) {
             uri = "merchandise";
+            newProductImagePath = newProductImagePath + "merchandise/";
         }
 
         if (result.hasErrors() || file.getFile().isEmpty()) {
@@ -92,7 +95,7 @@ public class OnlineDataController {
             FileCopyUtils.copy(file.getFile().getBytes(), new File(imagePath));
 
             transferImageToFtp(imagePath, file.getFile().getOriginalFilename(), category);
-            String newProductImagePath = "https://tavrostechinfo.com/PROGYM/merchandise/" + file.getFile().getOriginalFilename();
+            newProductImagePath = newProductImagePath + file.getFile().getOriginalFilename();
 
             //userService.updateTSubworkoutType(subWorkoutId,serverimagePath);
             userService.updateProductPhotoToServer(category, productId, newProductImagePath);
@@ -102,7 +105,7 @@ public class OnlineDataController {
 
     @RequestMapping(value = "/uploadProductPhotoDescToServer", method = RequestMethod.POST)
     public void uploadProductPhotoDescToServer(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                                           @RequestParam String productPhotoDesc, @RequestParam String productId, @RequestParam String category,
+                                           @RequestParam String productId, @RequestParam String category,
                                            @Validated FileModel file, BindingResult result, ModelMap model) throws IOException {
         String uri = "supplements";
 

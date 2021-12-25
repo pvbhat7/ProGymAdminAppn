@@ -9,6 +9,7 @@ import com.progym.common.model.*;
 import com.progym.common.service.UserService;
 import com.progym.diet.DietService;
 import com.progym.tavros.ServerCom;
+import com.progym.workout.WorkoutService;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,18 +36,10 @@ public class ClientProfileController {
     UserService userService;
 
     @Autowired
+    WorkoutService workoutService;
+
+    @Autowired
     DietService dietService;
-
-    @ModelAttribute("workoutMainTypeList")
-    public List<T_workoutMainType> getWorkoutMainTypeList() {
-        return userService.getWorkoutMainTypeList();
-    }
-
-    @ModelAttribute("workoutSubTypeList")
-    public List<T_workoutSubType> getWorkoutSubTypeList() {
-        return userService.getWorkoutSubTypeList();
-    }
-
 
     @ModelAttribute("daysList")
     public Map<String, String> getDaysList() {
@@ -176,12 +169,13 @@ public class ClientProfileController {
     }
 
     private void addWorkoutModule(ModelAndView mav, HttpSession session, Client client) {
-        // sync workout data with server
-        //userService.syncWorkoutData(String.valueOf(client.getId()));
+
+        mav.addObject("workoutMainTypeList",workoutService.getWorkoutMainTypeList());
+        mav.addObject("workoutSubTypeList",workoutService.getWorkoutSubTypeList());
 
         ServerCom.sendGetRequestToServer(ServerApi.GET_BY_CID_AND_DATE + "clientExtCode=" + client.getId() + "&date=" + DateApi.getDdMmYyyyDate("") + "&day=" + DateApi.getDayName());
 
-        mav.addObject("activeWorkoutPlansList", userService.getActiveWorkoutPlansList().stream().filter(e ->
+        mav.addObject("activeWorkoutPlansList", workoutService.getActiveWorkoutPlansList().stream().filter(e ->
                 (
                         e.getName().equalsIgnoreCase("Single Muscle - 1") ||
                                 e.getName().equalsIgnoreCase("Single Muscle - 2") ||
@@ -196,12 +190,12 @@ public class ClientProfileController {
                 )
         ).collect(Collectors.toList()));
         if (client.getAwp() != null && !client.getAwp().equalsIgnoreCase("")) {
-            Optional<T_workoutMainType> o = ((Optional<T_workoutMainType>) userService.getActiveWorkoutPlansList().stream().filter(e -> e.getId() == Integer.parseInt(client.getAwp())).findFirst());
+            Optional<T_workoutMainType> o = ((Optional<T_workoutMainType>) workoutService.getActiveWorkoutPlansList().stream().filter(e -> e.getId() == Integer.parseInt(client.getAwp())).findFirst());
             mav.addObject("defaultWorkoutPlanName", o.isPresent() ? o.get().getName() : "No Plan Found");
         } else
             mav.addObject("defaultWorkoutPlanName", "No Plan Found");
 
-        mav.addObject("clientWorkoutList", userService.getWorkoutListByClientId(String.valueOf(client.getId())));
+        mav.addObject("clientWorkoutList", workoutService.getWorkoutListByClientId(String.valueOf(client.getId())));
     }
 
     private void addDietModule(ModelAndView mav, HttpSession session, Client client) {
@@ -209,38 +203,38 @@ public class ClientProfileController {
         mav.addObject("dietTimeSlotObject", dietService.getDietTimeSlotObjectById(1));
         mav.addObject("defaultDietPlanTemplatesList", dietService.getDefaultDietPlanTemplatesList());
 
-        String var1 = ProjectContext.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID;
-        String var2 = ProjectContext.VIEW_OLD_DIET_PLAN_TEMPLATE ;
-        String var3 = ProjectContext.VIEW_DIET_PLAN_OBJECT_DETAILS;
+        String var1 = ProjectConstants.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID;
+        String var2 = ProjectConstants.VIEW_OLD_DIET_PLAN_TEMPLATE ;
+        String var3 = ProjectConstants.VIEW_DIET_PLAN_OBJECT_DETAILS;
 
         if (var1 != null || var2 != null) {
             if (var1 != null) {
                 mav.addObject("selectedDietObjectTemplate", dietService.getActiveDietPlanTemplate(String.valueOf(client.getAdp())));
                 if (client.getAdp() != null)
                     mav.addObject("DietPlanObjectDetailsList", dietService.getDietPlanObjectDetailsList(client.getAdp() , String.valueOf(client.getId())));
-                ProjectContext.VIEW_OLD_DIET_PLAN_TEMPLATE = null;
-                ProjectContext.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = null;
+                ProjectConstants.VIEW_OLD_DIET_PLAN_TEMPLATE = null;
+                ProjectConstants.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = null;
             } else if (var2 != null) {
                 DietPlanTemplate dietPlanTemplate = dietService.getDietPlanTemplateById(var2);
                 mav.addObject("selectedDietObjectTemplate", dietPlanTemplate);
                 mav.addObject("DietPlanObjectDetailsList", dietService.getDietPlanObjectDetailsList(String.valueOf(dietPlanTemplate.getId()) , String.valueOf(client.getId())));
-                ProjectContext.VIEW_OLD_DIET_PLAN_TEMPLATE = null;
-                ProjectContext.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = null;
+                ProjectConstants.VIEW_OLD_DIET_PLAN_TEMPLATE = null;
+                ProjectConstants.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = null;
             }
         } else {
-            ProjectContext.VIEW_OLD_DIET_PLAN_TEMPLATE = null;
-            ProjectContext.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = null;
+            ProjectConstants.VIEW_OLD_DIET_PLAN_TEMPLATE = null;
+            ProjectConstants.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = null;
             mav.addObject("selectedDietObjectTemplate", null);
         }
 
         if (var3 != null) {
-            DietPlanObject dietPlanObject = (DietPlanObject)new Gson().fromJson(ProjectContext.VIEW_DIET_PLAN_OBJECT_DETAILS,DietPlanObject.class);
+            DietPlanObject dietPlanObject = (DietPlanObject)new Gson().fromJson(ProjectConstants.VIEW_DIET_PLAN_OBJECT_DETAILS,DietPlanObject.class);
             DietPlanTemplate dietPlanTemplate = dietService.getDietPlanTemplateById(String.valueOf(dietPlanObject.getDptid()));
             dietPlanObject.setDietPlanTemplate(dietPlanTemplate);
             mav.addObject("selectedDietPlanObject",dietPlanObject );
             mav.addObject("viewDetailedDietObjectClicked", 1);
             //mav.addObject("selectedDietObjectTemplate", );
-            ProjectContext.VIEW_DIET_PLAN_OBJECT_DETAILS = null;
+            ProjectConstants.VIEW_DIET_PLAN_OBJECT_DETAILS = null;
         } else {
             mav.addObject("selectedDietPlanObject", null);
             mav.addObject("viewDetailedDietObjectClicked", 0);
@@ -309,15 +303,6 @@ public class ClientProfileController {
         userService.updateMemberToDatabase(client, u);
         String uri = "clientProfile?cliendId=" + client.getId() + "&gender=" + client.getGender() + "";
         response.sendRedirect(uri);
-    }
-
-    @RequestMapping(value = "/deletePackage", method = RequestMethod.GET)
-    @ResponseBody
-    public void deletePackage(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                              @RequestParam String pkgid) throws IOException {
-        User user = (User) session.getAttribute("loggedInUser");
-        userService.deletePackage(pkgid, user);
-        response.sendRedirect("index");
     }
 
     @RequestMapping(value = "/deleteFemaleClientAdditionalDetails", method = RequestMethod.GET)
@@ -425,23 +410,7 @@ public class ClientProfileController {
         response.sendRedirect(uri);
     }
 
-    @RequestMapping(value = "/submitWorkoutMainData", method = RequestMethod.POST)
-    @ResponseBody
-    public void submitWorkoutMainData(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                                      @RequestParam String clientId, @RequestParam String gender, @RequestParam String workoutDate, @RequestParam String mainWorkoutType) throws IOException {
-        userService.addWorkoutObjectToDatabase(clientId, workoutDate, mainWorkoutType);
-        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
-        response.sendRedirect(uri);
-    }
 
-    @RequestMapping(value = "/submitDefaultWorkoutMainData", method = RequestMethod.POST)
-    @ResponseBody
-    public void submitDefaultWorkoutMainData(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                                             @RequestParam String clientId, @RequestParam String gender, @RequestParam String workoutPlan) throws IOException {
-        userService.setDefaultWorkoutPlan(clientId, workoutPlan);
-        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
-        response.sendRedirect(uri);
-    }
 
     public void transferImageToFtp(String filePath, String remoteFileName, String uploadType) {
         String server = "151.106.116.44";
@@ -498,29 +467,6 @@ public class ClientProfileController {
             }
         }
     }
-
-    @RequestMapping(value = "/submitWorkoutSubTypeData", method = RequestMethod.POST)
-    @ResponseBody
-    public void submitWorkoutSubTypeData(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                                         @RequestParam String clientId, @RequestParam String gender, @RequestParam String workoutObjectId, @RequestParam String workoutSubType,
-                                         @RequestParam String sets, @RequestParam String maxReps) throws IOException {
-        userService.submitWorkoutSubTypeData(workoutObjectId, workoutSubType, sets, maxReps);
-        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
-        response.sendRedirect(uri);
-    }
-
-    @RequestMapping(value = "/deleteSubType", method = RequestMethod.GET)
-    @ResponseBody
-    public void deleteSubType(HttpSession session, HttpServletRequest request, HttpServletResponse response,
-                              @RequestParam String clientId, @RequestParam String gender, @RequestParam String subTypeId) throws IOException {
-        userService.deleteSubType(subTypeId);
-        String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
-        response.sendRedirect(uri);
-    }
-
-
-
-
 
 
 

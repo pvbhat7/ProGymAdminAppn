@@ -101,46 +101,6 @@ public interface UserDao {
 
 	BrandImages getImageObjectByBrand(String brandName);
 
-    List<T_workoutMainType> getWorkoutMainTypeList();
-
-    void addWorkoutObjectToDatabase(String clientId, String workoutDate, String mainWorkoutType);
-
-    List<WorkoutScheduleObject> getWorkoutListByClientId(String cliendId);
-
-    void submitWorkoutSubTypeData(String workoutObjectId, String workoutSubType, String sequence, String maxReps);
-
-	List<WorkoutSubType> getSubWorkoutListByParentObject(int id);
-
-    void deleteSubType(String subTypeId);
-
-	List<T_workoutSubType> getSubWorkoutStaticListByMainType(int id);
-
-	void addMainWorkoutToDatabase(String workoutName);
-
-	void addSubWorkoutToDatabase(String mainWorkoutId, String subWorkoutName,Integer sets , Integer reps);
-
-	void deleteMainWorkoutType(Integer id);
-
-	void deleteSubWorkoutType(Integer id);
-
-	List<T_workoutSubType> getWorkoutSubTypeList();
-
-    void syncClientData() throws Exception;
-
-    void reconcileContacts() ;
-
-    void reconcileWorkoutData();
-
-    List<BloodGroupDetails> getBloodGroupDetails(String bg);
-
-    void setDefaultWorkoutPlan(String clientId, String workoutPlan);
-
-	List<T_workoutMainType> getActiveWorkoutPlansList();
-
-    void updateTSubworkoutType(String subWorkoutId, String serverimagePath);
-
-	void updateTSubWorkoutName(String subWorkoutId, String name , Integer sets , Integer reps);
-
     List<Merchandise> viewMerchandise();
 
 	List<Supplements> viewSupplements();
@@ -170,4 +130,10 @@ public interface UserDao {
 	isMobileExists initiateActivateProductOperation(String mac, String secret_key);
 
 	boolean getMacActivationStatus();
+
+	void syncClientData() throws Exception;
+
+	void reconcileContacts() ;
+
+	List<BloodGroupDetails> getBloodGroupDetails(String bg);
 }

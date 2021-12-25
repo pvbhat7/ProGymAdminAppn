@@ -1,9 +1,6 @@
 package com.progym.diet;
 
-import com.progym.common.model.Client;
-import com.progym.common.model.DietPlanObject;
-import com.progym.common.model.DietPlanTemplate;
-import com.progym.common.model.DietTimeSlots;
+import com.progym.common.model.*;
 
 import java.util.List;
 
@@ -32,4 +29,5 @@ public interface DietService  {
     DietPlanTemplate getActiveDietPlanTemplate(String id);
 
     void resetActivePlan(String clientId);
+
 }

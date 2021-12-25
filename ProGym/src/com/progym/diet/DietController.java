@@ -1,7 +1,7 @@
 package com.progym.diet;
 
 import com.google.gson.Gson;
-import com.progym.api.ProjectContext;
+import com.progym.common.constants.ProjectConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +25,7 @@ public class DietController {
     @ResponseBody
     public void viewActiveDietPlanByClientId(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                              @RequestParam String clientId, @RequestParam String gender) throws IOException {
-        ProjectContext.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = "true";
+        ProjectConstants.VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID = "true";
         String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
         response.sendRedirect(uri);
     }
@@ -34,7 +34,7 @@ public class DietController {
     @ResponseBody
     public void viewOldDietPlanTemplate(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                         @RequestParam String clientId, @RequestParam String gender, @RequestParam String templateId) throws IOException {
-        ProjectContext.VIEW_OLD_DIET_PLAN_TEMPLATE = templateId;
+        ProjectConstants.VIEW_OLD_DIET_PLAN_TEMPLATE = templateId;
         String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
         response.sendRedirect(uri);
     }
@@ -44,7 +44,7 @@ public class DietController {
     public void viewDietPlanObjectDetails(HttpSession session, HttpServletRequest request, HttpServletResponse response,
                                           @RequestParam String clientId, @RequestParam String gender,
                                           @RequestParam String dietPlanOjectId, @RequestParam String templateId) throws IOException {
-        ProjectContext.VIEW_DIET_PLAN_OBJECT_DETAILS = new Gson().toJson(dietService.getDietPlanObjectById(dietPlanOjectId));
+        ProjectConstants.VIEW_DIET_PLAN_OBJECT_DETAILS = new Gson().toJson(dietService.getDietPlanObjectById(dietPlanOjectId));
         String uri = "clientProfile?cliendId=" + clientId + "&gender=" + gender + "";
         response.sendRedirect(uri);
     }

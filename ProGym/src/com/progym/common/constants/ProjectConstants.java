@@ -31,5 +31,9 @@ public class ProjectConstants {
     public static final String WORKOUT_FLAG = "WORKOUT_FLAG";
     public static final String MONTHLY_DATA_FLAG = "MONTHLY_DATA_FLAG";
 
+    public static String VIEW_ACTIVE_DIET_PLAN_BY_CLIENT_ID;
+    public static String VIEW_OLD_DIET_PLAN_TEMPLATE;
+    public static String VIEW_DIET_PLAN_OBJECT_DETAILS;
+
 
 }
